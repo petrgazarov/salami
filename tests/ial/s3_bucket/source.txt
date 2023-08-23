@@ -1,0 +1,3 @@
+Resource type: s3.Bucket
+Logical name: CumuliCloudtrailLogsBucket
+Bucket name: cumuli-cloudtrail-logs

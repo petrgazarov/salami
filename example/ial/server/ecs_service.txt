@@ -1,0 +1,21 @@
+@uses(CumuliEcsExecutionRole)
+Resource type: iam.RolePolicyAttachment
+Logical name: CumuliServerEcsExecutionRolePolicyAttachment1
+Policy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+@uses(CumuliEcsExecutionRole)
+Resource type: iam.RolePolicyAttachment
+Logical name: CumuliServerEcsExecutionRolePolicyAttachment2
+Policy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+
+@uses(CumuliEcsCluster, CumuliServerTaskDefinition, PublicSubnetA, PublicSubnetB, CumuliServerEcsSecurityGroup, CumuliServerTargetGroup)
+Resource type: ecs.Service
+Logical name: CumuliServerEcsService
+Name: cumuli-server
+Desired_count: 0
+Launch type: FARGATE
+Network configuration: Assign public IP. The subnets are PublicSubnetA and PublicSubnetB. Security group is CumuliServerEcsSecurityGroup.
+Load balancers: A single target group CumuliServerTargetGroup, {server_container_name} container name, and {container_port} container_port.
+@property(ECS type deployment controller)
+@property(Enabled deployment circuit breaker with rollback)
+Wait for steady state: True

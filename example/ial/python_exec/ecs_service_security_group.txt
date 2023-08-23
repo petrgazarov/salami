@@ -1,0 +1,7 @@
+@uses(CumuliVpc, CumuliServerEcsSecurityGroup)
+Resource type: ec2.SecurityGroup
+Logical name: PythonExecEcsSecurityGroup
+Name: python-exec-ecs-security-group
+Description: Security group for python exec ECS service
+Egress: open to all traffic on port 443
+Ingress: A list containing one rule allowing access on "tcp" protocol, {container_port} port, and limited to CumuliServerEcsSecurityGroup security group

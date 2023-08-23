@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "ial"
+version = "0.1.0"
+description = ""
+authors = ["Petr Gazarov <petrgazarov@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^2.2.1"
+rich = "^13.5.2"
+openai = "^0.27.8"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.1"
+pytest-xdist = "^3.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,28 @@
+@exports(name-servers)
+Resource type: route53.Zone
+Logical name: CumuliHostedZone
+Name: {domain_name}
+
+@uses(CumuliHostedZone)
+Resource type: route53.Record
+Logical name: FramerARecords
+Name: {domain_name}
+Type: A
+Records: ["52.223.52.2", "35.71.142.77"]
+Ttl: 1800
+
+@uses(CumuliHostedZone)
+Resource type: route53.Record
+Logical name: FramerCNAMERecord
+Name: www.{domain_name}
+Type: CNAME
+Records: ["sites.framer.app."]
+Ttl: 1800
+
+@uses(CumuliHostedZone)
+Resource type: route53.Record
+Logical name: GoogleTXTRecord
+Name: {domain_name}
+Type: TXT
+Records: ["google-site-verification=UzsIO5GYrHN8MrT_xe_PgmbydavWUcgC1cUfwJHpWB4"]
+Ttl: 1800

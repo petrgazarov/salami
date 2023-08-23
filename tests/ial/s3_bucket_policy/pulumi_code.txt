@@ -1,0 +1,30 @@
+s3.BucketPolicy(
+    "CumuliCloudtrailLogsBucketPolicy",
+    bucket=cumuli_cloudtrail_logs_bucket.id,
+    policy=cumuli_cloudtrail_logs_bucket.arn.apply(
+        lambda arn: json.dumps(
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"Service": "cloudtrail.amazonaws.com"},
+                        "Action": "s3:PutObject",
+                        "Resource": f"{arn}/AWSLogs/{aws_account_id}/*",
+                        "Condition": {
+                            "StringEquals": {
+                                "s3:x-amz-acl": "bucket-owner-full-control"
+                            }
+                        },
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"Service": "cloudtrail.amazonaws.com"},
+                        "Action": "s3:GetBucketAcl",
+                        "Resource": arn,
+                    },
+                ],
+            }
+        )
+    ),
+)

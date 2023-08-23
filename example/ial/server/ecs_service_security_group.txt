@@ -1,0 +1,7 @@
+@uses(CumuliVpc)
+Resource type: ec2.SecurityGroup
+Logical name: CumuliServerEcsSecurityGroup
+Name: cumuli-server-ecs-security-group
+Description: Security group for Cumuli server ECS service
+Egress: open to all traffic
+Ingress: A list containing one rule allowing access on "tcp" protocol, {container_port} port, and limited to ALBSecurityGroup security group

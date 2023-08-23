@@ -1,0 +1,42 @@
+Resource type: cloudwatch.LogGroup
+Logical name: CumuliServerLogGroup
+Name: cumuli-server-log-group
+
+Resource type: iam.Role
+Logical name: CumuliServerTaskRole
+name: cumuli-server-task-role
+assume_role_policy: A JSON string representing the policy that allows the "ecs-tasks.amazonaws.com" service to assume this role. The policy has the "Allow" effect for the "sts:AssumeRole" action.
+
+Resource type: iam.Policy
+Logical name: CumuliServerAssumeRolePolicy
+Name: cumuli-server-assume-role-policy
+Description: A policy that allows a user to assume a role in users' accounts
+Policy: A JSON string representing the policy that allows the "sts:AssumeRole" action on resources matching the pattern "arn:aws:iam::*:role/cumuli-assumed-role-v0.1-*". The policy has the "Allow" effect.
+
+@uses(CumuliServerTaskRole, CumuliServerAssumeRolePolicy)
+Resource type: iam.RolePolicyAttachment
+Logical name: CumuliServerTaskRolePolicyAttachment
+
+@uses(CumuliServerTaskRole, CumuliEcsExecutionRole, CumuliServerRepository, CumuliServerLogGroup)
+Resource type: ecs.TaskDefinition
+Logical name: CumuliServerTaskDefinition
+Name: cumuli-server-task-definition
+Family: cumuli-server
+Cpu: 256
+Memory: 512
+Network mode: awsvpc
+Task role: CumuliServerTaskRole
+@property(Requires FARGATE compatibility)
+Execution role: CumuliEcsExecutionRole
+Container definition:
+  Name: {server_container_name}
+  Image: CumuliServerRepository url with the 'latest' tag
+  Memory: 512
+  Cpu: 256
+  Essential: True
+  Port mappings: port {container_port} is mapped to port {container_port}.
+  Environment:
+    OPENAI_API_KEY: taken from environment
+    ASSUMED_ROLE_SECRET_TOKEN: taken from environment
+    PYTHON_EXEC_URL: The value is enterpolated as {python_exec_local_service_name}.{local_dns_namespace_name}:{container_port}.
+  Log configuration: awslogs log driver, CumuliServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to ecs.

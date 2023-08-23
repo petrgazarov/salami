@@ -1,0 +1,40 @@
+@uses(CumuliVpc, PrivateSubnetA, PrivateSubnetB, EcrVpcEndpointSG, CumuliEcsExecutionRole, PythonExecEcsExecutionRole)
+Resource type: ec2.VpcEndpoint
+Logical name: EcrDkrVpcEndpoint
+VPC endpoint type: Interface
+Service name: com.amazonaws.{aws_region}.ecr.dkr
+Private DNS enabled: True
+Security group: EcrVpcEndpointSG
+Policy: A JSON policy that allows two AWS principals - CumuliEcsExecutionRole and PythonExecEcsExecutionRole - to perform three actions on ECR resources. The actions are "ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", and "ecr:BatchGetImage". The resources on which these actions can be performed are defined by the ARN pattern "arn:aws:ecr:{aws_region}:{aws_account_id}:repository/*", which includes all repositories in the specified AWS region and account.
+
+@uses(CumuliVpc, PrivateSubnetA, PrivateSubnetB, EcrVpcEndpointSG, CumuliEcsExecutionRole, PythonExecEcsExecutionRole)
+Resource type: ec2.VpcEndpoint
+Logical name: EcrApiVpcEndpoint
+VPC endpoint type: Interface
+Service name: com.amazonaws.{aws_region}.ecr.api
+Private DNS enabled: True
+Security group: EcrVpcEndpointSG
+Policy: A JSON policy that allows two AWS principals - CumuliEcsExecutionRole and PythonExecEcsExecutionRole - to perform four actions on all ECR resources. The actions are "ecr:GetAuthorizationToken", "ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", and "ecr:BatchGetImage".
+
+@uses(CumuliVpc, PrivateRouteTable)
+Resource type: ec2.VpcEndpoint
+Logical name: S3VpcEndpoint
+VPC endpoint type: Gateway
+Service name: com.amazonaws.{aws_region}.s3
+Policy: A JSON policy that allows all principals to perform all actions on resources defined by the ARN pattern "arn:aws:s3:::prod-{aws_region}-starport-layer-bucket/*". This includes all objects in the specified S3 bucket.
+
+@uses(CumuliVpc)
+Resource type: ec2.SecurityGroup
+Logical name: CloudWatchLogsVpcEndpointSG
+name: cloudwatch-logs-vpc-endpoint-sg
+description: Security Group for CloudWatch Logs VPC Endpoint
+egress: []
+ingress: A rule that allows TCP traffic on port 443 from any IP address (0.0.0.0/0)
+
+@uses(CumuliVpc, PrivateSubnetA, PrivateSubnetB, CloudWatchLogsVpcEndpointSG)
+Resource type: ec2.VpcEndpoint
+Logical name: CloudWatchLogsVpcEndpoint
+VPC endpoint type: Interface
+Service name: com.amazonaws.{aws_region}.logs
+Private DNS enabled: True
+Policy: A JSON policy that allows the root user of the AWS account, defined by the ARN "arn:aws:iam::{aws_account_id}:root", to perform four actions on all CloudWatch Logs resources. The actions are "logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents", and "logs:DescribeLogStreams".
