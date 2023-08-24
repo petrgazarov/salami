@@ -1,0 +1,7 @@
+@uses(CumuliCloudtrailLogsBucket)
+Resource type: cloudtrail.Trail
+Logical name: CumuliCloudtrail
+Name: cumuli-cloudtrail
+Global service events: True
+Multi-region: True
+Logging enabled: True

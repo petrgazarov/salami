@@ -1,0 +1,4 @@
+@uses(CumuliAssumedRolesBucket)
+Resource type: s3.BucketPolicy
+Logical name: CumuliAssumedRolesBucketPolicy
+Policy: A JSON policy that allows all principals to perform the "s3:GetObject" action on all objects in the specified S3 bucket.

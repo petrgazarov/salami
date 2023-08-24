@@ -1,0 +1,3 @@
+Resource type: ecs.Cluster
+Logical name: CumuliEcsCluster
+Name: cumuli-cluster

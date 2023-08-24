@@ -16,7 +16,9 @@ class GetPulumiCodeSchema(BaseModel):
     )
     pulumi_aws_imports: list[str] = Field(
         ...,
-        description=("List of imports from pulumi_aws package. E.g. ['ec2', 's3']"),
+        description=(
+            "List of imports from pulumi_aws package. The imports must include only those necessary for the resource. E.g. ['ec2']"
+        ),
     )
     other_packages: list[str] = Field(
         ...,

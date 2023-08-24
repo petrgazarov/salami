@@ -9,12 +9,9 @@ def get_user_prompt(expected, actual):
     return f"Expected:\n{expected}\nActual:\n{actual}"
 
 
-async def assert_equivalent_resource(
-    expected: str,
-    actual: str,
-    pulumi_resource: PulumiResource,
-):
+async def assert_equivalent_resource(expected: str, pulumi_resource: PulumiResource):
     system_prompt = open_relative_file("system_prompt.txt")
+    actual = pulumi_resource.code
     res = await create_chat_completion(
         messages=[
             ChatMessage(role=Role.SYSTEM, content=system_prompt),

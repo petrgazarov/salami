@@ -1,0 +1,8 @@
+vpc.id.apply(
+    lambda vpc_id: servicediscovery.PrivateDnsNamespace(
+        "CumuliEcsPrivateDnsNamespace",
+        description="Private namespace for Cumuli ECS cluster",
+        vpc=vpc_id,
+        name=local_dns_namespace_name,
+    )
+)
