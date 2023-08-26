@@ -1,0 +1,7 @@
+@uses(CumuliHostedZone)
+Resource type: route53.Record
+Logical name: FramerARecords
+Name: {domain_name}
+Type: A
+Records: ["52.223.52.2", "35.71.142.77"]
+Ttl: 1800

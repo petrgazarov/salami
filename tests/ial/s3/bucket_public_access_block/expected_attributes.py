@@ -7,3 +7,4 @@ text = (
 pulumi_aws_imports = ["s3"]
 other_packages = []
 uses = ["CumuliAssumedRolesBucket"]
+exports = {}

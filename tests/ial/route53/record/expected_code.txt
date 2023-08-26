@@ -1,0 +1,8 @@
+route53.Record(
+    "FramerARecords",
+    name=domain_name,
+    type="A",
+    records=["52.223.52.2", "35.71.142.77"],
+    ttl=1800,
+    zone_id=hosted_zone.id,
+)

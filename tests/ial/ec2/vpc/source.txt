@@ -1,0 +1,6 @@
+Resource type: ec2.Vpc
+Logical name: CumuliVpc
+Name: cumuli-vpc
+Cidr block: 10.0.0.0/16
+Enable DNS support: True
+Enable DNS hostnames: True

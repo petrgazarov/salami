@@ -1,0 +1,4 @@
+@uses(CumuliVpc)
+Resource type: ec2.RouteTable
+Logical name: PrivateRouteTable
+Name: cumuli-private-route-table

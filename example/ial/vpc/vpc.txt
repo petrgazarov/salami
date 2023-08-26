@@ -1,12 +1,11 @@
 Resource type: ec2.Vpc
-Logical name: CumuliVPC
+Logical name: CumuliVpc
+Name: cumuli-vpc
 Cidr block: 10.0.0.0/16
 Enable DNS support: True
 Enable DNS hostnames: True
-tags:
-  Name: cumuli-vpc
 
-@uses(CumuliVPC)
+@uses(CumuliVpc)
 Resource type: ec2.Subnet
 Logical name: PrivateSubnetA
 Name private-subnet-a
@@ -14,7 +13,7 @@ Cidr block: 10.0.1.0/24
 Availability zone: us-west-1a
 Map public IP on launch: False
 
-@uses(CumuliVPC)
+@uses(CumuliVpc)
 Resource type: ec2.Subnet
 Logical name: PrivateSubnetB
 Name: private-subnet-b
@@ -22,7 +21,7 @@ Cidr block: 10.0.2.0/24
 Availability zone: us-west-1c
 Map public IP on launch: False
 
-@uses(CumuliVPC)
+@uses(CumuliVpc)
 Resource type: ec2.RouteTable
 Logical name: PrivateRouteTable
 Name: cumuli-private-route-table
@@ -35,7 +34,7 @@ Logical name: PrivateSubnetARouteTableAssociation
 Resource type: ec2.RouteTableAssociation
 Logical name: PrivateSubnetBRouteTableAssociation
 
-@uses(CumuliVPC)
+@uses(CumuliVpc)
 Resource type: ec2.Subnet
 Logical name: PublicSubnetA
 Name: public-subnet-a
@@ -43,7 +42,7 @@ Cidr block: 10.0.3.0/24
 Availability zone: us-west-1a
 Map public IP on launch: True
 
-@uses(CumuliVPC)
+@uses(CumuliVpc)
 Resource type: ec2.Subnet
 Logical name: PublicSubnetB
 Name: public-subnet-b
@@ -51,12 +50,12 @@ Cidr block: 10.0.4.0/24
 Availability zone: us-west-1c
 Map public IP on launch: True
 
-@uses(CumuliVPC)
+@uses(CumuliVpc)
 Resource type: ec2.InternetGateway
 Logical name: CumuliInternetGateway
 Name: cumuli-internet-gateway
 
-@uses(CumuliVPC, CumuliInternetGateway)
+@uses(CumuliVpc, CumuliInternetGateway)
 Resource type: ec2.RouteTable
 Logical name: PublicRouteTable
 Name: cumuli-public-route-table

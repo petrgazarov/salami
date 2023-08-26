@@ -5,3 +5,4 @@ pulumi_aws_imports = ["s3"]
 other_packages = []
 properties = []
 uses = []
+exports = {}

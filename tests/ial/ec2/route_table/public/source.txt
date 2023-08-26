@@ -1,0 +1,5 @@
+@uses(CumuliVpc, CumuliInternetGateway)
+Resource type: ec2.RouteTable
+Logical name: PublicRouteTable
+Name: cumuli-public-route-table
+routes: A route with a CIDR block of "0.0.0.0/0" and CumuliInternetGateway internet gateway

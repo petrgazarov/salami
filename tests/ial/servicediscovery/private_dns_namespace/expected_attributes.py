@@ -4,3 +4,4 @@ text = "Description: Private namespace for Cumuli ECS cluster\nName: {local_dns_
 pulumi_aws_imports = ["servicediscovery"]
 other_packages = []
 uses = ["CumuliVpc"]
+exports = {}

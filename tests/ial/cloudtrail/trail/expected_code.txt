@@ -1,0 +1,8 @@
+cloudtrail.Trail(
+    "CumuliCloudtrail",
+    name="cumuli-cloudtrail",
+    s3_bucket_name=bucket.id,
+    include_global_service_events=True,
+    is_multi_region_trail=True,
+    enable_logging=True,
+)

@@ -5,3 +5,4 @@ pulumi_aws_imports = ["ecs"]
 other_packages = []
 properties = []
 uses = []
+exports = {}

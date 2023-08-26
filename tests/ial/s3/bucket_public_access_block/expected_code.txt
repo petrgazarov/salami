@@ -1,4 +1,4 @@
-lambda args: s3.BucketPublicAccessBlock(
+s3.BucketPublicAccessBlock(
     "CumuliAssetsPublicAccessBlock",
     bucket=bucket.id,
     block_public_acls=True,

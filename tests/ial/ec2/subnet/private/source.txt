@@ -1,0 +1,7 @@
+@uses(CumuliVpc)
+Resource type: ec2.Subnet
+Logical name: PrivateSubnetA
+Name private-subnet-a
+Cidr block: 10.0.1.0/24
+Availability zone: us-west-1a
+Map public IP on launch: False

@@ -1,0 +1,4 @@
+@exports(name_servers: name-servers)
+Resource type: route53.Zone
+Logical name: CumuliHostedZone
+Name: {domain_name}

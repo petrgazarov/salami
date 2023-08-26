@@ -1,0 +1,8 @@
+ec2.Subnet(
+    "PrivateSubnetA",
+    vpc_id=vpc.id,
+    cidr_block="10.0.1.0/24",
+    availability_zone="us-west-1a",
+    map_public_ip_on_launch=False,
+    tags={"Name": "private-subnet-a"},
+)

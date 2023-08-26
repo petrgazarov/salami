@@ -6,7 +6,6 @@ from engine.types import ChatMessage, Role
 from engine.pulumi_resource import PulumiResource
 from engine.pydantic_to_openai import pydantic_to_openai
 from engine.utils.file import open_relative_file
-from engine.program.pulumi_resources import pulumi_resources
 
 
 class GetPulumiCodeSchema(BaseModel):
@@ -17,12 +16,14 @@ class GetPulumiCodeSchema(BaseModel):
     pulumi_aws_imports: list[str] = Field(
         ...,
         description=(
-            "List of imports from pulumi_aws package. The imports must include only those necessary for the resource. E.g. ['ec2']"
+            "List of imports from pulumi_aws package. The imports must include only those explicitly referenced in the code. E.g. ['ec2']"
         ),
     )
     other_packages: list[str] = Field(
         ...,
-        description=("List of other packages. E.g. ['json', 'os']"),
+        description=(
+            "List of other packages referenced in the code. E.g. ['json', 'os']"
+        ),
     )
 
 
@@ -51,7 +52,10 @@ def get_text(pulumi_resource: PulumiResource):
     return result
 
 
-def get_variables(pulumi_resource: PulumiResource):
+def get_variables(
+    pulumi_resource: PulumiResource,
+    pulumi_resources: dict[str, PulumiResource],
+):
     if not pulumi_resource.uses:
         return ""
     result = "These are variables this resource depends on. These are asynchronous in nature and are of type Output[T]. They behave much like promises and must be awaited inside pulumi.Output.all():\n\n"
@@ -70,14 +74,17 @@ def get_variables(pulumi_resource: PulumiResource):
     return result
 
 
-async def get_pulumi_code(pulumi_resource: PulumiResource):
+async def get_pulumi_code(
+    pulumi_resource: PulumiResource,
+    pulumi_resources: dict[str, PulumiResource],
+):
     user_prompt = f"""Resource type:
 {pulumi_resource.resource_type}
 Pulumi logical name:
 {pulumi_resource.logical_name}
 {get_text(pulumi_resource=pulumi_resource)}
 {get_other_properties(pulumi_resource=pulumi_resource)}
-{get_variables(pulumi_resource=pulumi_resource)}
+{get_variables(pulumi_resource=pulumi_resource, pulumi_resources=pulumi_resources)}
 """
     system_prompt = open_relative_file("system_prompt.txt")
     chat_completion = await create_chat_completion(
