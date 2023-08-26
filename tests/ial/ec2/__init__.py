@@ -1,9 +1,17 @@
-from . import internet_gateway, route_table, subnet, vpc, route_table_association
+from . import (
+    route_table,
+    subnet,
+    vpc,
+    route_table_association,
+    vpc_endpoint,
+    security_group,
+)
 
 __all__ = [
-    "internet_gateway",
     "route_table",
+    "route_table_association",
     "subnet",
     "vpc",
-    "route_table_association",
+    "vpc_endpoint",
+    "security_group",
 ]

@@ -1,0 +1,22 @@
+ec2.SecurityGroup(
+    "PythonExecEcsSecurityGroup",
+    name="python-exec-ecs-security-group",
+    vpc_id=vpc.id,
+    description="Security group for python exec ECS service",
+    egress=[
+        {
+            "protocol": "tcp",
+            "from_port": 443,
+            "to_port": 443,
+            "cidr_blocks": ["0.0.0.0/0"],
+        },
+    ],
+    ingress=[
+        {
+            "protocol": "tcp",
+            "from_port": container_port,
+            "to_port": container_port,
+            "security_groups": [server_ecs_security_group.id],
+        },
+    ],
+)

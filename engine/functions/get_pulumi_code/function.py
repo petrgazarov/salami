@@ -58,7 +58,7 @@ def get_variables(
 ):
     if not pulumi_resource.uses:
         return ""
-    result = "These are variables this resource depends on. These are asynchronous in nature and are of type Output[T]. They behave much like promises and must be awaited inside pulumi.Output.all():\n\n"
+    result = "These are variables this resource depends on. These are asynchronous in nature and are of type Output[T]. They behave much like promises and must be awaited inside pulumi.Output.all(...):\n\n"
     for logical_name in pulumi_resource.uses:
         variable_name = "".join(
             ["_" + i.lower() if i.isupper() else i for i in logical_name]
@@ -67,7 +67,7 @@ def get_variables(
         result += f"{variable_name}: {resource.resource_type}\n"
     local_variables = re.findall(r"\{([^}]*)\}", pulumi_resource.text)
     if len(local_variables) > 0:
-        result += "The following are local variables. They are normal python variables and are of type string. They can be accessed from the outer scope of a lambda:\n"
+        result += "The following are local variables of type string. They can be accessed directly. Do not await them inside pulumi.Output.all(...) method.\n"
         for variable in local_variables:
             result += f"{variable}: local variable\n"
     result += "\n"

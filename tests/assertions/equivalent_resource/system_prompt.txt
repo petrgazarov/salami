@@ -8,6 +8,7 @@ Use the following information as guidelines:
   - The exact arguments used in the output lambda function, as long as it doesn't produce significantly different Pulumi resource.
   - Sids of the JSON policies.
   - Different variable names, not impacting the functionality.
+  - Either omit or include default values, as long as the values are AWS defaults.
 4) Think step by step and develop your thought before arriving at the final answer. Use the following format in your response:
 THOUGHT: <your thoughts here>
 FINAL ANSWER: <your final answer here, either "equivalent" or "not_equivalent">

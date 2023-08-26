@@ -1,4 +1,4 @@
-@uses(CumuliVpc)
+@uses(CumuliVpc, ALBSecurityGroup)
 Resource type: ec2.SecurityGroup
 Logical name: CumuliServerEcsSecurityGroup
 Name: cumuli-server-ecs-security-group

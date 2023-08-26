@@ -3,7 +3,7 @@ from engine.openai import create_chat_completion
 from engine.utils.file import open_relative_file
 from engine.pulumi_resource import PulumiResource
 from engine.functions.get_pulumi_code.function import get_variables
-from tests.mongodb import create_test_result
+from tests.mongodb import update_test_result
 
 
 def get_user_prompt(expected, actual):
@@ -15,7 +15,7 @@ async def assert_equivalent_resource(
     expected: str,
     pulumi_resource: PulumiResource,
     pulumi_resources: dict[str, PulumiResource],
-    current_counter: int,
+    test_result: dict[str, str],
 ):
     system_prompt = open_relative_file("system_prompt.txt")
     actual = pulumi_resource.code
@@ -38,14 +38,11 @@ async def assert_equivalent_resource(
     content = res["content"]
     answer_line = content.strip().split("\n")[-1]
     answer = answer_line.split("FINAL ANSWER: ")[-1].strip()
-
-    await create_test_result(
+    await update_test_result(
         db=db,
-        test_run_counter=current_counter,
-        expected=expected,
-        actual=actual,
-        full_reason=content,
-        result=answer,
+        test_result=test_result,
+        answer=answer,
+        content=content,
     )
     if answer != "equivalent":
         raise AssertionError(

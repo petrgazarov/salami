@@ -4,11 +4,11 @@ from engine.program.run_program import run_program
 from tests.assertions import assert_equivalent_resource
 import tests.ial.cloudtrail as cloudtrail
 import tests.ial.servicediscovery as servicediscovery
-import tests.ial.ecs as ecs
 import tests.ial.s3 as s3
 import tests.ial.route53 as route53
 import tests.ial.ec2 as ec2
-from tests.mongodb import get_current_counter, create_motor_client
+import tests.ial.ecs as ecs
+from tests.mongodb import get_current_counter, create_motor_client, create_test_result
 
 
 async def run_module(module):
@@ -22,7 +22,6 @@ async def run_module(module):
 modules = [
     cloudtrail.trail,
     servicediscovery.private_dns_namespace,
-    ecs.cluster,
     s3.bucket,
     s3.bucket_policy.public_bucket,
     s3.bucket_policy.cloudtrail_logs_bucket,
@@ -30,10 +29,13 @@ modules = [
     route53.hosted_zone,
     route53.record,
     ec2.vpc,
-    ec2.subnet.public,
-    ec2.subnet.private,
-    ec2.route_table.public,
-    ec2.route_table.private,
+    ec2.subnet,
+    ec2.route_table,
+    ec2.route_table_association,
+    ec2.vpc_endpoint.interface,
+    ec2.vpc_endpoint.gateway,
+    ec2.security_group,
+    ecs.task_definition,
 ]
 
 
@@ -71,11 +73,21 @@ async def test_module(setup_database, result_coroutine, module):
     if current_counter is None:
         current_counter = await get_current_counter(db)
     pulumi_resource = await result_coroutine
+
+    test_result = await create_test_result(
+        db=db,
+        test_run_counter=current_counter,
+        expected=module.expected_code,
+        actual=pulumi_resource.code,
+    )
+
     for name, value in module.expected_attributes.items():
         if name == "pulumi_aws_imports":
             assert set(value).issubset(
                 set(getattr(pulumi_resource, name))
             ), f"Failed on attribute: {name}"
+        elif isinstance(value, list):
+            assert set(value) == set(getattr(pulumi_resource, name)), f"Failed on attribute: {name}"
         else:
             assert value == getattr(
                 pulumi_resource, name
@@ -85,5 +97,5 @@ async def test_module(setup_database, result_coroutine, module):
         expected=module.expected_code,
         pulumi_resource=pulumi_resource,
         pulumi_resources=module.pulumi_resources,
-        current_counter=current_counter,
+        test_result=test_result,
     )

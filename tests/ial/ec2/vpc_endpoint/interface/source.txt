@@ -1,0 +1,8 @@
+@uses(CumuliVpc, PrivateSubnetA, PrivateSubnetB, EcrVpcEndpointSG, CumuliEcsExecutionRole, PythonExecEcsExecutionRole)
+Resource type: ec2.VpcEndpoint
+Logical name: EcrDkrVpcEndpoint
+VPC endpoint type: Interface
+Service name: com.amazonaws.{aws_region}.ecr.dkr
+Private DNS enabled: True
+Security group: EcrVpcEndpointSG
+Policy: A JSON policy that allows two AWS principals - CumuliEcsExecutionRole and PythonExecEcsExecutionRole - to perform three actions on ECR resources. The actions are "ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", and "ecr:BatchGetImage". The resources on which these actions can be performed are defined by the ARN pattern "arn:aws:ecr:{aws_region}:{aws_account_id}:repository/*", which includes all repositories in the specified AWS region and account.

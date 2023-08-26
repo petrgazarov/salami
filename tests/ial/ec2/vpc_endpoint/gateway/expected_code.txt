@@ -1,0 +1,22 @@
+ec2.VpcEndpoint(
+    "S3VpcEndpoint",
+    vpc_id=cumuli_vpc.id,
+    vpc_endpoint_type="Gateway",
+    service_name=f"com.amazonaws.{aws_region}.s3",
+    route_table_ids=[private_route_table.id],
+    policy=json.dumps(
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Principal": "*",
+                    "Action": "*",
+                    "Effect": "Allow",
+                    "Resource": [
+                        f"arn:aws:s3:::prod-{aws_region}-starport-layer-bucket/*"
+                    ],
+                },
+            ],
+        }
+    ),
+)

@@ -1,0 +1,3 @@
+@uses(PrivateSubnetA, PrivateRouteTable)
+Resource type: ec2.RouteTableAssociation
+Logical name: PrivateSubnetARouteTableAssociation

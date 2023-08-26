@@ -1,22 +1,3 @@
-Resource type: cloudwatch.LogGroup
-Logical name: CumuliServerLogGroup
-Name: cumuli-server-log-group
-
-Resource type: iam.Role
-Logical name: CumuliServerTaskRole
-name: cumuli-server-task-role
-assume_role_policy: A JSON string representing the policy that allows the "ecs-tasks.amazonaws.com" service to assume this role. The policy has the "Allow" effect for the "sts:AssumeRole" action.
-
-Resource type: iam.Policy
-Logical name: CumuliServerAssumeRolePolicy
-Name: cumuli-server-assume-role-policy
-Description: A policy that allows a user to assume a role in users' accounts
-Policy: A JSON string representing the policy that allows the "sts:AssumeRole" action on resources matching the pattern "arn:aws:iam::*:role/cumuli-assumed-role-v0.1-*". The policy has the "Allow" effect.
-
-@uses(CumuliServerTaskRole, CumuliServerAssumeRolePolicy)
-Resource type: iam.RolePolicyAttachment
-Logical name: CumuliServerTaskRolePolicyAttachment
-
 @uses(CumuliServerTaskRole, CumuliEcsExecutionRole, CumuliServerRepository, CumuliServerLogGroup)
 Resource type: ecs.TaskDefinition
 Logical name: CumuliServerTaskDefinition

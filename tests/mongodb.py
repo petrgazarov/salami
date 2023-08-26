@@ -15,19 +15,25 @@ async def get_current_counter(db):
 async def create_test_result(
     db,
     test_run_counter: int,
-    expected: str,
-    actual: str,
-    full_reason: str,
-    result: str,
+    **kwargs,
 ):
     test_results = db["test_results"]
     new_result = {
         "test_run_counter": test_run_counter,
-        "expected": expected,
-        "actual": actual,
-        "full_reason": full_reason,
-        "result": result,
         "created_at": datetime.utcnow(),
+        **kwargs,
     }
     await test_results.insert_one(new_result)
     return new_result
+
+
+async def update_test_result(
+    db,
+    test_result: dict[str, str],
+    **kwargs,
+):
+    test_results = db["test_results"]
+    await test_results.update_one(
+        {"_id": test_result["_id"]},
+        {"$set": kwargs},
+    )

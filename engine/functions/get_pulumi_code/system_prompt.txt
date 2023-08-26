@@ -7,3 +7,5 @@ Keep in mind the following:
 5) Pulumi resources are values of type Output[T], which behave very much like promises. Ensure you are using the `apply` method to extract the value of the promise.
 6) `pulumi.Output.all(val1, val2)` results in the lambda argument being an array like so: `lambda args: [args[0], args[1]]`. Use `pulumi.Output.all(val1, val2).apply(lambda args: args[n])` to extract the nth element of the array.
 7) Do not use variable assignment. E.g. `bucket = s3.Bucket(...)` is not allowed. Use `s3.Bucket(...)` directly.
+8) For JSON policies, always use "json" package. Do not write JSON strings directly.
+9) Do not use `pulumi.Output.all(...)` inside json.dumps(...), it must be used outside. Everything inside json.dumps(...) must be a resolved value.

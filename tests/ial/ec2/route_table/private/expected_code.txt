@@ -1,5 +1,0 @@
-ec2.RouteTable(
-    "PrivateRouteTable",
-    vpc_id=vpc.id,
-    tags={"Name": "cumuli-private-route-table"},
-)

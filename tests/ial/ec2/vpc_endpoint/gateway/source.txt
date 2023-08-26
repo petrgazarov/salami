@@ -1,0 +1,6 @@
+@uses(CumuliVpc, PrivateRouteTable)
+Resource type: ec2.VpcEndpoint
+Logical name: S3VpcEndpoint
+VPC endpoint type: Gateway
+Service name: com.amazonaws.{aws_region}.s3
+Policy: A JSON policy that allows all principals to perform all actions on resources defined by the ARN pattern "arn:aws:s3:::prod-{aws_region}-starport-layer-bucket/*". This includes all objects in the specified S3 bucket.

@@ -2,7 +2,7 @@ Resource type: cloudwatch.LogGroup
 Logical name: PythonExecLogGroup
 Name: python-exec-log-group
 
-@uses(PythonExecEcsExecutionRole)
+@uses(PythonExecEcsExecutionRole, PythonExecLogGroup)
 Resource type: ecs.TaskDefinition
 Logical name: PythonExecTaskDefinition
 Name: python-exec-task-definition
@@ -18,5 +18,5 @@ Container definition:
   Memory: 512
   Cpu: 256
   Essential: True
-  Port mappings: port {container_port} is mapped to port {container_port}.
+  Port mappings: Only container port {container_port} is mapped to port {container_port}. Host port is auto-assigned by ECS.
   Log configuration: awslogs log driver, PythonExecLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to ecs.
