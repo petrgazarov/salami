@@ -4,20 +4,23 @@ ecs.TaskDefinition(
     cpu="256",
     memory="512",
     network_mode="awsvpc",
-    task_role_arn=ecs_task_role.arn,
+    task_role_arn=cumuli_server_task_role.arn,
     requires_compatibilities=["FARGATE"],
-    execution_role_arn=execution_role.arn,
+    execution_role_arn=cumuli_ecs_execution_role.arn,
     tags={"Name": "cumuli-server-task-definition"},
-    container_definitions=pulumi.Output.all(ecr_repo.repository_url, log_group.name, aws_region).apply(
-        lambda outputs: json.dumps(
+    container_definitions=pulumi.Output.all(
+        cumuli_server_repository.repository_url,
+        cumuli_server_log_group.name
+    ).apply(
+        lambda args: json.dumps(
             [
                 {
-                    "name": container_name,
+                    "name": server_container_name,
                     "image": f"{args[0]}:latest",
                     "memory": 512,
                     "cpu": 256,
                     "essential": True,
-                    "portMappings": [{"containerPort": container_port}],
+                    "portMappings": [{"containerPort": container_port, "protocol": "tcp"}],
                     "environment": [
                         {
                             "name": "OPENAI_API_KEY",
@@ -40,7 +43,7 @@ ecs.TaskDefinition(
                         "logDriver": "awslogs",
                         "options": {
                             "awslogs-group": args[1],
-                            "awslogs-region": args[2],
+                            "awslogs-region": aws_region,
                             "awslogs-stream-prefix": "ecs",
                         },
                     },

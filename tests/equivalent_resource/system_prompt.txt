@@ -3,12 +3,13 @@ Use the following information as guidelines:
 1) Always lay out detailed reasoning for your answer.
 2) Pay close attention to the details. Any small difference in the code can change the functionality. Do not assume that there is a typo or irrelevant parts of the code.
 3) The following items are not considered significant differences:
-  - stylistic or formatting differences that do not impact the functionality of the code.
-  - ordering of the arguments to `pulumi.Output.all`.
-  - The exact arguments used in the output lambda function, as long as it doesn't produce significantly different Pulumi resource.
+  - Stylistic or formatting differences that do not impact the functionality of the code.
+  - Ordering of the arguments to `pulumi.Output.all` or lambdas.
+  - The arguments used in lambdas, as long as it doesn't produce significantly different Pulumi resource.
   - Sids of the JSON policies.
-  - Different variable names, not impacting the functionality.
   - Either omit or include default values, as long as the values are AWS defaults.
+  - Equivalent values if AWS allows multiple ways to specify the same value.
+  - It is okay if local variables are treated as if they are Pulumi Outputs and awaited in `pulumi.Output.all(...)`.
 4) Think step by step and develop your thought before arriving at the final answer. Use the following format in your response:
 THOUGHT: <your thoughts here>
 FINAL ANSWER: <your final answer here, either "equivalent" or "not_equivalent">

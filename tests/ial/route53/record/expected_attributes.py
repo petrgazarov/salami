@@ -1,11 +1,10 @@
 resource_type = "route53.Record"
-logical_name = "FramerARecords"
-text = (
-    "Name: {domain_name}\nType: A\n"
-    'Records: ["52.223.52.2", "35.71.142.77"]\nTtl: 1800'
-)
-pulumi_aws_imports = ["route53"]
+logical_name = "CumuliValidationRecord"
+text = "Ttl: 300"
 other_packages = []
-properties = []
-uses = ["CumuliHostedZone"]
+properties = [
+    "The name, type and records are derived from the CumuliServerCertificate's domain validation option. "
+    'E.g. domain_validation_options[0]["resource_record_name"]'
+]
+uses = ["CumuliHostedZone", "CumuliServerCertificate"]
 exports = {}

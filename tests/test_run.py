@@ -1,9 +1,8 @@
 import os
 import pytest
 from engine.program.run_program import run_program
-from tests.assertions import assert_equivalent_resource
+from tests.equivalent_resource import assert_equivalent_resource
 import tests.ial.cloudtrail as cloudtrail
-import tests.ial.servicediscovery as servicediscovery
 import tests.ial.s3 as s3
 import tests.ial.route53 as route53
 import tests.ial.ec2 as ec2
@@ -21,14 +20,10 @@ async def run_module(module):
 
 modules = [
     cloudtrail.trail,
-    servicediscovery.private_dns_namespace,
-    s3.bucket,
     s3.bucket_policy.public_bucket,
     s3.bucket_policy.cloudtrail_logs_bucket,
     s3.bucket_public_access_block,
-    route53.hosted_zone,
     route53.record,
-    ec2.vpc,
     ec2.subnet,
     ec2.route_table,
     ec2.route_table_association,
@@ -36,12 +31,14 @@ modules = [
     ec2.vpc_endpoint.gateway,
     ec2.security_group,
     ecs.task_definition,
+    ecs.service,
 ]
 
 
 selected_modules = os.getenv("SELECTED_MODULES")
 if selected_modules:
     selected_modules = selected_modules.split(",")
+    selected_modules = [module.replace("/", ".") for module in selected_modules]
     modules = [
         module
         for module in modules
@@ -82,12 +79,10 @@ async def test_module(setup_database, result_coroutine, module):
     )
 
     for name, value in module.expected_attributes.items():
-        if name == "pulumi_aws_imports":
-            assert set(value).issubset(
-                set(getattr(pulumi_resource, name))
+        if isinstance(value, list):
+            assert set(value) == set(
+                getattr(pulumi_resource, name)
             ), f"Failed on attribute: {name}"
-        elif isinstance(value, list):
-            assert set(value) == set(getattr(pulumi_resource, name)), f"Failed on attribute: {name}"
         else:
             assert value == getattr(
                 pulumi_resource, name

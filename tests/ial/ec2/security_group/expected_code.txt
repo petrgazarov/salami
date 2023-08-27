@@ -1,7 +1,7 @@
 ec2.SecurityGroup(
     "PythonExecEcsSecurityGroup",
     name="python-exec-ecs-security-group",
-    vpc_id=vpc.id,
+    vpc_id=cumuli_vpc.id,
     description="Security group for python exec ECS service",
     egress=[
         {
@@ -16,7 +16,7 @@ ec2.SecurityGroup(
             "protocol": "tcp",
             "from_port": container_port,
             "to_port": container_port,
-            "security_groups": [server_ecs_security_group.id],
+            "security_groups": [cumuli_server_ecs_security_group.id],
         },
     ],
 )

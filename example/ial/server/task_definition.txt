@@ -34,7 +34,7 @@ Container definition:
   Memory: 512
   Cpu: 256
   Essential: True
-  Port mappings: Only container port {container_port} is mapped to port {container_port}. Host port is auto-assigned by ECS.
+  Port mappings: Container port is {container_port}. Protocol is TCP. No host port is set.
   Environment:
     OPENAI_API_KEY: taken from environment
     ASSUMED_ROLE_SECRET_TOKEN: taken from environment

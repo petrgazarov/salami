@@ -1,1 +1,0 @@
-route53.Zone("CumuliHostedZone", name=domain_name)

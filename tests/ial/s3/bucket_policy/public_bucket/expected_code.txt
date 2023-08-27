@@ -1,7 +1,7 @@
 s3.BucketPolicy(
     "CumuliAssumedRolesBucketPolicy",
-    bucket=bucket.id,
-    policy=bucket.arn.apply(lambda arn: json.dumps({
+    bucket=cumuli_assumed_roles_bucket.id,
+    policy=cumuli_assumed_roles_bucket.arn.apply(lambda arn: json.dumps({
         "Version": "2012-10-17",
         "Statement": [
             {

@@ -1,5 +1,0 @@
-@uses(CumuliVpc)
-Resource type: servicediscovery.PrivateDnsNamespace
-Logical name: CumuliEcsPrivateDnsNamespace
-Description: Private namespace for Cumuli ECS cluster
-Name: {local_dns_namespace_name}

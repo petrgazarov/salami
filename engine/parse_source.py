@@ -35,7 +35,6 @@ def parse_source(text: str):
         resource_type=resource_type,
         logical_name=logical_name,
         code="",
-        pulumi_aws_imports=[],
         other_packages=[],
         text="\n".join(text_lines),
         properties=properties,

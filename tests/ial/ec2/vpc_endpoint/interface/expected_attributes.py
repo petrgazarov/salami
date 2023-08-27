@@ -8,7 +8,6 @@ text = (
     'these actions can be performed are defined by the ARN pattern "arn:aws:ecr:{aws_region}:{aws_account_id}:repository/*", '
     "which includes all repositories in the specified AWS region and account."
 )
-pulumi_aws_imports = ["ec2"]
 other_packages = ["json"]
 properties = []
 uses = [

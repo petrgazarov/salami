@@ -1,6 +1,0 @@
-servicediscovery.PrivateDnsNamespace(
-    "CumuliEcsPrivateDnsNamespace",
-    description="Private namespace for Cumuli ECS cluster",
-    vpc=vpc.id,
-    name=local_dns_namespace_name,
-)

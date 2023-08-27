@@ -13,7 +13,6 @@ class PulumiResource(BaseModel):
     resource_type: ResourceType
     logical_name: LogicalName
     code: str = ""
-    pulumi_aws_imports: list[str] = []
     other_packages: list[str] = []
     text: str = ""
     properties: list[str] = []

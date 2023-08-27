@@ -1,8 +1,8 @@
 route53.Record(
-    "FramerARecords",
-    name=domain_name,
-    type="A",
-    records=["52.223.52.2", "35.71.142.77"],
-    ttl=1800,
-    zone_id=hosted_zone.id,
+    "CumuliValidationRecord",
+    zone_id=cumuli_hosted_zone.zone_id,
+    name=cumuli_server_certificate.domain_validation_options[0]["resource_record_name"],
+    type=cumuli_server_certificate.domain_validation_options[0]["resource_record_type"],
+    records=[cumuli_server_certificate.domain_validation_options[0]["resource_record_value"]],
+    ttl=300,
 )
