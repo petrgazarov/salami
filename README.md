@@ -1,6 +1,6 @@
 # Salami
 
-<img src="salami-icon.svg" alt="Salami Icon" width="150" height="150">
+<img src="salami-icon.svg" alt="Salami Icon">
 
 ## Development Setup
 
