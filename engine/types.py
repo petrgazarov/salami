@@ -5,7 +5,36 @@ from enum import Enum
 from typing import Optional
 
 
-class Role(str, Enum):
+class ResourceType(str):
+    pass
+
+
+class LogicalName(str):
+    pass
+
+
+class ParsedResource(BaseModel):
+    resource_type: ResourceType
+    logical_name: LogicalName
+    free_text: str = ""
+    uses: list[LogicalName] = []
+    properties: list[str] = []
+    exports: dict[str, str] = {}
+    referenced_variables: list[str] = []
+
+
+class PulumiPythonResource(BaseModel):
+    code: str = ""
+    other_packages: list[str] = []
+
+
+class Resource(BaseModel):
+    raw_text: str
+    parsed_resource: ParsedResource
+    pulumi_python_resource: PulumiPythonResource
+
+
+class MessageRole(str, Enum):
     USER = "user"
     SYSTEM = "system"
     ASSISTANT = "assistant"
@@ -24,7 +53,7 @@ class FunctionCall(BaseModel):
 
 
 class ChatMessage(BaseModel):
-    role: Role = Field(
+    role: MessageRole = Field(
         ...,
         description="The role of the message.",
     )

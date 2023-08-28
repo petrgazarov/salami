@@ -1,7 +1,7 @@
-from engine.types import ChatMessage, Role
+from engine.types import ChatMessage, MessageRole
 from engine.openai import create_chat_completion
 from engine.utils.file import open_relative_file
-from engine.pulumi_resource import PulumiResource
+from engine.models.pulumi_resource import PulumiResource
 from engine.functions.get_pulumi_code.function import get_variables
 from tests.mongodb import update_test_result
 
@@ -21,16 +21,16 @@ async def assert_equivalent_resource(
     actual = pulumi_resource.code
     res = await create_chat_completion(
         messages=[
-            ChatMessage(role=Role.SYSTEM, content=system_prompt),
+            ChatMessage(role=MessageRole.SYSTEM, content=system_prompt),
             ChatMessage(
-                role=Role.SYSTEM,
+                role=MessageRole.SYSTEM,
                 content=get_variables(
                     pulumi_resource=pulumi_resource,
                     pulumi_resources=pulumi_resources,
                 ),
             ),
             ChatMessage(
-                role=Role.USER,
+                role=MessageRole.USER,
                 content=get_user_prompt(expected=expected, actual=actual),
             ),
         ],

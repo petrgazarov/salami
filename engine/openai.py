@@ -4,7 +4,7 @@ import json
 from enum import Enum
 from typing import List, Optional
 from engine.types import ChatMessage, FunctionCall
-from engine.logger import logger
+from engine.utils.logger import logger
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.log = "debug"

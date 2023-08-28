@@ -2,8 +2,8 @@ import re
 from typing import ClassVar, Type
 from pydantic import Field, BaseModel
 from engine.openai import create_chat_completion, get_function_call_from_message
-from engine.types import ChatMessage, Role
-from engine.pulumi_resource import PulumiResource
+from engine.types import ChatMessage, MessageRole
+from engine.models import PulumiResource
 from engine.pydantic_to_openai import pydantic_to_openai
 from engine.utils.file import open_relative_file
 
@@ -54,11 +54,8 @@ def get_variables(
         return ""
     result = "These variables are pulumi resources that this resource depends on. These are asynchronous in nature and are of type Output[T]:\n"
     for logical_name in pulumi_resource.uses:
-        variable_name = "".join(
-            ["_" + i.lower() if i.isupper() else i for i in logical_name]
-        ).lstrip("_")
         resource = pulumi_resources[logical_name]
-        result += f"{variable_name}: {resource.resource_type}\n"
+        result += f"{pulumi_resource.variable_name()}: {resource.resource_type}\n"
     result += "\n"
     local_variables = re.findall(r"\{([^}]*)\}", pulumi_resource.text)
     if len(local_variables) > 0:
@@ -84,8 +81,8 @@ Pulumi logical name:
     system_prompt = open_relative_file("system_prompt.txt")
     chat_completion = await create_chat_completion(
         messages=[
-            ChatMessage(role=Role.SYSTEM, content=system_prompt),
-            ChatMessage(role=Role.USER, content=user_prompt),
+            ChatMessage(role=MessageRole.SYSTEM, content=system_prompt),
+            ChatMessage(role=MessageRole.USER, content=user_prompt),
         ],
         function_call={"name": GetPulumiCode.name},
         functions=[pydantic_to_openai(GetPulumiCode)],

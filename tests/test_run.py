@@ -1,13 +1,13 @@
 import os
 import pytest
 from engine.program.run_program import run_program
-from tests.equivalent_resource import assert_equivalent_resource
+from tests.assert_equivalent_resource import assert_equivalent_resource
+from tests.mongodb import get_current_counter, create_motor_client, create_test_result
 import tests.ial.cloudtrail as cloudtrail
 import tests.ial.s3 as s3
 import tests.ial.route53 as route53
 import tests.ial.ec2 as ec2
 import tests.ial.ecs as ecs
-from tests.mongodb import get_current_counter, create_motor_client, create_test_result
 
 
 async def run_module(module):

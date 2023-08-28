@@ -1,4 +1,4 @@
-from engine.pulumi_resource import LogicalName, ResourceType, PulumiResource
+from engine.models.pulumi_resource import LogicalName, ResourceType, PulumiResource
 
 pulumi_resources = {
     LogicalName("CumuliVpc"): PulumiResource(
