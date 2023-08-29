@@ -1,0 +1,3 @@
+module salami
+
+go 1.21.0

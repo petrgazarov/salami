@@ -1,6 +1,6 @@
 import asyncio
 from pydantic import BaseModel
-from engine.types import LogicalName
+from engine.types import LogicalName, Target
 from engine.symbol_table import SymbolTable
 from engine.get_pulumi_code import get_pulumi_code
 
@@ -23,11 +23,12 @@ def variable_name_from_logical_name(logical_name: LogicalName):
 
 
 class CodeGenerator(BaseModel):
+    target: Target = Target.PULUMI_PYTHON
     generated_code: dict[LogicalName, str] = {}
+    symbol_table: SymbolTable
 
-    @classmethod
-    async def run(cls, symbol_table: SymbolTable):
-        logical_names = list(symbol_table.resources.keys())
+    async def run(self):
+        logical_names = list(self.symbol_table.resources.keys())
         tasks = [
             get_pulumi_code(
                 resource=symbol_table.resources[logical_name],
@@ -37,4 +38,4 @@ class CodeGenerator(BaseModel):
         ]
         results = await asyncio.gather(*tasks)
         for logical_name, result in zip(logical_names, results):
-            cls.generated_code[logical_name] = result
+            self.generated_code[logical_name] = result

@@ -23,15 +23,13 @@ class ParsedResource(BaseModel):
     referenced_variables: list[str] = []
 
 
-class PulumiPythonResource(BaseModel):
-    code: str = ""
-    other_packages: list[str] = []
-
-
 class Resource(BaseModel):
     raw_text: str
     parsed_resource: ParsedResource
-    pulumi_python_resource: PulumiPythonResource
+
+
+class Target(str, Enum):
+    PULUMI_PYTHON = "pulumi-python"
 
 
 class MessageRole(str, Enum):
