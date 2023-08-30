@@ -12,10 +12,18 @@ Policy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
 Resource type: ecs.Service
 Logical name: CumuliServerEcsService
 Name: cumuli-server
-Desired_count: 0
+Desired count: 0
 Launch type: FARGATE
-Network configuration: Assign public IP. The subnets are PublicSubnetA and PublicSubnetB. Security group is CumuliServerEcsSecurityGroup.
-Load balancers: A single target group CumuliServerTargetGroup, {server_container_name} container name, and {container_port} container_port.
-@property(ECS type deployment controller)
-@property(Enabled deployment circuit breaker with rollback)
-Wait for steady state: True
+---
+Network configuration:
+  Assigned public IP.
+  Subnets: PublicSubnetA and PublicSubnetB.
+  Security group: CumuliServerEcsSecurityGroup.
+Load balancers:
+  Target group: CumuliServerTargetGroup.
+  Container name: {server_container_name}.
+  Port: {container_port}.
+Deployment:
+  ECS type deployment controller.
+  Deployment circuit breaker: enabled with rollback.
+  Wait for steady state: True
