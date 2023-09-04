@@ -2,7 +2,7 @@
 Resource type: ecr.Repository
 Logical name: CumuliServerRepository
 Name: cumuli-server
-@property(Mutable image tags)
+Has mutable image tags.
 
 @uses(CumuliServerRepository)
 Resource type: ecr.LifecyclePolicy

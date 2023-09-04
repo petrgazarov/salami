@@ -3,8 +3,8 @@ Resource type: ec2.SecurityGroup
 Logical name: ALBSecurityGroup
 Name: cumuli-alb-security-group
 Description: Security group for ALB
-@property(Has open egress rules for all traffic)
-@property(Has open ingress rules for all traffic on port 443)
+Has open egress rules for all traffic.
+Has open ingress rules for all traffic on port 443.
 
 @uses(PublicSubnetA, PublicSubnetB)
 Resource type: lb.LoadBalancer
@@ -12,7 +12,7 @@ Logical name: CumuliServerAlb
 Name: cumuli-server-alb
 Internal: False
 Security group: ALBSecurityGroup
-@property(Deletion protection enabled)
+Deletion protection enabled.
 Idle timeout: 3600
 
 @uses(CumuliVpc)

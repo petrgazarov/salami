@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"salami/compiler"
+	"salami/compiler/driver"
 )
 
 func main() {
-	if err := compiler.Compile(); err != nil {
-		fmt.Printf("Compilation failed: %v\n", err)
-	}
+	driver.Run()
 }

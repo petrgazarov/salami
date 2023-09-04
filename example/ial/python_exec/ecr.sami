@@ -2,7 +2,7 @@
 Resource type: ecr.Repository
 Logical name: PythonExecRepository
 Name: python-exec
-@property(Mutable image tags)
+Has mutable image tags.
 
 @uses(PythonExecRepository)
 Resource type: ecr.LifecyclePolicy

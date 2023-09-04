@@ -1,0 +1,3 @@
+target: pulumi_python
+source_dir: example
+destination_dir: compiled

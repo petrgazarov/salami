@@ -5,7 +5,7 @@ Domain name: app.{domain_name}
 Validation method: DNS
 
 @uses(CumuliHostedZone, CumuliServerCertificate)
-@property(The name, type and records are derived from the CumuliServerCertificate's domain validation option)
+The name, type and records are derived from the CumuliServerCertificate's domain validation option.
 Resource type: route53.Record
 Logical name: CumuliValidationRecord
 Ttl: 300

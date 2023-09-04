@@ -21,6 +21,6 @@ Name: cumuli-server
 Desired_count: 0
 Launch type: FARGATE
 Network configuration: Do not assign public IP. The subnets are PrivateSubnetA and PrivateSubnetB. Security group is PythonExecEcsSecurityGroup.
-@property(ECS type deployment controller)
-@property(Enabled deployment circuit breaker with rollback)
+Has ECS type deployment controller.
+Enabled deployment circuit breaker with rollback.
 Wait for steady state: True

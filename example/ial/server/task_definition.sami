@@ -26,7 +26,7 @@ Cpu: 256
 Memory: 512
 Network mode: awsvpc
 Task role: CumuliServerTaskRole
-@property(Requires FARGATE compatibility)
+Requires FARGATE compatibility
 Execution role: CumuliEcsExecutionRole
 Container definition:
   Name: {server_container_name}

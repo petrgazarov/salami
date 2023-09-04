@@ -1,18 +1,9 @@
-@uses(CumuliEcsExecutionRole)
-Resource type: iam.RolePolicyAttachment
-Logical name: CumuliServerEcsExecutionRolePolicyAttachment1
-Policy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-
-@uses(CumuliEcsExecutionRole)
-Resource type: iam.RolePolicyAttachment
-Logical name: CumuliServerEcsExecutionRolePolicyAttachment2
-Policy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-
+@exports(name: exported-name)
 @uses(CumuliEcsCluster, CumuliServerTaskDefinition, PublicSubnetA, PublicSubnetB, CumuliServerEcsSecurityGroup, CumuliServerTargetGroup)
 Resource type: ecs.Service
 Logical name: CumuliServerEcsService
 Name: cumuli-server
-Desired count: 0
+Desired count: 1
 Launch type: FARGATE
 ---
 Network configuration:
