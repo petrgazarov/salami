@@ -1,28 +1,22 @@
 package semantic_analyzer
 
 import (
-	"salami/compiler/parser"
+	"fmt"
+	"salami/compiler/symbol_table"
 )
 
 type SemanticAnalyzer struct {
-	irChannel   <-chan *parser.IR
-	symbolTable map[string]*parser.IR
+	symbolTable *symbol_table.SymbolTable
 }
 
-func NewSemanticAnalyzer(irChannel <-chan *parser.IR) *SemanticAnalyzer {
+func NewSemanticAnalyzer(symbolTable *symbol_table.SymbolTable) *SemanticAnalyzer {
 	return &SemanticAnalyzer{
-		irChannel:   irChannel,
-		symbolTable: make(map[string]*parser.IR),
+		symbolTable: symbolTable,
 	}
 }
 
 func (sa *SemanticAnalyzer) Analyze() {
-	for ir := range sa.irChannel {
-		switch (*ir).(type) {
-		case *parser.Resource:
-			// handle Resource
-		case *parser.Variable:
-			// handle Variable
-		}
-	}
+	fmt.Println("Resources:", sa.symbolTable.ResourceTable)
+	fmt.Println("Variables:", sa.symbolTable.VariableTable)
+
 }

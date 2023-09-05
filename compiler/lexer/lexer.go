@@ -1,55 +1,19 @@
 package lexer
 
 import (
+	"salami/compiler/types"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 )
 
-type TokenType int
-
-const (
-	DecoratorName TokenType = iota
-	DecoratorArg
-	FieldName
-	FieldValue
-	FreeText
-	VariableRef
-	Newline
-	EOF
-	Error
-)
-
-var TokenTypeNames = map[TokenType]string{
-	DecoratorName: "DecoratorName",
-	DecoratorArg:  "DecoratorArg",
-	FieldName:     "FieldName",
-	FieldValue:    "FieldValue",
-	FreeText:      "FreeText",
-	VariableRef:   "VariableRef",
-	Newline:       "Newline",
-	EOF:           "EOF",
-	Error:         "Error",
-}
-
-func (t TokenType) String() string {
-	return TokenTypeNames[t]
-}
-
-type Token struct {
-	Type   TokenType
-	Value  string
-	Line   int
-	Column int
-}
-
 type Lexer struct {
-	filePath    string
-	source      string
-	pos         int
-	line        int
-	column      int
-	tokensQueue []Token
+	filePath string
+	source   string
+	pos      int
+	line     int
+	column   int
+	tokens   []types.Token
 }
 
 var validFieldNames = map[string]bool{
@@ -60,88 +24,94 @@ var validFieldNames = map[string]bool{
 	"Value":         true,
 }
 
-func (l *Lexer) NextToken() Token {
-	if len(l.tokensQueue) > 0 {
-		token := l.tokensQueue[0]
-		l.tokensQueue = l.tokensQueue[1:]
-		return token
-	}
+func (l *Lexer) Run() []types.Token {
+	for {
+		switch {
+		case l.current() == 0:
 
-	switch {
-	case l.current() == 0:
-		return Token{Type: EOF, Line: l.line, Column: l.column}
+			l.tokens = append(l.tokens, types.Token{Type: types.EOF, Line: l.line, Column: l.column})
+			return l.tokens
 
-	case l.current() == '\n':
-		l.advance()
-		return Token{Type: Newline, Line: l.line, Column: l.column}
-
-	case l.current() == '@':
-		return l.getDecoratorTokens()
-
-	default:
-		start := l.pos
-		for l.current() != ':' && l.current() != '\n' && l.current() != 0 {
+		case l.current() == '\n':
 			l.advance()
-		}
-		subText := strings.TrimSpace(l.source[start:l.pos])
-		if l.current() == ':' {
-			if _, ok := validFieldNames[subText]; ok {
-				return l.getFieldTokens(subText)
+			l.tokens = append(l.tokens, types.Token{Type: types.Newline, Line: l.line, Column: l.column})
+
+		case l.current() == '@':
+			l.tokens = append(l.tokens, l.getDecoratorTokens()...)
+
+		default:
+			start := l.pos
+			for l.current() != ':' && l.current() != '\n' && l.current() != 0 {
+				l.advance()
+			}
+			subText := l.source[start:l.pos]
+
+			if l.current() == ':' {
+				_, validFieldName := validFieldNames[subText]
+				if validFieldName {
+					l.tokens = append(l.tokens, l.getFieldTokens(subText)...)
+				} else {
+					restOfLineText := l.getLineText()
+					l.tokens = append(
+						l.tokens,
+						types.Token{Type: types.NaturalLanguage, Value: subText + restOfLineText, Line: l.line, Column: l.column},
+					)
+				}
+			} else {
+				l.tokens = append(
+					l.tokens,
+					types.Token{Type: types.NaturalLanguage, Value: subText, Line: l.line, Column: l.column},
+				)
 			}
 		}
-
-		restOfLineText := l.getLineText()
-		return Token{Type: FreeText, Value: subText + restOfLineText, Line: l.line, Column: l.column}
 	}
 }
 
-func (l *Lexer) getDecoratorTokens() Token {
+func (l *Lexer) getDecoratorTokens() []types.Token {
 	l.advance()
 	start := l.pos
 	for unicode.IsLetter(l.current()) {
 		l.advance()
 	}
 	value := l.source[start:l.pos]
-	decoratorArgs := []Token{}
+	decoratorArgs := []types.Token{}
 	if l.current() == '(' {
 		l.advance()
 		decoratorArgs = l.getDecoratorArgs()
 	}
-	l.tokensQueue = append(
-		l.tokensQueue,
-		Token{Type: DecoratorName, Value: value, Line: l.line, Column: l.column},
+	return append(
+		[]types.Token{{Type: types.DecoratorName, Value: value, Line: l.line, Column: l.column}},
+		decoratorArgs...,
 	)
-	l.tokensQueue = append(l.tokensQueue, decoratorArgs...)
-	return l.NextToken()
 }
 
-func (l *Lexer) getFieldTokens(fieldName string) Token {
-	l.advance()
-	fieldValue := l.getLineText()
-	l.tokensQueue = append(
-		l.tokensQueue,
-		Token{Type: FieldName, Value: fieldName, Line: l.line, Column: l.column},
-		Token{Type: FieldValue, Value: fieldValue, Line: l.line, Column: l.column},
-	)
-	return l.NextToken()
-}
-
-func (l *Lexer) getDecoratorArgs() []Token {
-	var tokens []Token
+func (l *Lexer) getDecoratorArgs() []types.Token {
+	var tokens []types.Token
 	start := l.pos
 	for l.current() != ')' {
 		if l.current() == ',' {
 			value := strings.TrimSpace(l.source[start:l.pos])
-			tokens = append(tokens, Token{Type: DecoratorArg, Value: value, Line: l.line, Column: l.column})
+			tokens = append(tokens, types.Token{Type: types.DecoratorArg, Value: value, Line: l.line, Column: l.column})
 			l.advance()
 			start = l.pos
 		}
 		l.advance()
 	}
 	value := strings.TrimSpace(l.source[start:l.pos])
-	tokens = append(tokens, Token{Type: DecoratorArg, Value: value, Line: l.line, Column: l.column})
-	l.advance()
+	tokens = append(tokens, types.Token{Type: types.DecoratorArg, Value: value, Line: l.line, Column: l.column})
+	for l.current() != '\n' && l.current() != 0 {
+		l.advance()
+	}
 	return tokens
+}
+
+func (l *Lexer) getFieldTokens(fieldName string) []types.Token {
+	l.advance()
+	fieldValue := l.getLineText()
+	return append(
+		[]types.Token{{Type: types.FieldName, Value: fieldName, Line: l.line, Column: l.column}},
+		types.Token{Type: types.FieldValue, Value: fieldValue, Line: l.line, Column: l.column},
+	)
 }
 
 func (l *Lexer) getLineText() string {
@@ -149,16 +119,7 @@ func (l *Lexer) getLineText() string {
 	for l.current() != '\n' && l.current() != 0 {
 		l.advance()
 	}
-	lineText := strings.TrimSpace(l.source[start:l.pos])
-
-	if l.current() == '\n' {
-		l.tokensQueue = append(l.tokensQueue, Token{Type: Newline, Line: l.line, Column: l.column})
-		l.advance()
-	} else if l.current() == 0 {
-		l.tokensQueue = append(l.tokensQueue, Token{Type: EOF, Line: l.line, Column: l.column})
-	}
-
-	return lineText
+	return l.source[start:l.pos]
 }
 
 func (l *Lexer) current() rune {
