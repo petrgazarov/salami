@@ -92,3 +92,11 @@ type Variable struct {
 	Value       string
 	Type        VariableType
 }
+
+var ValidFieldNames = map[string]bool{
+	"Resource type": true,
+	"Logical name":  true,
+	"Description":   true,
+	"Name":          true,
+	"Value":         true,
+}

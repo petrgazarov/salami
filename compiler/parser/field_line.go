@@ -1,19 +1,18 @@
 package parser
 
 import (
-	"salami/compiler/errors"
 	"salami/compiler/types"
 )
 
 func (p *Parser) handleFieldLine() error {
 	fieldNameToken := p.currentToken()
 	p.advance()
-	var fieldValueToken types.Token
+	var fieldValueToken *types.Token
 	for p.currentToken().Type != types.Newline && p.currentToken().Type != types.EOF {
-		if (fieldValueToken == types.Token{}) && p.currentToken().Type == types.FieldValue {
+		if (fieldValueToken == &types.Token{}) && p.currentToken().Type == types.FieldValue {
 			fieldValueToken = p.currentToken()
 		} else {
-			return &errors.ParsingError{Token: p.currentToken()}
+			return p.parseError(p.currentToken())
 		}
 		p.advance()
 	}
@@ -46,39 +45,39 @@ func (p *Parser) handleFieldLine() error {
 			return err
 		}
 	default:
-		return &errors.ParsingError{Token: fieldNameToken, Message: "unhandled error"}
+		return p.parseError(fieldNameToken, "unhandled error")
 	}
 	return nil
 }
 
-func (p *Parser) handleResourceTypeField(fieldNameToken types.Token, fieldValueToken types.Token) error {
+func (p *Parser) handleResourceTypeField(fieldNameToken *types.Token, fieldValueToken *types.Token) error {
 	if p.currentObjectTypeIs(Unset) {
 		p.setCurrentObjectType(Resource)
 	}
 	if !p.currentObjectTypeIs(Resource) {
-		return &errors.ParsingError{Token: fieldNameToken, Message: "Resource type field can only be used on resource"}
+		return p.parseError(fieldNameToken, "Resource type field can only be used on resource")
 	}
 	p.currentResource().ResourceType = types.ResourceType(fieldValueToken.Value)
 	return nil
 }
 
-func (p *Parser) handleLogicalNameField(fieldNameToken types.Token, fieldValueToken types.Token) error {
+func (p *Parser) handleLogicalNameField(fieldNameToken *types.Token, fieldValueToken *types.Token) error {
 	if p.currentObjectTypeIs(Unset) {
-		return &errors.ParsingError{Token: fieldNameToken, Message: "Logical name field must be preceded by Resource type field"}
+		return p.parseError(fieldNameToken, "Logical name field must be preceded by Resource type field")
 	}
 	if !p.currentObjectTypeIs(Resource) {
-		return &errors.ParsingError{Token: fieldNameToken, Message: "Logical name field can only be used on resource"}
+		return p.parseError(fieldNameToken, "Logical name field can only be used on resource")
 	}
 	p.currentResource().LogicalName = types.LogicalName(fieldValueToken.Value)
 	return nil
 }
 
-func (p *Parser) handleDescriptionField(fieldNameToken types.Token, fieldValueToken types.Token) error {
+func (p *Parser) handleDescriptionField(fieldNameToken *types.Token, fieldValueToken *types.Token) error {
 	if p.currentObjectTypeIs(Unset) {
-		return &errors.ParsingError{
-			Token:   fieldNameToken,
-			Message: "ambiguous object type. Ensure object has Resource type field or @variable decorator before Description",
-		}
+		return p.parseError(
+			fieldNameToken,
+			"ambiguous object type. Ensure object has Resource type field or @variable decorator before Description",
+		)
 	}
 	if p.currentObjectTypeIs(Resource) {
 		p.currentResource().NaturalLanguage += (fieldNameToken.Value + fieldValueToken.Value + "\n")
@@ -88,12 +87,12 @@ func (p *Parser) handleDescriptionField(fieldNameToken types.Token, fieldValueTo
 	return nil
 }
 
-func (p *Parser) handleNameField(fieldNameToken types.Token, fieldValueToken types.Token) error {
+func (p *Parser) handleNameField(fieldNameToken *types.Token, fieldValueToken *types.Token) error {
 	if p.currentObjectTypeIs(Unset) {
-		return &errors.ParsingError{
-			Token:   fieldNameToken,
-			Message: "ambiguous object type. Ensure object has Resource type field or @variable decorator before Name",
-		}
+		return p.parseError(
+			fieldNameToken,
+			"ambiguous object type. Ensure object has Resource type field or @variable decorator before Name",
+		)
 	}
 	if p.currentObjectTypeIs(Resource) {
 		p.currentResource().NaturalLanguage += (fieldNameToken.Value + fieldValueToken.Value + "\n")
@@ -103,12 +102,12 @@ func (p *Parser) handleNameField(fieldNameToken types.Token, fieldValueToken typ
 	return nil
 }
 
-func (p *Parser) handleValueField(fieldNameToken types.Token, fieldValueToken types.Token) error {
+func (p *Parser) handleValueField(fieldNameToken *types.Token, fieldValueToken *types.Token) error {
 	if p.currentObjectTypeIs(Unset) {
-		return &errors.ParsingError{
-			Token:   fieldNameToken,
-			Message: "ambiguous object type. Ensure object has Resource type field or @variable decorator before Value",
-		}
+		return p.parseError(
+			fieldNameToken,
+			"ambiguous object type. Ensure object has Resource type field or @variable decorator before Value",
+		)
 	}
 	if p.currentObjectTypeIs(Resource) {
 		p.currentResource().NaturalLanguage += (fieldNameToken.Value + fieldValueToken.Value + "\n")

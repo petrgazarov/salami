@@ -5,12 +5,13 @@ import (
 	"salami/compiler/types"
 )
 
-type ParsingError struct {
-	Token   types.Token
-	Message string
+type ParseError struct {
+	FilePath string
+	Token    *types.Token
+	Message  string
 }
 
-func (e *ParsingError) Error() string {
+func (e *ParseError) Error() string {
 	message := e.Message
 	if message == "" {
 		message = fmt.Sprintf(
@@ -20,14 +21,17 @@ func (e *ParsingError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"parsing error at line %d, column %d: %s",
+		"\n%s\n  parsing error at line %d, column %d: %s",
+		e.FilePath,
 		e.Token.Line,
 		e.Token.Column,
 		message,
 	)
 }
 
-type MissingEOFToken struct{}
+type MissingEOFToken struct {
+	FilePath string
+}
 
 func (e *MissingEOFToken) Error() string {
 	return "parsing error: EOF token missing"

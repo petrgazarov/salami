@@ -1,6 +1,6 @@
 @exports(name: exported-name)
 @uses(CumuliEcsCluster, CumuliServerTaskDefinition, PublicSubnetA, PublicSubnetB, CumuliServerEcsSecurityGroup, CumuliServerTargetGroup)
-Resource type: ecs.Service
+Resource type: aws.ecs.Service
 Logical name: CumuliServerEcsService
 Name: cumuli-server
 Desired count: 1

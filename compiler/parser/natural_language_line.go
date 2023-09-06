@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"salami/compiler/errors"
 	"salami/compiler/types"
 )
 
@@ -9,21 +8,18 @@ func (p *Parser) handleNaturalLanguageLine() error {
 	freeTextToken := p.currentToken()
 	p.advance()
 	for p.currentToken().Type != types.Newline && p.currentToken().Type != types.EOF {
-		return &errors.ParsingError{Token: p.currentToken()}
+		return p.parseError(p.currentToken())
 	}
 	p.advance()
 
 	if p.currentObjectTypeIs(Unset) {
-		return &errors.ParsingError{
-			Token:   freeTextToken,
-			Message: "ambiguous object type. Ensure object has Resource type field or @variable decorator before the current line",
-		}
+		return p.parseError(
+			freeTextToken,
+			"ambiguous object type. Ensure object has Resource type field or @variable decorator before the current line",
+		)
 	}
 	if !p.currentObjectTypeIs(Resource) {
-		return &errors.ParsingError{
-			Token:   freeTextToken,
-			Message: "natural language can only be used on resource",
-		}
+		return p.parseError(freeTextToken, "natural language can only be used on resource")
 	}
 	p.addLineToNaturalLanguage(freeTextToken.Value)
 	return nil

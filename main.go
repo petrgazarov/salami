@@ -1,9 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"salami/compiler/driver"
 )
 
 func main() {
-	driver.Run()
+	errors := driver.Run()
+
+	for _, err := range errors {
+		fmt.Println(err.Error())
+	}
 }

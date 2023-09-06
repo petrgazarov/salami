@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"salami/compiler/errors"
 	"salami/compiler/types"
 )
@@ -14,24 +15,26 @@ const (
 )
 
 type Parser struct {
-	tokens            []types.Token
-	resources         []types.Resource
-	variables         []types.Variable
+	tokens            []*types.Token
+	resources         []*types.Resource
+	variables         []*types.Variable
 	index             int
 	currentObjectType ObjectType
+	filePath          string
 }
 
-func NewParser(tokens []types.Token) *Parser {
+func NewParser(tokens []*types.Token, filePath string) *Parser {
 	return &Parser{
 		tokens:            tokens,
-		resources:         make([]types.Resource, 0),
-		variables:         make([]types.Variable, 0),
+		resources:         make([]*types.Resource, 0),
+		variables:         make([]*types.Variable, 0),
 		index:             0,
 		currentObjectType: Unset,
+		filePath:          filePath,
 	}
 }
 
-func (p *Parser) Parse() ([]types.Resource, []types.Variable, error) {
+func (p *Parser) Parse() ([]*types.Resource, []*types.Variable, error) {
 	for p.index < len(p.tokens) {
 		switch p.currentToken().Type {
 		case types.EOF:
@@ -55,26 +58,27 @@ func (p *Parser) Parse() ([]types.Resource, []types.Variable, error) {
 				return nil, nil, err
 			}
 		default:
-			return nil, nil, &errors.ParsingError{Token: p.currentToken()}
+			return nil, nil, p.parseError(p.currentToken())
 		}
 	}
-	return nil, nil, &errors.MissingEOFToken{}
+	return nil, nil, &errors.MissingEOFToken{FilePath: p.filePath}
 }
 
 func (p *Parser) currentResource() *types.Resource {
-	return &p.resources[len(p.resources)-1]
+	return p.resources[len(p.resources)-1]
 }
 
 func (p *Parser) currentVariable() *types.Variable {
-	return &p.variables[len(p.variables)-1]
+	return p.variables[len(p.variables)-1]
 }
 
 func (p *Parser) setCurrentObjectType(t ObjectType) {
 	switch t {
 	case Resource:
-		p.resources = append(p.resources, types.NewResource())
+		newResource := types.NewResource()
+		p.resources = append(p.resources, &newResource)
 	case Variable:
-		p.variables = append(p.variables, types.Variable{})
+		p.variables = append(p.variables, &types.Variable{})
 	}
 	p.currentObjectType = t
 }
@@ -83,10 +87,22 @@ func (p *Parser) currentObjectTypeIs(objectType ObjectType) bool {
 	return p.currentObjectType == objectType
 }
 
-func (p *Parser) currentToken() types.Token {
+func (p *Parser) currentToken() *types.Token {
 	return p.tokens[p.index]
 }
 
 func (p *Parser) advance() {
+	fmt.Println("File:", p.filePath, "Type:", p.currentToken().Type, "Value:", p.currentToken().Value)
 	p.index++
+}
+
+func (p *Parser) parseError(token *types.Token, messages ...string) error {
+	error := errors.ParseError{
+		Token:    token,
+		FilePath: p.filePath,
+	}
+	if len(messages) > 0 {
+		error.Message = messages[0]
+	}
+	return &error
 }
