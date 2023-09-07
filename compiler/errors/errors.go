@@ -5,6 +5,23 @@ import (
 	"salami/compiler/types"
 )
 
+type LexerError struct {
+	FilePath string
+	Line     int
+	Column   int
+	Message  string
+}
+
+func (e *LexerError) Error() string {
+	return fmt.Sprintf(
+		"\n%s\n  lexical error at line %d, column %d: %s",
+		e.FilePath,
+		e.Line,
+		e.Column,
+		e.Message,
+	)
+}
+
 type ParseError struct {
 	FilePath string
 	Token    *types.Token
