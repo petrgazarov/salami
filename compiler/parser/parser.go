@@ -40,7 +40,9 @@ func (p *Parser) Parse() ([]*types.Resource, []*types.Variable, error) {
 			return p.resources, p.variables, nil
 		case types.Newline:
 			p.advance()
-			p.setCurrentObjectType(Unset)
+			if p.currentToken().Type == types.Newline {
+				p.setCurrentObjectType(Unset)
+			}
 		case types.DecoratorName:
 			err := p.handleDecoratorLine()
 			if err != nil {

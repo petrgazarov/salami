@@ -23,7 +23,7 @@ Value: cumuli-server-container
 Name: python_exec_container_name
 Value: python-exec-container
 
-@variable(integer)
+@variable(number)
 Name: container_port
 Value: 8000
 

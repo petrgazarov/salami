@@ -10,7 +10,6 @@ func (p *Parser) handleNaturalLanguageLine() error {
 	for p.currentToken().Type != types.Newline && p.currentToken().Type != types.EOF {
 		return p.parseError(p.currentToken())
 	}
-	p.advance()
 
 	if p.currentObjectTypeIs(Unset) {
 		return p.parseError(

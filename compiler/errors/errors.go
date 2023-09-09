@@ -52,5 +52,5 @@ type MissingEOFToken struct {
 }
 
 func (e *MissingEOFToken) Error() string {
-	return "parsing error: EOF token missing"
+	return fmt.Sprintf("\n%s\n  parsing error: EOF token missing", e.FilePath)
 }

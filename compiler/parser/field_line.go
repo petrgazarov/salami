@@ -7,16 +7,12 @@ import (
 func (p *Parser) handleFieldLine() error {
 	fieldNameToken := p.currentToken()
 	p.advance()
-	var fieldValueToken *types.Token
-	for p.currentToken().Type != types.Newline && p.currentToken().Type != types.EOF {
-		if (fieldValueToken == &types.Token{}) && p.currentToken().Type == types.FieldValue {
-			fieldValueToken = p.currentToken()
-		} else {
-			return p.parseError(p.currentToken())
-		}
-		p.advance()
-	}
+	fieldValueToken := p.currentToken()
 	p.advance()
+
+	if p.currentToken().Type != types.Newline && p.currentToken().Type != types.EOF {
+		return p.parseError(p.currentToken())
+	}
 
 	switch fieldNameToken.Value {
 	case "Resource type":
