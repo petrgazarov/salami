@@ -14,7 +14,7 @@ type LexerError struct {
 
 func (e *LexerError) Error() string {
 	return fmt.Sprintf(
-		"\n%s\n  lexical error at line %d, column %d: %s",
+		"\n%s\n  lexical error on line %d, column %d: %s",
 		e.FilePath,
 		e.Line,
 		e.Column,
@@ -32,13 +32,14 @@ func (e *ParseError) Error() string {
 	message := e.Message
 	if message == "" {
 		message = fmt.Sprintf(
-			"unexpected token %s",
+			"unexpected token %s of type %s",
 			e.Token.Value,
+			e.Token.Type,
 		)
 	}
 
 	return fmt.Sprintf(
-		"\n%s\n  parsing error at line %d, column %d: %s",
+		"\n%s\n  parsing error on line %d, column %d: %s",
 		e.FilePath,
 		e.Token.Line,
 		e.Token.Column,
