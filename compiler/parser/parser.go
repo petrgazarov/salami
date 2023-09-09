@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"salami/compiler/errors"
 	"salami/compiler/types"
 )
@@ -92,7 +91,6 @@ func (p *Parser) currentToken() *types.Token {
 }
 
 func (p *Parser) advance() {
-	fmt.Println("File:", p.filePath, "Type:", p.currentToken().Type, "Value:", p.currentToken().Value)
 	p.index++
 }
 

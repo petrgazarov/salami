@@ -100,7 +100,11 @@ func processFile(filePath string) (
 	}
 
 	lexerInstance := lexer.NewLexer(filePath, string(content))
-	tokens := lexerInstance.Run()
+	tokens, err := lexerInstance.Run()
+
+	if err != nil {
+		return nil, nil, err
+	}
 	parserInstance := parser.NewParser(tokens, filePath)
 	resources, variables, parsingError := parserInstance.Parse()
 	return resources, variables, parsingError

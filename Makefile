@@ -2,7 +2,7 @@ install:
 	go mod download
 
 test:
-	SELECTED_MODULES=${SELECTED_MODULES} poetry run python -m pytest -n auto
+	go test salami/compiler/lexer
 
 build:
 	go build main.go
