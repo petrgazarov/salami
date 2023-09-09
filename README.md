@@ -9,17 +9,23 @@ See `Makefile` for available commands.
 ## Object Types
 
 - **Resource**
+
   Supported decorators:
+
   ```python
   @exports(key1: value1, key2: value2)
   @uses(OtherResource1, OtherResource2)
   ```
+
   Required fields - must be the first two fields:
+
   ```
   Resource type: aws.[Service].[ResourceType]
   Logical name: UniqueLogicalNameForResource
   ```
+
   Example source:
+
   ```
   @exports(name: exported-name)
   @uses(CumuliEcsCluster, CumuliServerTaskDefinition, PublicSubnetA, PublicSubnetB, CumuliServerEcsSecurityGroup, CumuliServerTargetGroup)
@@ -42,7 +48,9 @@ See `Makefile` for available commands.
     Deployment circuit breaker: enabled with rollback.
     Wait for steady state: True
   ```
+
   Example target code (pulumi python):
+
   ```python
   import pulumi
   import pulumi_aws as aws
@@ -73,18 +81,25 @@ See `Makefile` for available commands.
 
   pulumi.export("ecs-service-name", cumuli_server_ecs_service.name)
   ```
+
 - **Variable**
+
   Supported decorators:
+
   ```python
   @variable(type)
   ```
+
   Fields:
+
   ```
   Description: Description string (optional)
   Name: variable-name
   Value: default-value (optional)
   ```
+
   Source example:
+
   ```
   @variable(string)
   Description: Server container name
