@@ -1,7 +1,9 @@
 package parser
 
 import (
+	"regexp"
 	"salami/compiler/types"
+	"strings"
 )
 
 func (p *Parser) handleNaturalLanguageLine() error {
@@ -20,13 +22,56 @@ func (p *Parser) handleNaturalLanguageLine() error {
 	if !p.currentObjectTypeIs(Resource) {
 		return p.parseError(freeTextToken, "natural language can only be used on resource")
 	}
-	p.addLineToNaturalLanguage(freeTextToken.Value)
+	err := p.addLineToNaturalLanguage(freeTextToken.Value)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (p *Parser) addLineToNaturalLanguage(line string) {
+func (p *Parser) addLineToNaturalLanguage(line string) error {
+	addition := line
+
 	if p.currentResource().NaturalLanguage != "" {
-		p.currentResource().NaturalLanguage += "\n"
+		addition = "\n" + addition
 	}
-	p.currentResource().NaturalLanguage += (line + "\n")
+	p.currentResource().NaturalLanguage += addition
+	err := p.extractAndSetReferencedVariables(line)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Parser) extractAndSetReferencedVariables(text string) error {
+	re := regexp.MustCompile(`\{([^{}]+)\}`)
+	isAlphanumeric := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+	matches := re.FindAllStringSubmatch(text, -1)
+
+	for _, match := range matches {
+		variable := strings.TrimSpace(match[1])
+		if strings.Contains(variable, "{") || strings.Contains(variable, "}") {
+			return p.parseError(
+				p.currentToken(),
+				"Nested curly braces in referenced variables are not allowed",
+			)
+		}
+		if !isAlphanumeric.MatchString(variable) {
+			return p.parseError(
+				p.currentToken(),
+				"Variable inside curly braces must be alphanumeric",
+			)
+		}
+		isUnique := true
+		for _, v := range p.currentResource().ReferencedVariables {
+			if v == variable {
+				isUnique = false
+				break
+			}
+		}
+		if isUnique {
+			p.currentResource().ReferencedVariables = append(p.currentResource().ReferencedVariables, variable)
+		}
+	}
+	return nil
 }

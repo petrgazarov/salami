@@ -76,7 +76,7 @@ func (p *Parser) handleDescriptionField(fieldNameToken *types.Token, fieldValueT
 		)
 	}
 	if p.currentObjectTypeIs(Resource) {
-		p.currentResource().NaturalLanguage += (fieldNameToken.Value + fieldValueToken.Value + "\n")
+		p.addFieldLineToNaturalLanguage(fieldNameToken, fieldValueToken)
 	} else {
 		p.currentVariable().Description = fieldValueToken.Value
 	}
@@ -91,7 +91,7 @@ func (p *Parser) handleNameField(fieldNameToken *types.Token, fieldValueToken *t
 		)
 	}
 	if p.currentObjectTypeIs(Resource) {
-		p.currentResource().NaturalLanguage += (fieldNameToken.Value + fieldValueToken.Value + "\n")
+		p.addFieldLineToNaturalLanguage(fieldNameToken, fieldValueToken)
 	} else {
 		p.currentVariable().Name = fieldValueToken.Value
 	}
@@ -106,9 +106,13 @@ func (p *Parser) handleValueField(fieldNameToken *types.Token, fieldValueToken *
 		)
 	}
 	if p.currentObjectTypeIs(Resource) {
-		p.currentResource().NaturalLanguage += (fieldNameToken.Value + fieldValueToken.Value + "\n")
+		p.addFieldLineToNaturalLanguage(fieldNameToken, fieldValueToken)
 	} else {
 		p.currentVariable().Value = fieldValueToken.Value
 	}
 	return nil
+}
+
+func (p *Parser) addFieldLineToNaturalLanguage(fieldNameToken *types.Token, fieldValueToken *types.Token) {
+	p.addLineToNaturalLanguage(fieldNameToken.Value + ": " + fieldValueToken.Value)
 }

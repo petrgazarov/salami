@@ -1,44 +1,109 @@
-package lexer_test
+package parser_test
 
 import (
-	"os"
-	"path/filepath"
-	"salami/compiler/lexer"
+	"salami/compiler/parser"
 	"salami/compiler/types"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLexer(t *testing.T) {
-	cwd, err := os.Getwd()
+func TestParser(t *testing.T) {
+	inputTokens := getInput()
+	dummyFilePath := "dummy/file/path"
+	parser := parser.NewParser(inputTokens, dummyFilePath)
+	resources, variables, err := parser.Parse()
 	if err != nil {
-		t.Fatalf("Failed to get current directory: %s", err)
+		t.Fatalf(err.Error())
 	}
-	fixturePath := filepath.Join(cwd, "testdata", "source.sami")
-
-	source, err := os.ReadFile(fixturePath)
-	if err != nil {
-		t.Fatalf("Failed to read fixture: %s", err)
-	}
-
-	lexer := lexer.NewLexer(fixturePath, string(source))
-	tokens, err := lexer.Run()
-	if err != nil {
-		t.Fatalf("Failed to run lexer: %s", err)
-	}
-	expectedTokens := getExpectedTokens()
-
-	assert.Equal(t, len(expectedTokens), len(tokens), "Unexpected number of tokens")
-	for i, token := range tokens {
-		ok := assert.Equal(t, expectedTokens[i], token, "Unexpected token at %d", i)
+	expectedResources := getExpectedResources()
+	expectedVariables := getExpectedVariables(t)
+	assert.Equal(t, len(expectedResources), len(resources), "Unexpected number of resources")
+	assert.Equal(t, len(expectedVariables), len(variables), "Unexpected number of variables")
+	for i, resource := range resources {
+		ok := assert.Equal(t, expectedResources[i], resource, "Unexpected resource at %d", i)
 		if !ok {
 			t.FailNow()
 		}
 	}
 }
 
-func getExpectedTokens() []*types.Token {
+func getExpectedResources() []*types.Resource {
+	return []*types.Resource{
+		{
+			ResourceType:        "cloudwatch.LogGroup",
+			LogicalName:         "CumuliServerLogGroup",
+			NaturalLanguage:     "Name: cumuli-server-log-group",
+			Uses:                []types.LogicalName{},
+			Exports:             make(map[string]string),
+			ReferencedVariables: []string{},
+		},
+		{
+			ResourceType:        "ecr.Repository",
+			LogicalName:         "CumuliServerRepository",
+			NaturalLanguage:     "Name: cumuli-server\nHas mutable image tags.",
+			Uses:                []types.LogicalName{},
+			Exports:             map[string]string{"name": "cumuli-server-ecr-repository-name"},
+			ReferencedVariables: []string{},
+		},
+		{
+			ResourceType: "ecr.LifecyclePolicy",
+			LogicalName:  "CumuliServerRepoLifecyclePolicy",
+			NaturalLanguage: "Policy: A JSON policy with a rule that retains only the last 10 untagged images in the repository. " +
+				"Images beyond this count will expire.",
+			Uses:                []types.LogicalName{"CumuliServerRepository"},
+			Exports:             make(map[string]string),
+			ReferencedVariables: []string{},
+		},
+		{
+			ResourceType: "aws.ecs.Service",
+			LogicalName:  "CumuliServerEcsService",
+			NaturalLanguage: `Name: cumuli-server
+Desired count: 1
+Launch type: FARGATE
+---
+Network configuration:
+  Assigned public IP.
+  Subnets: PublicSubnetA and PublicSubnetB.
+  Security group: CumuliServerEcsSecurityGroup.
+Load balancers:
+  Target group: CumuliServerTargetGroup.
+  Container name: {server_container_name}.
+  Port: {container_port}.
+Deployment:
+  ECS type deployment controller.
+  Deployment circuit breaker: enabled with rollback.
+  Wait for steady state: True`,
+			Uses: []types.LogicalName{
+				"CumuliEcsCluster",
+				"CumuliServerTaskDefinition",
+				"PublicSubnetA",
+				"PublicSubnetB",
+				"CumuliServerEcsSecurityGroup",
+				"CumuliServerTargetGroup",
+			},
+			Exports:             map[string]string{"name": "exported-name"},
+			ReferencedVariables: []string{"server_container_name", "container_port"},
+		},
+	}
+}
+
+func getExpectedVariables(t *testing.T) []*types.Variable {
+	variableType, err := types.StringToVariableType("string")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	return []*types.Variable{
+		{
+			Description: "Server container name",
+			Name:        "server_container_name",
+			Value:       "cumuli-server-container",
+			Type:        variableType,
+		},
+	}
+}
+
+func getInput() []*types.Token {
 	return []*types.Token{
 		{Type: types.FieldName, Value: "Resource type", Line: 1, Column: 1},
 		{Type: types.FieldValue, Value: "cloudwatch.LogGroup", Line: 1, Column: 16},

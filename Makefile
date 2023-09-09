@@ -2,7 +2,7 @@ install:
 	go mod download
 
 test:
-	go test salami/compiler/lexer
+	go test salami/compiler/lexer salami/compiler/parser
 
 build:
 	go build main.go
