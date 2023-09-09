@@ -12,7 +12,7 @@ See `Makefile` for available commands.
 
   Supported decorators:
 
-  ```python
+  ```
   @exports(key1: value1, key2: value2)
   @uses(OtherResource1, OtherResource2)
   ```
@@ -86,7 +86,7 @@ See `Makefile` for available commands.
 
   Supported decorators:
 
-  ```python
+  ```
   @variable(type)
   ```
 
