@@ -1,33 +1,42 @@
 package config
 
 import (
+	"log"
 	"os"
+	"salami/compiler/types"
 
 	"gopkg.in/yaml.v2"
 )
 
-type Target string
-
-const (
-	PulumiPython Target = "pulumi_python"
-)
-
 type Config struct {
-	Target         Target `yaml:"target"`
-	SourceDir      string `yaml:"source_dir"`
-	DestinationDir string `yaml:"destination_dir"`
+	Target         types.CompilerTarget `yaml:"target"`
+	SourceDir      string               `yaml:"source_dir"`
+	DestinationDir string               `yaml:"destination_dir"`
 }
 
 var config Config
 
 func init() {
-	yamlFile, _ := os.ReadFile("salami.yaml")
-	// TODO: handle error from os.ReadFile
+	yamlFile, err := os.ReadFile("salami.yaml")
+	if err != nil {
+		log.Fatalf("Failed to read config file. Ensure 'salami.yaml' exists in the root directory")
+	}
 
-	yaml.Unmarshal(yamlFile, &config)
-	// TODO: handle error from yaml.Unmarshal
+	err = yaml.Unmarshal(yamlFile, &config)
+	if err != nil {
+		log.Fatalf("Error parsing config file: %v", err)
+	}
 }
 
 func GetConfig() Config {
 	return config
+}
+
+func ValidateConfig() {
+	if config.Target != types.PulumiPython {
+		log.Fatalf("Invalid target configuration. Only 'pulumi_python' is currently supported.")
+	}
+	if _, err := os.Stat(config.SourceDir); os.IsNotExist(err) {
+		log.Fatalf("Source directory does not exist: %s", config.SourceDir)
+	}
 }

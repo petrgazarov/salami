@@ -13,6 +13,7 @@ import (
 )
 
 func Run() []error {
+	config.ValidateConfig()
 	files, err := getFilePaths()
 	if err != nil {
 		return []error{err}

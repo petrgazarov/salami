@@ -10,7 +10,6 @@ const (
 	FieldName
 	FieldValue
 	NaturalLanguage
-	VariableRef
 	Newline
 	EOF
 	Error
@@ -22,7 +21,6 @@ var TokenTypeNames = map[TokenType]string{
 	FieldName:       "FieldName",
 	FieldValue:      "FieldValue",
 	NaturalLanguage: "NaturalLanguage",
-	VariableRef:     "VariableRef",
 	Newline:         "Newline",
 	EOF:             "EOF",
 	Error:           "Error",
@@ -109,3 +107,9 @@ var ValidFieldNames = map[string]bool{
 	"Name":          true,
 	"Value":         true,
 }
+
+type CompilerTarget string
+
+const (
+	PulumiPython CompilerTarget = "pulumi_python"
+)
