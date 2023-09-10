@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParser(t *testing.T) {
@@ -21,10 +22,7 @@ func TestParser(t *testing.T) {
 	assert.Equal(t, len(expectedResources), len(resources), "Unexpected number of resources")
 	assert.Equal(t, len(expectedVariables), len(variables), "Unexpected number of variables")
 	for i, resource := range resources {
-		ok := assert.Equal(t, expectedResources[i], resource, "Unexpected resource at %d", i)
-		if !ok {
-			t.FailNow()
-		}
+		require.Equal(t, expectedResources[i], resource, "Unexpected resource at %d", i)
 	}
 }
 

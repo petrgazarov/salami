@@ -18,10 +18,10 @@ func Run() []error {
 		return []error{err}
 	}
 
-	allResources, allVariables, allErrors := processFiles(files)
+	allResources, allVariables, errors := processFiles(files)
 
-	if len(allErrors) > 0 {
-		return allErrors
+	if len(errors) > 0 {
+		return errors
 	}
 	symbolTable, err := symbol_table.NewSymbolTable(allResources, allVariables)
 	if err != nil {

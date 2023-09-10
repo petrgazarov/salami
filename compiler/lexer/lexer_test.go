@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLexer(t *testing.T) {
@@ -31,10 +32,7 @@ func TestLexer(t *testing.T) {
 
 	assert.Equal(t, len(expectedTokens), len(tokens), "Unexpected number of tokens")
 	for i, token := range tokens {
-		ok := assert.Equal(t, expectedTokens[i], token, "Unexpected token at %d", i)
-		if !ok {
-			t.FailNow()
-		}
+		require.Equal(t, expectedTokens[i], token, "Unexpected token at %d", i)
 	}
 }
 

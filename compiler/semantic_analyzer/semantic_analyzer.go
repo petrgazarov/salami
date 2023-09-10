@@ -68,7 +68,7 @@ func (sa *SemanticAnalyzer) ensureReferencedVariablesAreDefined() error {
 			if _, exists := sa.symbolTable.LookupVariable(variableName); !exists {
 				return &errors.SemanticError{
 					SourceFilePath: resource.SourceFilePath,
-					Message:        fmt.Sprintf("'%s' variable referenced, but is not defined", variableName),
+					Message:        fmt.Sprintf("Referenced variable '%s' is not defined", variableName),
 				}
 			}
 		}
@@ -82,7 +82,7 @@ func (sa *SemanticAnalyzer) ensureUsedResourcesExist() error {
 			if _, exists := sa.symbolTable.LookupResource(logicalName); !exists {
 				return &errors.SemanticError{
 					SourceFilePath: resource.SourceFilePath,
-					Message:        fmt.Sprintf("'%s' resource used, but is not defined", logicalName),
+					Message:        fmt.Sprintf("Used resource '%s' is not defined", logicalName),
 				}
 			}
 		}
