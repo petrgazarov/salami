@@ -16,7 +16,7 @@ Dns config: Record of type A with ttl set to 10
 
 @uses(CumuliEcsCluster, PythonExecTaskDefinition, PrivateSubnetA, PrivateSubnetB, PythonExecEcsSecurityGroup)
 Resource type: ecs.Service
-Logical name: CumuliServerEcsService
+Logical name: PythonExecEcsService
 Name: cumuli-server
 Desired_count: 0
 Launch type: FARGATE

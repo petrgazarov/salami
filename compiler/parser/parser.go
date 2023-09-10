@@ -76,10 +76,11 @@ func (p *Parser) currentVariable() *types.Variable {
 func (p *Parser) setCurrentObjectType(t ObjectType) {
 	switch t {
 	case Resource:
-		newResource := types.NewResource()
-		p.resources = append(p.resources, &newResource)
+		newResource := types.NewResource(p.filePath)
+		p.resources = append(p.resources, newResource)
 	case Variable:
-		p.variables = append(p.variables, &types.Variable{})
+		newVariable := types.NewVariable(p.filePath)
+		p.variables = append(p.variables, newVariable)
 	}
 	p.currentObjectType = t
 }

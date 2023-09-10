@@ -54,3 +54,16 @@ type MissingEOFToken struct {
 func (e *MissingEOFToken) Error() string {
 	return fmt.Sprintf("\n%s\n  parsing error: EOF token missing", e.FilePath)
 }
+
+type SemanticError struct {
+	SourceFilePath string
+	Message        string
+}
+
+func (e *SemanticError) Error() string {
+	return fmt.Sprintf(
+		"\n%s\n  semantic error: %s",
+		e.SourceFilePath,
+		e.Message,
+	)
+}

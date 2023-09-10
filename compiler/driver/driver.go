@@ -23,9 +23,14 @@ func Run() []error {
 	if len(allErrors) > 0 {
 		return allErrors
 	}
-	symbolTable := symbol_table.NewSymbolTable(allResources, allVariables)
+	symbolTable, err := symbol_table.NewSymbolTable(allResources, allVariables)
+	if err != nil {
+		return []error{err}
+	}
 	semanticAnalyzer := semantic_analyzer.NewSemanticAnalyzer(symbolTable)
-	semanticAnalyzer.Analyze()
+	if err = semanticAnalyzer.Analyze(); err != nil {
+		return []error{err}
+	}
 	return nil
 }
 

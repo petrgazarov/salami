@@ -37,6 +37,7 @@ func getExpectedResources() []*types.Resource {
 			Uses:                []types.LogicalName{},
 			Exports:             make(map[string]string),
 			ReferencedVariables: []string{},
+			SourceFilePath:      "dummy/file/path",
 		},
 		{
 			ResourceType:        "ecr.Repository",
@@ -45,6 +46,7 @@ func getExpectedResources() []*types.Resource {
 			Uses:                []types.LogicalName{},
 			Exports:             map[string]string{"name": "cumuli-server-ecr-repository-name"},
 			ReferencedVariables: []string{},
+			SourceFilePath:      "dummy/file/path",
 		},
 		{
 			ResourceType: "ecr.LifecyclePolicy",
@@ -54,6 +56,7 @@ func getExpectedResources() []*types.Resource {
 			Uses:                []types.LogicalName{"CumuliServerRepository"},
 			Exports:             make(map[string]string),
 			ReferencedVariables: []string{},
+			SourceFilePath:      "dummy/file/path",
 		},
 		{
 			ResourceType: "aws.ecs.Service",
@@ -84,6 +87,7 @@ Deployment:
 			},
 			Exports:             map[string]string{"name": "exported-name"},
 			ReferencedVariables: []string{"server_container_name", "container_port"},
+			SourceFilePath:      "dummy/file/path",
 		},
 	}
 }
@@ -95,10 +99,11 @@ func getExpectedVariables(t *testing.T) []*types.Variable {
 	}
 	return []*types.Variable{
 		{
-			Description: "Server container name",
-			Name:        "server_container_name",
-			Value:       "cumuli-server-container",
-			Type:        variableType,
+			Description:    "Server container name",
+			Name:           "server_container_name",
+			Value:          "cumuli-server-container",
+			Type:           variableType,
+			SourceFilePath: "dummy/file/path",
 		},
 	}
 }

@@ -1,6 +1,8 @@
 package symbol_table
 
 import (
+	"fmt"
+	"salami/compiler/errors"
 	"salami/compiler/types"
 )
 
@@ -9,18 +11,30 @@ type SymbolTable struct {
 	VariableTable map[string]*types.Variable
 }
 
-func NewSymbolTable(resources []*types.Resource, variables []*types.Variable) *SymbolTable {
+func NewSymbolTable(resources []*types.Resource, variables []*types.Variable) (*SymbolTable, error) {
 	st := &SymbolTable{
 		ResourceTable: make(map[types.LogicalName]*types.Resource),
 		VariableTable: make(map[string]*types.Variable),
 	}
 	for _, r := range resources {
+		if _, exists := st.ResourceTable[r.LogicalName]; exists {
+			return nil, &errors.SemanticError{
+				SourceFilePath: r.SourceFilePath,
+				Message:        fmt.Sprintf("%s logical name is not unique", r.LogicalName),
+			}
+		}
 		st.InsertResource(r)
 	}
 	for _, v := range variables {
+		if _, exists := st.VariableTable[v.Name]; exists {
+			return nil, &errors.SemanticError{
+				SourceFilePath: v.SourceFilePath,
+				Message:        fmt.Sprintf("%s variable name is not unique", v.Name),
+			}
+		}
 		st.InsertVariable(v)
 	}
-	return st
+	return st, nil
 }
 
 func (st *SymbolTable) InsertResource(r *types.Resource) {

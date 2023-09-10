@@ -49,13 +49,15 @@ type Resource struct {
 	Uses                []LogicalName
 	Exports             map[string]string
 	ReferencedVariables []string
+	SourceFilePath      string
 }
 
-func NewResource() Resource {
-	return Resource{
+func NewResource(SourceFilePath string) *Resource {
+	return &Resource{
 		Uses:                []LogicalName{},
 		Exports:             make(map[string]string),
 		ReferencedVariables: []string{},
+		SourceFilePath:      SourceFilePath,
 	}
 }
 
@@ -87,10 +89,17 @@ func StringToVariableType(s string) (VariableType, error) {
 }
 
 type Variable struct {
-	Description string
-	Name        string
-	Value       string
-	Type        VariableType
+	Description    string
+	Name           string
+	Value          string
+	Type           VariableType
+	SourceFilePath string
+}
+
+func NewVariable(SourceFilePath string) *Variable {
+	return &Variable{
+		SourceFilePath: SourceFilePath,
+	}
 }
 
 var ValidFieldNames = map[string]bool{
