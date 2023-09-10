@@ -36,7 +36,7 @@ func Run() []error {
 }
 
 func getFilePaths() ([]string, error) {
-	compilerConfig := config.GetConfig()
+	compilerConfig := config.GetCompilerConfig()
 	var files []string
 
 	error := filepath.Walk(compilerConfig.SourceDir, func(path string, info os.FileInfo, err error) error {

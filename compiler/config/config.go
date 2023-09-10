@@ -8,10 +8,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Config struct {
+type CompilerConfig struct {
 	Target         types.CompilerTarget `yaml:"target"`
 	SourceDir      string               `yaml:"source_dir"`
 	DestinationDir string               `yaml:"destination_dir"`
+}
+
+type Config struct {
+	Compiler CompilerConfig `yaml:"compiler"`
 }
 
 var config Config
@@ -32,11 +36,15 @@ func GetConfig() Config {
 	return config
 }
 
+func GetCompilerConfig() CompilerConfig {
+	return config.Compiler
+}
+
 func ValidateConfig() {
-	if config.Target != types.PulumiPython {
+	if config.Compiler.Target != types.PulumiPython {
 		log.Fatalf("Invalid target configuration. Only 'pulumi_python' is currently supported.")
 	}
-	if _, err := os.Stat(config.SourceDir); os.IsNotExist(err) {
-		log.Fatalf("Source directory does not exist: %s", config.SourceDir)
+	if _, err := os.Stat(config.Compiler.SourceDir); os.IsNotExist(err) {
+		log.Fatalf("Source directory does not exist: %s", config.Compiler.SourceDir)
 	}
 }
