@@ -14,7 +14,7 @@ and provide additional information to the compiler. The special constructs are:
 
 1. **Blocks** - multiline blocks of text that each represent either a `Resource` or a `Variable`.
 2. **Decorators** - python-inspired functions that are used to specify special information about the block, such as dependencies and exports.
-3. **Fields** - colon-separated key-value pairs that have special meaning within a Salami block.
+3. **Fields** - colon-separated key-value pairs that have special meaning within a block.
 4. **Variables** - variables can be referenced anywhere within natural language by using curly braces.
 
 ### Resource
