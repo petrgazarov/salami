@@ -89,7 +89,7 @@ func StringToVariableType(s string) (VariableType, error) {
 type Variable struct {
 	Description    string
 	Name           string
-	Value          string
+	Default        string
 	Type           VariableType
 	SourceFilePath string
 }
@@ -105,11 +105,17 @@ var ValidFieldNames = map[string]bool{
 	"Logical name":  true,
 	"Description":   true,
 	"Name":          true,
-	"Value":         true,
+	"Default":       true,
 }
 
 type CompilerTarget string
 
 const (
-	PulumiPython CompilerTarget = "pulumi_python"
+	Terraform CompilerTarget = "terraform"
+)
+
+type Llm string
+
+const (
+	Gpt4 Llm = "gpt-4"
 )

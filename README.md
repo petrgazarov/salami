@@ -72,7 +72,7 @@ Fields
 | ----------- | ---------------------------------------- | ----------------------------------------- | -------- |
 | Name        | Alphanumeric string, underscores allowed | server_container_name                     | Yes      |
 | Description | String                                   | Container name for the server ECS service | No       |
-| Value       | String, number, or boolean               | server-container                          | No       |
+| Default     | String, number, or boolean               | server-container                          | No       |
 
 Source block example
 
@@ -80,5 +80,5 @@ Source block example
 @variable(string)
 Description: Container name for the server ECS service
 Name: server_container_name
-Value: server-container
+Default: server-container
 ```

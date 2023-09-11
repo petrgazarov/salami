@@ -99,7 +99,7 @@ func getExpectedVariables(t *testing.T) []*types.Variable {
 		{
 			Description:    "Server container name",
 			Name:           "server_container_name",
-			Value:          "cumuli-server-container",
+			Default:        "cumuli-server-container",
 			Type:           variableType,
 			SourceFilePath: "dummy/file/path",
 		},
@@ -256,7 +256,7 @@ func getInput() []*types.Token {
 		{Type: types.FieldName, Value: "Name", Line: 39, Column: 1},
 		{Type: types.FieldValue, Value: "server_container_name", Line: 39, Column: 7},
 		{Type: types.Newline, Value: "", Line: 39, Column: 28},
-		{Type: types.FieldName, Value: "Value", Line: 40, Column: 1},
+		{Type: types.FieldName, Value: "Default", Line: 40, Column: 1},
 		{Type: types.FieldValue, Value: "cumuli-server-container", Line: 40, Column: 8},
 		{Type: types.EOF, Value: "", Line: 40, Column: 31},
 	}

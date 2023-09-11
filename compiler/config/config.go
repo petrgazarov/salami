@@ -10,6 +10,7 @@ import (
 
 type CompilerConfig struct {
 	Target         types.CompilerTarget `yaml:"target"`
+	Llm            types.Llm            `yaml:"llm"`
 	SourceDir      string               `yaml:"source_dir"`
 	DestinationDir string               `yaml:"destination_dir"`
 }
@@ -41,10 +42,13 @@ func GetCompilerConfig() CompilerConfig {
 }
 
 func ValidateConfig() {
-	if config.Compiler.Target != types.PulumiPython {
-		log.Fatalf("Invalid target configuration. Only 'pulumi_python' is currently supported.")
+	if config.Compiler.Target != types.Terraform {
+		log.Fatalf("Invalid target configuration. Only '%s' is currently supported.", types.Terraform)
 	}
 	if _, err := os.Stat(config.Compiler.SourceDir); os.IsNotExist(err) {
 		log.Fatalf("Source directory does not exist: %s", config.Compiler.SourceDir)
+	}
+	if config.Compiler.Llm != types.Gpt4 {
+		log.Fatalf("Invalid LLM configuration. Only '%s' is currently supported.", types.Gpt4)
 	}
 }

@@ -67,7 +67,7 @@ func TestVariableRequiredFields(t *testing.T) {
 		{
 			Name:           "",
 			Description:    "Test variable",
-			Value:          "test-value",
+			Default:        "test-value",
 			SourceFilePath: "dummy/file/path",
 		},
 	}
@@ -125,7 +125,7 @@ Deployment:
 		{
 			Name:           "server_container_name",
 			Description:    "Name of the container that runs the server",
-			Value:          "cumuli-server",
+			Default:        "cumuli-server",
 			SourceFilePath: "dummy/file/path",
 		},
 	}

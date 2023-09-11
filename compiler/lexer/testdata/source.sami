@@ -37,4 +37,4 @@ Deployment:
 @variable(string)
 Description: Server container name
 Name: server_container_name
-Value: cumuli-server-container
+Default: cumuli-server-container

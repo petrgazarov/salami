@@ -1,32 +1,32 @@
 @variable(string)
 Name: local_dns_namespace_name
-Value: local
+Default: local
 
 @variable(string)
 Name: domain_name
-Value: cumuli.ai
+Default: cumuli.ai
 
 @variable(string)
 Name: aws_account_id
-Value: 123456789012
+Default: 123456789012
 
 @variable(string)
 Name: aws_region
-Value: us-west-1
+Default: us-west-1
 
 @variable(string)
 Description: Server container name
 Name: server_container_name
-Value: cumuli-server-container
+Default: cumuli-server-container
 
 @variable(string)
 Name: python_exec_container_name
-Value: python-exec-container
+Default: python-exec-container
 
 @variable(number)
 Name: container_port
-Value: 8000
+Default: 8000
 
 @variable(string)
 Name: python_exec_local_service_name
-Value: python-exec
+Default: python-exec

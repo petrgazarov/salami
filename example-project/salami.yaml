@@ -1,0 +1,5 @@
+compiler:
+  target: terraform
+  llm: gpt-4
+  source_dir: ial
+  destination_dir: terraform

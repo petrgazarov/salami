@@ -186,8 +186,8 @@ func getExpectedTokens() []*types.Token {
 		{Type: types.FieldName, Value: "Name", Line: 39, Column: 1},
 		{Type: types.FieldValue, Value: "server_container_name", Line: 39, Column: 7},
 		{Type: types.Newline, Value: "", Line: 39, Column: 28},
-		{Type: types.FieldName, Value: "Value", Line: 40, Column: 1},
-		{Type: types.FieldValue, Value: "cumuli-server-container", Line: 40, Column: 8},
-		{Type: types.EOF, Value: "", Line: 40, Column: 31},
+		{Type: types.FieldName, Value: "Default", Line: 40, Column: 1},
+		{Type: types.FieldValue, Value: "cumuli-server-container", Line: 40, Column: 10},
+		{Type: types.EOF, Value: "", Line: 40, Column: 33},
 	}
 }

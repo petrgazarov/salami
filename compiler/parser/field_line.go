@@ -35,8 +35,8 @@ func (p *Parser) handleFieldLine() error {
 		if err != nil {
 			return err
 		}
-	case "Value":
-		err := p.handleValueField(fieldNameToken, fieldValueToken)
+	case "Default":
+		err := p.handleDefaultField(fieldNameToken, fieldValueToken)
 		if err != nil {
 			return err
 		}
@@ -98,17 +98,17 @@ func (p *Parser) handleNameField(fieldNameToken *types.Token, fieldValueToken *t
 	return nil
 }
 
-func (p *Parser) handleValueField(fieldNameToken *types.Token, fieldValueToken *types.Token) error {
+func (p *Parser) handleDefaultField(fieldNameToken *types.Token, fieldValueToken *types.Token) error {
 	if p.currentObjectTypeIs(Unset) {
 		return p.parseError(
 			fieldNameToken,
-			"ambiguous object type. Ensure object has Resource type field or @variable decorator before Value",
+			"ambiguous object type. Ensure object has Resource type field or @variable decorator before Default",
 		)
 	}
 	if p.currentObjectTypeIs(Resource) {
 		p.addFieldLineToNaturalLanguage(fieldNameToken, fieldValueToken)
 	} else {
-		p.currentVariable().Value = fieldValueToken.Value
+		p.currentVariable().Default = fieldValueToken.Value
 	}
 	return nil
 }
