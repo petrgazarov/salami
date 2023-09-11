@@ -19,21 +19,21 @@ and provide additional information to the compiler. The special constructs are:
 
 ### Resource
 
-Supported decorators:
+Supported decorators
 
 | Decorator | Function signature                                | Arguments format                   | Example                                 | Required |
 | --------- | ------------------------------------------------- | ---------------------------------- | --------------------------------------- | -------- |
 | @exports  | @exports(property: export-name)                   | Comma-separated list of key-values | @exports(name: ecs-service-name)        | No       |
 | @uses     | @uses(Resource1LogicalName, Resource2LogicalName) | Comma-separated list of strings    | @uses(EcsCluster, ServerTaskDefinition) | No       |
 
-Fields:
+Fields
 
 | Field         | Value format                                                | Example value   | Required |
 | ------------- | ----------------------------------------------------------- | --------------- | -------- |
 | Resource type | A string in the format: [provider].[service].[ResourceType] | aws.ecs.Service | Yes      |
 | Logical name  | Alphanumeric string, starts with a letter                   | EcsCluster      | Yes      |
 
-Source block example:
+Source block example
 
 ```
 @exports(name: ecs-service-name)
@@ -60,13 +60,13 @@ Deployment:
 
 ### Variable
 
-Supported decorators:
+Supported decorators
 
 | Decorator | Function signature | Arguments format                        | Example           | Required |
 | --------- | ------------------ | --------------------------------------- | ----------------- | -------- |
 | @variable | @variable(type)    | Must be one of: string, number, boolean | @variable(string) | Yes      |
 
-Fields:
+Fields
 
 | Field       | Value format                             | Example value                             | Required |
 | ----------- | ---------------------------------------- | ----------------------------------------- | -------- |
@@ -74,7 +74,7 @@ Fields:
 | Description | String                                   | Container name for the server ECS service | No       |
 | Value       | String, number, or boolean               | server-container                          | No       |
 
-Source block example:
+Source block example
 
 ```
 @variable(string)
