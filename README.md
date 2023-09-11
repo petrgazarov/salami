@@ -28,10 +28,10 @@ Supported decorators:
 
 Fields:
 
-| Field         | Value format                                                | Example value   | Required (y/n) |
-| ------------- | ----------------------------------------------------------- | --------------- | -------------- |
-| Resource type | A string in the format: [provider].[service].[ResourceType] | aws.ecs.Service | Yes            |
-| Logical name  | Alphanumeric string, starts with a letter                   | EcsCluster      | Yes            |
+| Field         | Value format                                                | Example value   | Required |
+| ------------- | ----------------------------------------------------------- | --------------- | -------- |
+| Resource type | A string in the format: [provider].[service].[ResourceType] | aws.ecs.Service | Yes      |
+| Logical name  | Alphanumeric string, starts with a letter                   | EcsCluster      | Yes      |
 
 Source block example:
 
@@ -68,11 +68,11 @@ Supported decorators:
 
 Fields:
 
-| Field       | Value format                             | Example value                             | Required (y/n) |
-| ----------- | ---------------------------------------- | ----------------------------------------- | -------------- |
-| Name        | Alphanumeric string, underscores allowed | server_container_name                     | Yes            |
-| Description | String                                   | Container name for the server ECS service | No             |
-| Value       | String, number, or boolean               | server-container                          | No             |
+| Field       | Value format                             | Example value                             | Required |
+| ----------- | ---------------------------------------- | ----------------------------------------- | -------- |
+| Name        | Alphanumeric string, underscores allowed | server_container_name                     | Yes      |
+| Description | String                                   | Container name for the server ECS service | No       |
+| Value       | String, number, or boolean               | server-container                          | No       |
 
 Source block example:
 
