@@ -1,4 +1,4 @@
 compiler:
   target: pulumi_python
-  source_dir: example
+  source_dir: example-source
   destination_dir: compiled
