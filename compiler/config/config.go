@@ -1,18 +1,20 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"salami/compiler/errors"
 	"salami/compiler/types"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type CompilerConfig struct {
-	Target         types.CompilerTarget `yaml:"target"`
-	Llm            types.Llm            `yaml:"llm"`
-	SourceDir      string               `yaml:"source_dir"`
-	DestinationDir string               `yaml:"destination_dir"`
+	Target         types.CompilerTargetConfig `yaml:"target"`
+	Llm            types.CompilerLlmConfig    `yaml:"llm"`
+	SourceDir      string                     `yaml:"source_dir"`
+	DestinationDir string                     `yaml:"destination_dir"`
 }
 
 type Config struct {
@@ -42,13 +44,32 @@ func GetCompilerConfig() CompilerConfig {
 }
 
 func ValidateConfig() {
-	if config.Compiler.Target != types.Terraform {
-		log.Fatalf("Invalid target configuration. Only '%s' is currently supported.", types.Terraform)
+	if config.Compiler.Target.Platform != types.TerraformPlatform {
+		panic(&errors.ConfigError{
+			Message: fmt.Sprintf(
+				"invalid target platform configuration. Supported values: '%s'",
+				types.TerraformPlatform,
+			),
+		})
 	}
 	if _, err := os.Stat(config.Compiler.SourceDir); os.IsNotExist(err) {
-		log.Fatalf("Source directory does not exist: %s", config.Compiler.SourceDir)
+		panic(&errors.ConfigError{
+			Message: fmt.Sprintf("source directory '%s' does not exist", config.Compiler.SourceDir),
+		})
 	}
-	if config.Compiler.Llm != types.Gpt4 {
-		log.Fatalf("Invalid LLM configuration. Only '%s' is currently supported.", types.Gpt4)
+	if config.Compiler.Llm.Provider != types.LlmOpenaiProvider {
+		panic(&errors.ConfigError{
+			Message: fmt.Sprintf(
+				"invalid LLM provider configuration. Supported values: '%s'",
+				types.LlmOpenaiProvider,
+			),
+		})
+	}
+	if config.Compiler.Llm.Model != types.LlmGpt4Model {
+		panic(&errors.ConfigError{
+			Message: fmt.Sprintf("invalid LLM model configuration. Supported values: '%s'",
+				types.LlmGpt4Model,
+			),
+		})
 	}
 }

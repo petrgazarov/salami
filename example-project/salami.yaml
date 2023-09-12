@@ -1,5 +1,8 @@
 compiler:
-  target: terraform
-  llm: gpt-4
+  target:
+    platform: terraform
+  llm:
+    provider: openai
+    model: gpt-4
   source_dir: ial
   destination_dir: terraform

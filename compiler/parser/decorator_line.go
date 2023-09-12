@@ -17,7 +17,6 @@ func (p *Parser) handleDecoratorLine() error {
 		}
 		p.advance()
 	}
-	p.advance()
 
 	switch decoratorNameToken.Value {
 	case "@uses":
@@ -25,21 +24,24 @@ func (p *Parser) handleDecoratorLine() error {
 		if err != nil {
 			return err
 		}
-		return nil
 	case "@exports":
 		err := p.handleExportsDecorator(decoratorNameToken, decoratorArgTokens)
 		if err != nil {
 			return err
 		}
-		return nil
 	case "@variable":
 		err := p.handleVariableDecorator(decoratorNameToken, decoratorArgTokens)
 		if err != nil {
 			return err
 		}
-		return nil
+	default:
+		return p.parseError(decoratorNameToken)
 	}
-	return p.parseError(decoratorNameToken)
+	if p.currentToken().Type != types.Newline && p.currentToken().Type != types.EOF {
+		return p.parseError(p.currentToken())
+	}
+	p.advance()
+	return nil
 }
 
 func (p *Parser) handleUsesDecorator(decoratorNameToken *types.Token, decoratorArgTokens []*types.Token) error {

@@ -1,7 +1,5 @@
 package types
 
-import "fmt"
-
 type TokenType int
 
 const (
@@ -37,69 +35,6 @@ type Token struct {
 	Column int
 }
 
-type ResourceType string
-type LogicalName string
-
-type Resource struct {
-	ResourceType        ResourceType
-	LogicalName         LogicalName
-	NaturalLanguage     string
-	Uses                []LogicalName
-	Exports             map[string]string
-	ReferencedVariables []string
-	SourceFilePath      string
-}
-
-func NewResource(SourceFilePath string) *Resource {
-	return &Resource{
-		Uses:                []LogicalName{},
-		Exports:             make(map[string]string),
-		ReferencedVariables: []string{},
-		SourceFilePath:      SourceFilePath,
-	}
-}
-
-type VariableType int
-
-const (
-	String VariableType = iota
-	Number
-	Boolean
-)
-
-var VariableTypeNames = map[VariableType]string{
-	String:  "string",
-	Number:  "number",
-	Boolean: "boolean",
-}
-
-func (v VariableType) String() string {
-	return VariableTypeNames[v]
-}
-
-func StringToVariableType(s string) (VariableType, error) {
-	for k, v := range VariableTypeNames {
-		if v == s {
-			return k, nil
-		}
-	}
-	return 0, fmt.Errorf("invalid variable type %s", s)
-}
-
-type Variable struct {
-	Description    string
-	Name           string
-	Default        string
-	Type           VariableType
-	SourceFilePath string
-}
-
-func NewVariable(SourceFilePath string) *Variable {
-	return &Variable{
-		SourceFilePath: SourceFilePath,
-	}
-}
-
 var ValidFieldNames = map[string]bool{
 	"Resource type": true,
 	"Logical name":  true,
@@ -108,14 +43,7 @@ var ValidFieldNames = map[string]bool{
 	"Default":       true,
 }
 
-type CompilerTarget string
-
-const (
-	Terraform CompilerTarget = "terraform"
-)
-
-type Llm string
-
-const (
-	Gpt4 Llm = "gpt-4"
-)
+type DestinationFile struct {
+	FilePath string
+	Content  string
+}

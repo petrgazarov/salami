@@ -3,6 +3,7 @@ package driver
 import (
 	"os"
 	"path/filepath"
+	"salami/compiler/backend"
 	"salami/compiler/config"
 	"salami/compiler/lexer"
 	"salami/compiler/parser"
@@ -19,7 +20,7 @@ func Run() []error {
 		return []error{err}
 	}
 
-	allResources, allVariables, errors := processFiles(files)
+	allResources, allVariables, errors := parseFiles(files)
 
 	if len(errors) > 0 {
 		return errors
@@ -31,6 +32,10 @@ func Run() []error {
 	semanticAnalyzer := semantic_analyzer.NewSemanticAnalyzer(symbolTable)
 	if err = semanticAnalyzer.Analyze(); err != nil {
 		return []error{err}
+	}
+	backend := backend.NewBackend(symbolTable)
+	if errors = backend.Generate(); len(errors) > 0 {
+		return errors
 	}
 	return nil
 }
@@ -52,7 +57,7 @@ func getFilePaths() ([]string, error) {
 	return files, error
 }
 
-func processFiles(files []string) ([]*types.Resource, []*types.Variable, []error) {
+func parseFiles(files []string) ([]*types.Resource, []*types.Variable, []error) {
 	resourcesChan := make(chan []*types.Resource, len(files))
 	variablesChan := make(chan []*types.Variable, len(files))
 	errorChan := make(chan error, len(files))
@@ -61,7 +66,7 @@ func processFiles(files []string) ([]*types.Resource, []*types.Variable, []error
 	for _, file := range files {
 		wg.Add(1)
 		go func(file string) {
-			resources, variables, err := processFile(file)
+			resources, variables, err := parseFile(file)
 			if err != nil {
 				errorChan <- err
 			}
@@ -95,7 +100,7 @@ func processFiles(files []string) ([]*types.Resource, []*types.Variable, []error
 	return allResources, allVariables, allErrors
 }
 
-func processFile(filePath string) (
+func parseFile(filePath string) (
 	resources []*types.Resource,
 	variables []*types.Variable,
 	err error,
