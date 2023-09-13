@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"salami/compiler/driver"
+	"salami/common/driver"
 )
 
 func main() {
