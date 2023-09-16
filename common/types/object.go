@@ -2,7 +2,7 @@ package types
 
 import "fmt"
 
-type Object interface {
+type ParsedObject interface {
 	GetSourceFileLine() int
 	GetSourceFilePath() string
 }

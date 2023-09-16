@@ -5,6 +5,7 @@ import (
 	backendTypes "salami/backend/types"
 	"salami/common/config"
 	"salami/common/symbol_table"
+	"salami/common/types"
 	commonTypes "salami/common/types"
 	"sort"
 )
@@ -13,13 +14,13 @@ type Backend struct {
 	symbolTable *symbol_table.SymbolTable
 }
 
-func NewBackend(symbolTable *symbol_table.SymbolTable) *Backend {
+func NewBackend(symbolTable *symbol_table.SymbolTable, changeSet *types.ChangeSet) *Backend {
 	return &Backend{
 		symbolTable: symbolTable,
 	}
 }
 
-func (b *Backend) Generate() ([]string, []*backendTypes.BackendObject, []error) {
+func (b *Backend) GenerateCode() ([]string, []*backendTypes.BackendObject, []error) {
 	targetModule, err := b.resolveTarget()
 	if err != nil {
 		return nil, nil, []error{err}
@@ -37,8 +38,8 @@ func (b *Backend) resolveTarget() (target.Target, error) {
 	return target.ResolveTarget(compilerConfig.Target, compilerConfig.Llm)
 }
 
-func (b *Backend) objectsMap() map[string][]commonTypes.Object {
-	result := make(map[string][]commonTypes.Object)
+func (b *Backend) objectsMap() map[string][]commonTypes.ParsedObject {
+	result := make(map[string][]commonTypes.ParsedObject)
 	for _, resource := range b.symbolTable.ResourceTable {
 		result[resource.GetSourceFilePath()] = append(result[resource.GetSourceFilePath()], resource)
 	}

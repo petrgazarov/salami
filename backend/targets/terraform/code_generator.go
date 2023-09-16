@@ -1,7 +1,7 @@
 package terraform
 
 import (
-	"salami/compiler/types"
+	"salami/backend/types"
 	"sync"
 )
 
@@ -9,7 +9,7 @@ type TerraformTarget struct {
 }
 
 func (t *TerraformTarget) GenerateCodeFiles(
-	objectsMap map[string][]types.Object,
+	objectsMap map[string][]types.ParsedObject,
 ) ([]*types.GeneratedCodeFile, []error) {
 	var wg sync.WaitGroup
 	resultsChan := make(chan *types.DestinationFile)
@@ -17,7 +17,7 @@ func (t *TerraformTarget) GenerateCodeFiles(
 
 	for _, objects := range objectsMap {
 		wg.Add(1)
-		go func(objs []types.Object) {
+		go func(objs []types.ParsedObject) {
 			defer wg.Done()
 			result, err := t.generateCodeFile(objs)
 			if err != nil {
@@ -46,6 +46,6 @@ func (t *TerraformTarget) GenerateCodeFiles(
 	return results, errors
 }
 
-func (t *TerraformTarget) generateCodeFile(objects []types.Object) ([]*types.ObjectGeneratedCode, error) {
+func (t *TerraformTarget) generateCodeFile(objects []types.ParsedObject) ([]*types.ObjectGeneratedCode, error) {
 	return nil, nil
 }

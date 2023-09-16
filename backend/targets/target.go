@@ -1,13 +1,13 @@
 package target
 
 import (
-	"salami/compiler/backend/target/terraform"
-	"salami/compiler/errors"
-	"salami/compiler/types"
+	"salami/compiler/backend/targets/terraform"
+	"salami/common/errors"
+	"salami/common/types"
 )
 
 type Target interface {
-	GenerateCodeFiles(objectsMap map[string][]types.Object) ([]*types.DestinationFile, []error)
+	GenerateCodeFiles(objectsMap map[string][]types.ParsedObject) ([]*types.DestinationFile, []error)
 }
 
 func ResolveTarget(
