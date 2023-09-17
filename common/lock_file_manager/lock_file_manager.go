@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"salami/common/types"
-	commonTypes "salami/common/types"
 
 	"github.com/BurntSushi/toml"
 )
@@ -13,11 +12,11 @@ const lockFilePath = "salami-lock.toml"
 
 var loadedLockFile *lockFile
 
-func GetTargetFilesMeta() []commonTypes.TargetFileMeta {
+func GetTargetFilesMeta() []types.TargetFileMeta {
 	targetFilesMeta := getLockFile().targetFilesMeta
-	result := make([]commonTypes.TargetFileMeta, len(targetFilesMeta))
+	result := make([]types.TargetFileMeta, len(targetFilesMeta))
 	for i := range targetFilesMeta {
-		result[i] = commonTypes.TargetFileMeta{
+		result[i] = types.TargetFileMeta{
 			FilePath: targetFilesMeta[i].filePath,
 			Checksum: targetFilesMeta[i].checksum,
 		}
@@ -25,21 +24,21 @@ func GetTargetFilesMeta() []commonTypes.TargetFileMeta {
 	return result
 }
 
-func GetObjects() []*commonTypes.Object {
+func GetObjects() []*types.Object {
 	objects := getLockFile().objects
-	result := make([]*commonTypes.Object, len(objects))
+	result := make([]*types.Object, len(objects))
 	for i := range objects {
-		var parsed commonTypes.ParsedObject
+		var parsed types.ParsedObject
 		switch objects[i].parsed.getObjectType() {
 		case "Resource":
 			parsedResource := objects[i].parsed.(*parsedResource)
-			uses := make([]commonTypes.LogicalName, len(parsedResource.uses))
+			uses := make([]types.LogicalName, len(parsedResource.uses))
 			for j, use := range parsedResource.uses {
-				uses[j] = commonTypes.LogicalName(use)
+				uses[j] = types.LogicalName(use)
 			}
-			parsed = &commonTypes.ParsedResource{
-				ResourceType:        commonTypes.ResourceType(parsedResource.resourceType),
-				LogicalName:         commonTypes.LogicalName(parsedResource.logicalName),
+			parsed = &types.ParsedResource{
+				ResourceType:        types.ResourceType(parsedResource.resourceType),
+				LogicalName:         types.LogicalName(parsedResource.logicalName),
 				NaturalLanguage:     parsedResource.naturalLanguage,
 				Uses:                uses,
 				Exports:             parsedResource.exports,
@@ -48,25 +47,25 @@ func GetObjects() []*commonTypes.Object {
 			}
 		case "Variable":
 			parsedVariable := objects[i].parsed.(*parsedVariable)
-			parsed = &commonTypes.ParsedVariable{
+			parsed = &types.ParsedVariable{
 				Description:    parsedVariable.description,
 				Name:           parsedVariable.name,
 				Default:        parsedVariable.defaultValue,
-				Type:           commonTypes.VariableType(parsedVariable.variableType),
+				Type:           types.VariableType(parsedVariable.variableType),
 				SourceFilePath: objects[i].sourceFilePath,
 			}
 		}
 
-		codeSegments := make([]commonTypes.CodeSegment, len(objects[i].codeSegments))
+		codeSegments := make([]types.CodeSegment, len(objects[i].codeSegments))
 		for j, segment := range objects[i].codeSegments {
-			codeSegments[j] = commonTypes.CodeSegment{
-				SegmentType:    commonTypes.CodeSegmentType(segment.segmentType),
+			codeSegments[j] = types.CodeSegment{
+				SegmentType:    types.CodeSegmentType(segment.segmentType),
 				Content:        segment.content,
 				TargetFilePath: segment.targetFilePath,
 			}
 		}
 
-		result[i] = &commonTypes.Object{
+		result[i] = &types.Object{
 			SourceFilePath: objects[i].sourceFilePath,
 			Parsed:         parsed,
 			CodeSegments:   codeSegments,
