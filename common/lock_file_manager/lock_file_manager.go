@@ -3,6 +3,7 @@ package lock_file_manager
 import (
 	"log"
 	"os"
+	"salami/common/types"
 	commonTypes "salami/common/types"
 
 	"github.com/BurntSushi/toml"
@@ -10,63 +11,63 @@ import (
 
 const lockFilePath = "salami-lock.toml"
 
-var loadedLockFile *LockFile
+var loadedLockFile *lockFile
 
-func GetTargetFilesMeta() []*commonTypes.TargetFileMeta {
-	targetFilesMeta := getLockFile().TargetFilesMeta
-	result := make([]*commonTypes.TargetFileMeta, len(targetFilesMeta))
+func GetTargetFilesMeta() []commonTypes.TargetFileMeta {
+	targetFilesMeta := getLockFile().targetFilesMeta
+	result := make([]commonTypes.TargetFileMeta, len(targetFilesMeta))
 	for i := range targetFilesMeta {
-		result[i] = &commonTypes.TargetFileMeta{
-			FilePath: targetFilesMeta[i].FilePath,
-			Checksum: targetFilesMeta[i].Checksum,
+		result[i] = commonTypes.TargetFileMeta{
+			FilePath: targetFilesMeta[i].filePath,
+			Checksum: targetFilesMeta[i].checksum,
 		}
 	}
 	return result
 }
 
 func GetObjects() []*commonTypes.Object {
-	objects := getLockFile().Objects
+	objects := getLockFile().objects
 	result := make([]*commonTypes.Object, len(objects))
 	for i := range objects {
 		var parsed commonTypes.ParsedObject
-		switch objects[i].Parsed.getObjectType() {
+		switch objects[i].parsed.getObjectType() {
 		case "Resource":
-			parsedResource := objects[i].Parsed.(*ParsedResource)
-			uses := make([]commonTypes.LogicalName, len(parsedResource.Uses))
-			for j, use := range parsedResource.Uses {
+			parsedResource := objects[i].parsed.(*parsedResource)
+			uses := make([]commonTypes.LogicalName, len(parsedResource.uses))
+			for j, use := range parsedResource.uses {
 				uses[j] = commonTypes.LogicalName(use)
 			}
 			parsed = &commonTypes.ParsedResource{
-				ResourceType:        commonTypes.ResourceType(parsedResource.ResourceType),
-				LogicalName:         commonTypes.LogicalName(parsedResource.LogicalName),
-				NaturalLanguage:     parsedResource.NaturalLanguage,
+				ResourceType:        commonTypes.ResourceType(parsedResource.resourceType),
+				LogicalName:         commonTypes.LogicalName(parsedResource.logicalName),
+				NaturalLanguage:     parsedResource.naturalLanguage,
 				Uses:                uses,
-				Exports:             parsedResource.Exports,
-				ReferencedVariables: parsedResource.ReferencedVariables,
-				SourceFilePath:      objects[i].SourceFilePath,
+				Exports:             parsedResource.exports,
+				ReferencedVariables: parsedResource.referencedVariables,
+				SourceFilePath:      objects[i].sourceFilePath,
 			}
 		case "Variable":
-			parsedVariable := objects[i].Parsed.(*ParsedVariable)
+			parsedVariable := objects[i].parsed.(*parsedVariable)
 			parsed = &commonTypes.ParsedVariable{
-				Description:    parsedVariable.Description,
-				Name:           parsedVariable.Name,
-				Default:        parsedVariable.Default,
-				Type:           commonTypes.VariableType(parsedVariable.Type),
-				SourceFilePath: objects[i].SourceFilePath,
+				Description:    parsedVariable.description,
+				Name:           parsedVariable.name,
+				Default:        parsedVariable.defaultValue,
+				Type:           commonTypes.VariableType(parsedVariable.variableType),
+				SourceFilePath: objects[i].sourceFilePath,
 			}
 		}
 
-		codeSegments := make([]commonTypes.CodeSegment, len(objects[i].CodeSegments))
-		for j, segment := range objects[i].CodeSegments {
+		codeSegments := make([]commonTypes.CodeSegment, len(objects[i].codeSegments))
+		for j, segment := range objects[i].codeSegments {
 			codeSegments[j] = commonTypes.CodeSegment{
-				SegmentType:    commonTypes.CodeSegmentType(segment.SegmentType),
-				Content:        segment.Content,
-				TargetFilePath: segment.TargetFilePath,
+				SegmentType:    commonTypes.CodeSegmentType(segment.segmentType),
+				Content:        segment.content,
+				TargetFilePath: segment.targetFilePath,
 			}
 		}
 
 		result[i] = &commonTypes.Object{
-			SourceFilePath: objects[i].SourceFilePath,
+			SourceFilePath: objects[i].sourceFilePath,
 			Parsed:         parsed,
 			CodeSegments:   codeSegments,
 		}
@@ -74,7 +75,7 @@ func GetObjects() []*commonTypes.Object {
 	return result
 }
 
-func UpdateLockFile(changeSet *commonTypes.ChangeSet) error {
+func UpdateLockFile(targetFiles []types.TargetFileMeta, newObjects []*types.Object) error {
 	// Merge changeSet into lockFile
 	writeLockFile()
 	return nil
@@ -93,13 +94,13 @@ func writeLockFile() error {
 	return nil
 }
 
-func getLockFile() *LockFile {
+func getLockFile() *lockFile {
 	if loadedLockFile == nil {
 		if _, err := toml.DecodeFile(lockFilePath, loadedLockFile); err != nil {
 			if err != nil && !os.IsNotExist(err) {
 				log.Fatalf("failed to read lock file")
 			} else {
-				loadedLockFile = &LockFile{}
+				loadedLockFile = &lockFile{}
 			}
 		}
 	}

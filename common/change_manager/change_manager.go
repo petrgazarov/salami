@@ -11,3 +11,10 @@ func GenerateChangeSet(
 ) (*types.ChangeSet, error) {
 	return &types.ChangeSet{}, nil
 }
+
+func ComputeNewObjects(
+	changeSet *types.ChangeSet,
+	previousObjects []*types.Object,
+) []*types.Object {
+	return nil
+}

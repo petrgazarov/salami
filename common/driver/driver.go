@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"salami/backend/target"
+	"salami/backend/target_file_manager"
 	"salami/common/change_manager"
 	"salami/common/config"
 	"salami/common/lock_file_manager"
@@ -12,7 +13,7 @@ import (
 	"salami/frontend/semantic_analyzer"
 )
 
-const SalamiFileExtension = ".sami"
+const salamiFileExtension = ".sami"
 
 func Run() []error {
 	if err := runValidations(); err != nil {
@@ -27,15 +28,22 @@ func Run() []error {
 	if err != nil {
 		return []error{err}
 	}
-	resolvedTarget := target.ResolveTarget()
+	targetConfig := config.GetTargetConfig()
+	llmConfig := config.GetLlmConfig()
+	resolvedTarget := target.ResolveTarget(targetConfig, llmConfig)
 	if errors := resolvedTarget.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
 		return errors
 	}
-	err := backend.WriteTargetFiles()
-	if err != nil {
-		return []error{err}
+	newObjects := change_manager.ComputeNewObjects(changeSet, previousObjects)
+	targetFiles := resolvedTarget.GetNewFiles(newObjects)
+	for _, targetFile := range targetFiles {
+		err := target_file_manager.WriteTargetFile(targetFile)
+		if err != nil {
+			return []error{err}
+		}
 	}
-	if err := lock_file_manager.UpdateLockFile(changeSet); err != nil {
+	newTargetFilesMeta, err := target_file_manager.GenerateTargetFilesMeta(targetFiles)
+	if err := lock_file_manager.UpdateLockFile(newTargetFilesMeta, newObjects); err != nil {
 		return []error{err}
 	}
 	return nil
@@ -69,7 +77,7 @@ func getSourceFilePaths() ([]string, error) {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && filepath.Ext(path) == SalamiFileExtension {
+		if !info.IsDir() && filepath.Ext(path) == salamiFileExtension {
 			files = append(files, path)
 		}
 		return nil

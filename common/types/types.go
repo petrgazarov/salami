@@ -36,3 +36,12 @@ type LlmConfig struct {
 	Provider string
 	Model    string
 }
+
+const TerraformPlatform = "terraform"
+const LlmOpenaiProvider = "openai"
+const LlmGpt4Model = "gpt-4"
+
+type TargetFile struct {
+	FilePath string
+	Content  string
+}
