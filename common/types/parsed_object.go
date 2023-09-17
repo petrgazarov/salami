@@ -1,7 +1,5 @@
 package types
 
-import "fmt"
-
 type ParsedObject interface {
 	GetSourceFileLine() int
 	GetSourceFilePath() string
@@ -10,7 +8,7 @@ type ParsedObject interface {
 type ResourceType string
 type LogicalName string
 
-type Resource struct {
+type ParsedResource struct {
 	ResourceType        ResourceType
 	LogicalName         LogicalName
 	NaturalLanguage     string
@@ -21,16 +19,16 @@ type Resource struct {
 	SourceFileLine      int
 }
 
-func (r *Resource) GetSourceFileLine() int {
+func (r *ParsedResource) GetSourceFileLine() int {
 	return r.SourceFileLine
 }
 
-func (r *Resource) GetSourceFilePath() string {
+func (r *ParsedResource) GetSourceFilePath() string {
 	return r.SourceFilePath
 }
 
-func NewResource(SourceFilePath string, SourceFileLine int) *Resource {
-	return &Resource{
+func NewParsedResource(SourceFilePath string, SourceFileLine int) *ParsedResource {
+	return &ParsedResource{
 		Uses:                []LogicalName{},
 		Exports:             make(map[string]string),
 		ReferencedVariables: []string{},
@@ -39,34 +37,9 @@ func NewResource(SourceFilePath string, SourceFileLine int) *Resource {
 	}
 }
 
-type VariableType int
+type VariableType string
 
-const (
-	String VariableType = iota
-	Number
-	Boolean
-)
-
-var VariableTypeNames = map[VariableType]string{
-	String:  "string",
-	Number:  "number",
-	Boolean: "boolean",
-}
-
-func (v VariableType) String() string {
-	return VariableTypeNames[v]
-}
-
-func StringToVariableType(s string) (VariableType, error) {
-	for k, v := range VariableTypeNames {
-		if v == s {
-			return k, nil
-		}
-	}
-	return 0, fmt.Errorf("invalid variable type %s", s)
-}
-
-type Variable struct {
+type ParsedVariable struct {
 	Description    string
 	Name           string
 	Default        string
@@ -75,16 +48,16 @@ type Variable struct {
 	SourceFileLine int
 }
 
-func (v *Variable) GetSourceFileLine() int {
+func (v *ParsedVariable) GetSourceFileLine() int {
 	return v.SourceFileLine
 }
 
-func (v *Variable) GetSourceFilePath() string {
+func (v *ParsedVariable) GetSourceFilePath() string {
 	return v.SourceFilePath
 }
 
-func NewVariable(SourceFilePath string, SourceFileLine int) *Variable {
-	return &Variable{
+func NewParsedVariable(SourceFilePath string, SourceFileLine int) *ParsedVariable {
+	return &ParsedVariable{
 		SourceFilePath: SourceFilePath,
 		SourceFileLine: SourceFileLine,
 	}

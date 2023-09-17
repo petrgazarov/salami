@@ -29,6 +29,7 @@ func (sa *SemanticAnalyzer) Analyze() error {
 	if err := sa.ensureUsedResourcesExist(); err != nil {
 		return err
 	}
+	// TODO: Verify variable types
 	return nil
 }
 

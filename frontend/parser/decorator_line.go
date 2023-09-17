@@ -93,10 +93,7 @@ func (p *Parser) handleVariableDecorator(
 	if len(decoratorArgTokens) > 1 {
 		return p.parseError(decoratorNameToken, "Only one argument is expected for @variable decorator")
 	}
-	variableType, err := commonTypes.StringToVariableType(decoratorArgTokens[0].Value)
-	if err != nil {
-		return p.parseError(decoratorNameToken, err.Error())
-	}
+	variableType := commonTypes.VariableType(decoratorArgTokens[0].Value)
 	p.currentVariable().Type = variableType
 	return nil
 }

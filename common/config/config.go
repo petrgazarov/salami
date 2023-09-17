@@ -1,18 +1,39 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"salami/common/errors"
 	"salami/common/types"
 
 	"gopkg.in/yaml.v3"
 )
 
-var loadedConfig *types.Config
+var loadedConfig *configType
 
-func GetConfig() *types.Config {
+func GetSourceDir() string {
+	return getConfig().compiler.sourceDir
+}
+
+func GetTargetDir() string {
+	return getConfig().compiler.targetDir
+}
+
+func GetTargetConfig() types.TargetConfig {
+	compilerTargetConfig := getConfig().compiler.target
+	return types.TargetConfig{
+		Platform: compilerTargetConfig.platform,
+	}
+}
+
+func GetLlmConfig() types.LlmConfig {
+	compilerLlmConfig := getConfig().compiler.llm
+	return types.LlmConfig{
+		Provider: compilerLlmConfig.provider,
+		Model:    compilerLlmConfig.model,
+	}
+}
+
+func getConfig() *configType {
 	if loadedConfig != nil {
 		return loadedConfig
 	} else {
@@ -27,41 +48,4 @@ func GetConfig() *types.Config {
 		}
 		return loadedConfig
 	}
-}
-
-func GetCompilerConfig() types.CompilerConfig {
-	return GetConfig().Compiler
-}
-
-func ValidateConfig() error {
-	config := GetConfig()
-	if config.Compiler.Target.Platform != types.TerraformPlatform {
-		return &errors.ConfigError{
-			Message: fmt.Sprintf(
-				"invalid target platform configuration. Supported values: '%s'",
-				types.TerraformPlatform,
-			),
-		}
-	}
-	if _, err := os.Stat(config.Compiler.SourceDir); os.IsNotExist(err) {
-		return &errors.ConfigError{
-			Message: fmt.Sprintf("source directory '%s' does not exist", config.Compiler.SourceDir),
-		}
-	}
-	if config.Compiler.Llm.Provider != types.LlmOpenaiProvider {
-		return &errors.ConfigError{
-			Message: fmt.Sprintf(
-				"invalid LLM provider configuration. Supported values: '%s'",
-				types.LlmOpenaiProvider,
-			),
-		}
-	}
-	if config.Compiler.Llm.Model != types.LlmGpt4Model {
-		return &errors.ConfigError{
-			Message: fmt.Sprintf("invalid LLM model configuration. Supported values: '%s'",
-				types.LlmGpt4Model,
-			),
-		}
-	}
-	return nil
 }

@@ -28,8 +28,8 @@ func TestParser(t *testing.T) {
 	}
 }
 
-func getExpectedResources() []*commonTypes.Resource {
-	return []*commonTypes.Resource{
+func getExpectedResources() []*commonTypes.ParsedResource {
+	return []*commonTypes.ParsedResource{
 		{
 			ResourceType:        "cloudwatch.LogGroup",
 			LogicalName:         "CumuliServerLogGroup",
@@ -96,12 +96,9 @@ Deployment:
 	}
 }
 
-func getExpectedVariables(t *testing.T) []*commonTypes.Variable {
-	variableType, err := commonTypes.StringToVariableType("string")
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
-	return []*commonTypes.Variable{
+func getExpectedVariables(t *testing.T) []*commonTypes.ParsedVariable {
+	variableType := commonTypes.VariableType("string")
+	return []*commonTypes.ParsedVariable{
 		{
 			Description:    "Server container name",
 			Name:           "server_container_name",

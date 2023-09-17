@@ -10,7 +10,7 @@ import (
 )
 
 func TestResourceRequiredFields(t *testing.T) {
-	resources := []*types.Resource{
+	resources := []*types.ParsedResource{
 		{
 			ResourceType:        "",
 			LogicalName:         "CumuliServerLogGroup",
@@ -21,7 +21,7 @@ func TestResourceRequiredFields(t *testing.T) {
 			SourceFilePath:      "dummy/file/path",
 		},
 	}
-	semanticAnalyzer := createSemanticAnalyzer(t, resources, []*types.Variable{})
+	semanticAnalyzer := createSemanticAnalyzer(t, resources, []*types.ParsedVariable{})
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
 		expectedErrorMessage := "\ndummy/file/path\n  semantic error: " +
@@ -36,7 +36,7 @@ func TestResourceRequiredFields(t *testing.T) {
 		)
 	}
 
-	resources = []*types.Resource{
+	resources = []*types.ParsedResource{
 		{
 			ResourceType:        "cloudwatch.LogGroup",
 			NaturalLanguage:     "Name: cumuli-server-log-group",
@@ -46,7 +46,7 @@ func TestResourceRequiredFields(t *testing.T) {
 			SourceFilePath:      "dummy/file/path",
 		},
 	}
-	semanticAnalyzer = createSemanticAnalyzer(t, resources, []*types.Variable{})
+	semanticAnalyzer = createSemanticAnalyzer(t, resources, []*types.ParsedVariable{})
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
 		expectedErrorMessage := "\ndummy/file/path\n  semantic error: " +
@@ -63,7 +63,7 @@ func TestResourceRequiredFields(t *testing.T) {
 }
 
 func TestVariableRequiredFields(t *testing.T) {
-	variables := []*types.Variable{
+	variables := []*types.ParsedVariable{
 		{
 			Name:           "",
 			Description:    "Test variable",
@@ -71,7 +71,7 @@ func TestVariableRequiredFields(t *testing.T) {
 			SourceFilePath: "dummy/file/path",
 		},
 	}
-	semanticAnalyzer := createSemanticAnalyzer(t, []*types.Resource{}, variables)
+	semanticAnalyzer := createSemanticAnalyzer(t, []*types.ParsedResource{}, variables)
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
 		expectedErrorMessage := "\ndummy/file/path\n  semantic error: " +
@@ -88,7 +88,7 @@ func TestVariableRequiredFields(t *testing.T) {
 }
 
 func TestReferencedVariablesAreDefined(t *testing.T) {
-	resources := []*types.Resource{
+	resources := []*types.ParsedResource{
 		{
 			ResourceType: "aws.ecs.Service",
 			LogicalName:  "CumuliServerEcsService",
@@ -121,7 +121,7 @@ Deployment:
 			SourceFilePath:      "dummy/file/path",
 		},
 	}
-	variables := []*types.Variable{
+	variables := []*types.ParsedVariable{
 		{
 			Name:           "server_container_name",
 			Description:    "Name of the container that runs the server",
@@ -144,7 +144,7 @@ Deployment:
 }
 
 func TestUsedResourcesExist(t *testing.T) {
-	resources := []*types.Resource{
+	resources := []*types.ParsedResource{
 		{
 			ResourceType: "ecr.LifecyclePolicy",
 			LogicalName:  "CumuliServerRepoLifecyclePolicy",
@@ -156,7 +156,7 @@ func TestUsedResourcesExist(t *testing.T) {
 			SourceFilePath:      "dummy/file/path",
 		},
 	}
-	semanticAnalyzer := createSemanticAnalyzer(t, resources, []*types.Variable{})
+	semanticAnalyzer := createSemanticAnalyzer(t, resources, []*types.ParsedVariable{})
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
 		expectedErrorMessage := "\ndummy/file/path\n  semantic error: Used resource 'CumuliServerRepository' is not defined"
@@ -171,8 +171,8 @@ func TestUsedResourcesExist(t *testing.T) {
 
 func createSemanticAnalyzer(
 	t *testing.T,
-	resources []*types.Resource,
-	variables []*types.Variable,
+	resources []*types.ParsedResource,
+	variables []*types.ParsedVariable,
 ) *semantic_analyzer.SemanticAnalyzer {
 	symbolTable, err := symbol_table.NewSymbolTable(resources, variables)
 	if err != nil {

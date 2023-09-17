@@ -8,9 +8,9 @@ import (
 	"sync"
 )
 
-func parseFiles(files []string) ([]*types.Resource, []*types.Variable, []error) {
-	resourcesChan := make(chan []*types.Resource, len(files))
-	variablesChan := make(chan []*types.Variable, len(files))
+func parseFiles(files []string) ([]*types.ParsedResource, []*types.ParsedVariable, []error) {
+	resourcesChan := make(chan []*types.ParsedResource, len(files))
+	variablesChan := make(chan []*types.ParsedVariable, len(files))
 	errorChan := make(chan error, len(files))
 
 	var wg sync.WaitGroup
@@ -35,8 +35,8 @@ func parseFiles(files []string) ([]*types.Resource, []*types.Variable, []error) 
 	close(variablesChan)
 	close(errorChan)
 
-	var allResources []*types.Resource
-	var allVariables []*types.Variable
+	var allResources []*types.ParsedResource
+	var allVariables []*types.ParsedVariable
 	var allErrors []error
 	for resources := range resourcesChan {
 		allResources = append(allResources, resources...)
@@ -52,8 +52,8 @@ func parseFiles(files []string) ([]*types.Resource, []*types.Variable, []error) 
 }
 
 func parseFile(filePath string) (
-	resources []*types.Resource,
-	variables []*types.Variable,
+	resources []*types.ParsedResource,
+	variables []*types.ParsedVariable,
 	err error,
 ) {
 	content, err := os.ReadFile(filePath)

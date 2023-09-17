@@ -16,8 +16,8 @@ const (
 
 type Parser struct {
 	tokens            []*frontendTypes.Token
-	resources         []*commonTypes.Resource
-	variables         []*commonTypes.Variable
+	resources         []*commonTypes.ParsedResource
+	variables         []*commonTypes.ParsedVariable
 	index             int
 	currentObjectType ObjectType
 	filePath          string
@@ -26,15 +26,15 @@ type Parser struct {
 func NewParser(tokens []*frontendTypes.Token, filePath string) *Parser {
 	return &Parser{
 		tokens:            tokens,
-		resources:         make([]*commonTypes.Resource, 0),
-		variables:         make([]*commonTypes.Variable, 0),
+		resources:         make([]*commonTypes.ParsedResource, 0),
+		variables:         make([]*commonTypes.ParsedVariable, 0),
 		index:             0,
 		currentObjectType: Unset,
 		filePath:          filePath,
 	}
 }
 
-func (p *Parser) Parse() ([]*commonTypes.Resource, []*commonTypes.Variable, error) {
+func (p *Parser) Parse() ([]*commonTypes.ParsedResource, []*commonTypes.ParsedVariable, error) {
 	for p.index < len(p.tokens) {
 		switch p.currentToken().Type {
 		case frontendTypes.EOF:
@@ -66,21 +66,21 @@ func (p *Parser) Parse() ([]*commonTypes.Resource, []*commonTypes.Variable, erro
 	return nil, nil, &errors.MissingEOFToken{FilePath: p.filePath}
 }
 
-func (p *Parser) currentResource() *commonTypes.Resource {
+func (p *Parser) currentResource() *commonTypes.ParsedResource {
 	return p.resources[len(p.resources)-1]
 }
 
-func (p *Parser) currentVariable() *commonTypes.Variable {
+func (p *Parser) currentVariable() *commonTypes.ParsedVariable {
 	return p.variables[len(p.variables)-1]
 }
 
 func (p *Parser) setCurrentObjectType(t ObjectType) {
 	switch t {
 	case Resource:
-		newResource := commonTypes.NewResource(p.filePath, p.currentToken().Line)
+		newResource := commonTypes.NewParsedResource(p.filePath, p.currentToken().Line)
 		p.resources = append(p.resources, newResource)
 	case Variable:
-		newVariable := commonTypes.NewVariable(p.filePath, p.currentToken().Line)
+		newVariable := commonTypes.NewParsedVariable(p.filePath, p.currentToken().Line)
 		p.variables = append(p.variables, newVariable)
 	}
 	p.currentObjectType = t

@@ -2,8 +2,18 @@ package target_file_manager
 
 import "salami/common/types"
 
-func ValidateTargetFilesUnchanged(targetFiles []*types.TargetFile) error {
+func VerifyChecksums(targetFilesMeta []*types.TargetFileMeta) error {
 	// Verify checksums
+	return nil
+}
+
+func UpdateTargetFilesMeta() ([]*types.TargetFileMeta, error) {
+	// Update checksums
+	return []*types.TargetFileMeta{}, nil
+}
+
+func WriteTargetFile(filePath string, content string) error {
+	// Write target files
 	return nil
 }
 
