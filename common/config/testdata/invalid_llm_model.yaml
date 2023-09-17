@@ -1,0 +1,8 @@
+compiler:
+  target:
+    platform: terraform
+  llm:
+    provider: openai
+    model: gpt-agi
+  source_dir: testdata/source_dir
+  target_dir: terraform

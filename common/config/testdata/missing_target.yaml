@@ -1,0 +1,6 @@
+compiler:
+  llm:
+    provider: openai
+    model: gpt-4
+  source_dir: testdata/source_dir
+  target_dir: terraform

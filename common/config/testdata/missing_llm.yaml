@@ -1,0 +1,5 @@
+compiler:
+  target:
+    platform: terraform
+  source_dir: testdata/source_dir
+  target_dir: terraform

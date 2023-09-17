@@ -2,50 +2,44 @@ package config
 
 import (
 	"log"
-	"os"
 	"salami/common/types"
-
-	"gopkg.in/yaml.v3"
 )
 
-var loadedConfig *configType
+var configFilePath = "salami.yaml"
+
+func SetConfigFilePath(path string) {
+	configFilePath = path
+	loadedConfig = nil
+}
 
 func GetSourceDir() string {
-	return getConfig().compiler.sourceDir
+	return getConfig().Compiler.SourceDir
 }
 
 func GetTargetDir() string {
-	return getConfig().compiler.targetDir
+	return getConfig().Compiler.TargetDir
 }
 
 func GetTargetConfig() types.TargetConfig {
-	compilerTargetConfig := getConfig().compiler.target
+	compilerTargetConfig := getConfig().Compiler.Target
 	return types.TargetConfig{
-		Platform: compilerTargetConfig.platform,
+		Platform: compilerTargetConfig.Platform,
 	}
 }
 
 func GetLlmConfig() types.LlmConfig {
-	compilerLlmConfig := getConfig().compiler.llm
+	compilerLlmConfig := getConfig().Compiler.Llm
 	return types.LlmConfig{
-		Provider: compilerLlmConfig.provider,
-		Model:    compilerLlmConfig.model,
+		Provider: compilerLlmConfig.Provider,
+		Model:    compilerLlmConfig.Model,
 	}
 }
 
-func getConfig() *configType {
-	if loadedConfig != nil {
-		return loadedConfig
-	} else {
-		yamlFile, err := os.ReadFile("salami.yaml")
-		if err != nil {
-			log.Fatalf("failed to read config file. Ensure 'salami.yaml' exists in the root directory")
-		}
+var loadedConfig *ConfigType
 
-		err = yaml.Unmarshal(yamlFile, &loadedConfig)
-		if err != nil {
-			log.Fatalf("error parsing config file: %v", err)
-		}
-		return loadedConfig
+func getConfig() *ConfigType {
+	if loadedConfig == nil {
+		log.Fatal("Config not loaded")
 	}
+	return loadedConfig
 }

@@ -5,8 +5,7 @@ import (
 	"salami/common/types"
 )
 
-type TerraformTarget struct {
-}
+type TerraformTarget struct {}
 
 func (tt *TerraformTarget) GenerateCode(*types.ChangeSet, *symbol_table.SymbolTable) []error {
 	return nil

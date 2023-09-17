@@ -28,8 +28,6 @@ func ValidateLockFile() error {
 
 type lockFile struct {
 	version         string           `toml:"version" validate:"required,semver"`
-	sourceDir       string           `toml:"source_dir" validate:"required"`
-	destinationDir  string           `toml:"destination_dir" validate:"required"`
 	targetFilesMeta []targetFileMeta `toml:"target_files_meta"`
 	objects         []object         `toml:"objects"`
 }
@@ -133,8 +131,6 @@ func newValidator() *validator.Validate {
 
 func isEmptyLockFile(lf *lockFile) bool {
 	return lf.version == "" &&
-		lf.sourceDir == "" &&
-		lf.destinationDir == "" &&
 		len(lf.targetFilesMeta) == 0 &&
 		len(lf.objects) == 0
 }

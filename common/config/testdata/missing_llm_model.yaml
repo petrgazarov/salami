@@ -1,0 +1,7 @@
+compiler:
+  target:
+    platform: terraform
+  llm:
+    provider: openai
+  source_dir: testdata/source_dir
+  target_dir: terraform
