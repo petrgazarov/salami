@@ -23,7 +23,7 @@ func NewSymbolTable(resources []*types.ParsedResource, variables []*types.Parsed
 				Message:        fmt.Sprintf("%s logical name is not unique", r.LogicalName),
 			}
 		}
-		st.InsertResource(r)
+		st.insertResource(r)
 	}
 	for _, v := range variables {
 		if _, exists := st.VariableTable[v.Name]; exists {
@@ -32,16 +32,16 @@ func NewSymbolTable(resources []*types.ParsedResource, variables []*types.Parsed
 				Message:        fmt.Sprintf("%s variable name is not unique", v.Name),
 			}
 		}
-		st.InsertVariable(v)
+		st.insertVariable(v)
 	}
 	return st, nil
 }
 
-func (st *SymbolTable) InsertResource(r *types.ParsedResource) {
+func (st *SymbolTable) insertResource(r *types.ParsedResource) {
 	st.ResourceTable[r.LogicalName] = r
 }
 
-func (st *SymbolTable) InsertVariable(v *types.ParsedVariable) {
+func (st *SymbolTable) insertVariable(v *types.ParsedVariable) {
 	st.VariableTable[v.Name] = v
 }
 
