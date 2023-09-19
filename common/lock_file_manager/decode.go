@@ -1,7 +1,6 @@
 package lock_file_manager
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -29,7 +28,9 @@ func (o *Object) UnmarshalTOML(data interface{}) error {
 		return err
 	}
 
-	o.SourceFilePath = rawObject["source_file_path"].(string)
+	if value, ok := rawObject["source_file_path"].(string); ok {
+		o.SourceFilePath = value
+	}
 	rawCodeSegments := rawObject["code_segments"].([]map[string]interface{})
 	o.CodeSegments = make([]CodeSegment, len(rawCodeSegments))
 	err = decodeCodeSegments(o, rawCodeSegments)
@@ -83,7 +84,7 @@ func decodeParsedObject(o *Object, rawParsedObject map[string]interface{}) error
 		}
 		o.Parsed = r
 	default:
-		return fmt.Errorf("unknown object type: %s", rawParsedObject["object_type"])
+		o.Parsed = ParsedResource{}
 	}
 	return nil
 }

@@ -28,25 +28,10 @@ func ValidateLockFile() error {
 				return &LockFileError{Message: fmt.Sprintf("'%s' is not a valid semver", fieldValue)}
 			case "required":
 				return getMissingFieldError(namespace)
+			case "oneof":
+				return &LockFileError{Message: fmt.Sprintf("'%s' is not a valid value", fieldValue)}
 			default:
 				return err
-			}
-		}
-	}
-	for _, object := range lockFile.Objects {
-		if err := object.Parsed.validate(); err != nil {
-			if _, ok := err.(*validator.InvalidValidationError); ok {
-				return err
-			}
-
-			for _, err := range err.(validator.ValidationErrors) {
-				namespace := err.Namespace()
-				switch err.Tag() {
-				case "required":
-					return getMissingFieldError(namespace)
-				default:
-					return err
-				}
 			}
 		}
 	}
@@ -96,7 +81,7 @@ type ParsedResource struct {
 	ObjectType          string            `toml:"object_type" validate:"required,eq=Resource"`
 	ResourceType        string            `toml:"resource_type" validate:"required"`
 	LogicalName         string            `toml:"logical_name" validate:"required"`
-	NaturalLanguage     string            `toml:"natural_language"`
+	NaturalLanguage     string            `toml:"natural_language" validate:"required"`
 	Uses                []string          `toml:"uses"`
 	Exports             map[string]string `toml:"exports"`
 	ReferencedVariables []string          `toml:"referenced_variables"`
