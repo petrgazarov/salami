@@ -94,7 +94,7 @@ func generateCode(
 	if errors := resolvedTarget.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
 		return nil, nil, errors
 	}
-	objects := change_manager.ComputeNewObjects(changeSet, previousObjects)
+	objects := change_manager.ComputeNewObjects(previousObjects, changeSet)
 	targetFiles := resolvedTarget.GetNewFiles(objects)
 	return targetFiles, objects, nil
 }

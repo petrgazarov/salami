@@ -4,117 +4,117 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/BurntSushi/toml"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
 )
 
 func ValidateLockFile() error {
-	lockFile := getLockFile()
+	lockFile := &LockFile{}
+	decodeLockFile(lockFile)
+
 	if isEmptyLockFile(lockFile) {
 		return nil
 	}
 	validate := newValidator()
 	if err := validate.Struct(lockFile); err != nil {
-		return err
-	}
-	for _, object := range lockFile.objects {
-		if err := object.parsed.validate(); err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
+		}
+
+		for _, err := range err.(validator.ValidationErrors) {
+			fieldValue := err.Value()
+			namespace := err.Namespace()
+			switch err.Tag() {
+			case "semver":
+				return &LockFileError{Message: fmt.Sprintf("'%s' is not a valid semver", fieldValue)}
+			case "required":
+				return getMissingFieldError(namespace)
+			default:
+				return err
+			}
+		}
+	}
+	for _, object := range lockFile.Objects {
+		if err := object.Parsed.validate(); err != nil {
+			if _, ok := err.(*validator.InvalidValidationError); ok {
+				return err
+			}
+
+			for _, err := range err.(validator.ValidationErrors) {
+				namespace := err.Namespace()
+				switch err.Tag() {
+				case "required":
+					return getMissingFieldError(namespace)
+				default:
+					return err
+				}
+			}
 		}
 	}
 	return nil
 }
 
-type lockFile struct {
-	version         string           `toml:"version" validate:"required,semver"`
-	targetFilesMeta []targetFileMeta `toml:"target_files_meta"`
-	objects         []object         `toml:"objects"`
+type LockFile struct {
+	Version         string           `toml:"version" validate:"required,semver"`
+	TargetFilesMeta []TargetFileMeta `toml:"target_files_meta" validate:"dive"`
+	Objects         []Object         `toml:"objects" validate:"dive"`
 }
 
-type targetFileMeta struct {
-	filePath string `toml:"file_path" validate:"required"`
-	checksum string `toml:"checksum" validate:"required"`
+type TargetFileMeta struct {
+	FilePath string `toml:"file_path" validate:"required"`
+	Checksum string `toml:"checksum" validate:"required"`
 }
 
-type object struct {
-	sourceFilePath string                 `toml:"source_file_path" validate:"required"`
-	parsed         parsedObject           `toml:"-"`
-	codeSegments   []codeSegment          `toml:"code_segments" validate:"required"`
-	rawParsed      map[string]interface{} `toml:"parsed"`
+type Object struct {
+	SourceFilePath string        `toml:"source_file_path" validate:"required"`
+	Parsed         ParsedObject  `toml:"parsed" validate:"required"`
+	CodeSegments   []CodeSegment `toml:"code_segments" validate:"required,dive"`
 }
 
-type parsedObject interface {
+type ParsedObject interface {
 	validate() error
 	getObjectType() string
 }
 
-type parsedVariable struct {
-	objectType   string `toml:"object_type" validate:"required,eq=Variable"`
-	name         string `toml:"name" validate:"required"`
-	description  string `toml:"description"`
-	variableType string `toml:"type" validate:"required oneof=string number boolean"`
-	defaultValue string `toml:"default"`
+type ParsedVariable struct {
+	ObjectType   string `toml:"object_type" validate:"required,eq=Variable"`
+	Name         string `toml:"name" validate:"required"`
+	Description  string `toml:"description"`
+	VariableType string `toml:"type" validate:"required,oneof=string number boolean"`
+	DefaultValue string `toml:"default"`
 }
 
-func (v parsedVariable) validate() error {
+func (v ParsedVariable) validate() error {
 	validate := validator.New()
 	return validate.Struct(v)
 }
 
-func (v parsedVariable) getObjectType() string {
-	return v.objectType
+func (v ParsedVariable) getObjectType() string {
+	return v.ObjectType
 }
 
-type parsedResource struct {
-	objectType          string            `toml:"object_type" validate:"required,eq=Resource"`
-	resourceType        string            `toml:"resource_type" validate:"required"`
-	logicalName         string            `toml:"logical_name" validate:"required"`
-	naturalLanguage     string            `toml:"natural_language"`
-	uses                []string          `toml:"uses"`
-	exports             map[string]string `toml:"exports"`
-	referencedVariables []string          `toml:"referenced_variables"`
+type ParsedResource struct {
+	ObjectType          string            `toml:"object_type" validate:"required,eq=Resource"`
+	ResourceType        string            `toml:"resource_type" validate:"required"`
+	LogicalName         string            `toml:"logical_name" validate:"required"`
+	NaturalLanguage     string            `toml:"natural_language"`
+	Uses                []string          `toml:"uses"`
+	Exports             map[string]string `toml:"exports"`
+	ReferencedVariables []string          `toml:"referenced_variables"`
 }
 
-func (r parsedResource) validate() error {
+func (r ParsedResource) validate() error {
 	validate := validator.New()
 	return validate.Struct(r)
 }
 
-func (r parsedResource) getObjectType() string {
-	return r.objectType
+func (r ParsedResource) getObjectType() string {
+	return r.ObjectType
 }
 
-type codeSegment struct {
-	segmentType    string `toml:"segment_type" validate:"required oneof=Variable Resource"`
-	targetFilePath string `toml:"target_file_path" validate:"required"`
-	content        string `toml:"content" validate:"required"`
-}
-
-func (l *object) UnmarshalTOML(data []byte) error {
-	type temp object
-	if err := toml.Unmarshal(data, (*temp)(l)); err != nil {
-		return err
-	}
-
-	switch l.parsed.getObjectType() {
-	case "Variable":
-		var v parsedVariable
-		if err := mapstructure.Decode(l.rawParsed, &v); err != nil {
-			return err
-		}
-		l.parsed = v
-	case "Resource":
-		var r parsedResource
-		if err := mapstructure.Decode(l.rawParsed, &r); err != nil {
-			return err
-		}
-		l.parsed = r
-	default:
-		return fmt.Errorf("unknown object type: %s", l.parsed.getObjectType())
-	}
-
-	return nil
+type CodeSegment struct {
+	SegmentType    string `toml:"segment_type" validate:"required,oneof=Variable Resource Export"`
+	TargetFilePath string `toml:"target_file_path" validate:"required"`
+	Content        string `toml:"content" validate:"required"`
 }
 
 func validateSemVer(fl validator.FieldLevel) bool {
@@ -129,8 +129,8 @@ func newValidator() *validator.Validate {
 	return validate
 }
 
-func isEmptyLockFile(lf *lockFile) bool {
-	return lf.version == "" &&
-		len(lf.targetFilesMeta) == 0 &&
-		len(lf.objects) == 0
+func isEmptyLockFile(lf *LockFile) bool {
+	return lf.Version == "" &&
+		len(lf.TargetFilesMeta) == 0 &&
+		len(lf.Objects) == 0
 }

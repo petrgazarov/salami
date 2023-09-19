@@ -8,65 +8,69 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-const lockFilePath = "salami-lock.toml"
+var lockFilePath = "salami-lock.toml"
+var loadedLockFile *LockFile
 
-var loadedLockFile *lockFile
+func SetLockFilePath(path string) {
+	lockFilePath = path
+	loadedLockFile = nil
+}
 
 func GetTargetFilesMeta() []types.TargetFileMeta {
-	targetFilesMeta := getLockFile().targetFilesMeta
+	targetFilesMeta := getLockFile().TargetFilesMeta
 	result := make([]types.TargetFileMeta, len(targetFilesMeta))
 	for i := range targetFilesMeta {
 		result[i] = types.TargetFileMeta{
-			FilePath: targetFilesMeta[i].filePath,
-			Checksum: targetFilesMeta[i].checksum,
+			FilePath: targetFilesMeta[i].FilePath,
+			Checksum: targetFilesMeta[i].Checksum,
 		}
 	}
 	return result
 }
 
 func GetObjects() []*types.Object {
-	objects := getLockFile().objects
+	objects := getLockFile().Objects
 	result := make([]*types.Object, len(objects))
 	for i := range objects {
 		var parsed types.ParsedObject
-		switch objects[i].parsed.getObjectType() {
+		switch objects[i].Parsed.getObjectType() {
 		case "Resource":
-			parsedResource := objects[i].parsed.(*parsedResource)
-			uses := make([]types.LogicalName, len(parsedResource.uses))
-			for j, use := range parsedResource.uses {
+			parsedResource := objects[i].Parsed.(*ParsedResource)
+			uses := make([]types.LogicalName, len(parsedResource.Uses))
+			for j, use := range parsedResource.Uses {
 				uses[j] = types.LogicalName(use)
 			}
 			parsed = &types.ParsedResource{
-				ResourceType:        types.ResourceType(parsedResource.resourceType),
-				LogicalName:         types.LogicalName(parsedResource.logicalName),
-				NaturalLanguage:     parsedResource.naturalLanguage,
+				ResourceType:        types.ResourceType(parsedResource.ResourceType),
+				LogicalName:         types.LogicalName(parsedResource.LogicalName),
+				NaturalLanguage:     parsedResource.NaturalLanguage,
 				Uses:                uses,
-				Exports:             parsedResource.exports,
-				ReferencedVariables: parsedResource.referencedVariables,
-				SourceFilePath:      objects[i].sourceFilePath,
+				Exports:             parsedResource.Exports,
+				ReferencedVariables: parsedResource.ReferencedVariables,
+				SourceFilePath:      objects[i].SourceFilePath,
 			}
 		case "Variable":
-			parsedVariable := objects[i].parsed.(*parsedVariable)
+			parsedVariable := objects[i].Parsed.(*ParsedVariable)
 			parsed = &types.ParsedVariable{
-				Description:    parsedVariable.description,
-				Name:           parsedVariable.name,
-				Default:        parsedVariable.defaultValue,
-				Type:           types.VariableType(parsedVariable.variableType),
-				SourceFilePath: objects[i].sourceFilePath,
+				Description:    parsedVariable.Description,
+				Name:           parsedVariable.Name,
+				Default:        parsedVariable.DefaultValue,
+				Type:           types.VariableType(parsedVariable.VariableType),
+				SourceFilePath: objects[i].SourceFilePath,
 			}
 		}
 
-		codeSegments := make([]types.CodeSegment, len(objects[i].codeSegments))
-		for j, segment := range objects[i].codeSegments {
+		codeSegments := make([]types.CodeSegment, len(objects[i].CodeSegments))
+		for j, segment := range objects[i].CodeSegments {
 			codeSegments[j] = types.CodeSegment{
-				SegmentType:    types.CodeSegmentType(segment.segmentType),
-				Content:        segment.content,
-				TargetFilePath: segment.targetFilePath,
+				SegmentType:    types.CodeSegmentType(segment.SegmentType),
+				Content:        segment.Content,
+				TargetFilePath: segment.TargetFilePath,
 			}
 		}
 
 		result[i] = &types.Object{
-			SourceFilePath: objects[i].sourceFilePath,
+			SourceFilePath: objects[i].SourceFilePath,
 			Parsed:         parsed,
 			CodeSegments:   codeSegments,
 		}
@@ -74,7 +78,7 @@ func GetObjects() []*types.Object {
 	return result
 }
 
-func UpdateLockFile(targetFiles []types.TargetFileMeta, newObjects []*types.Object) error {
+func UpdateLockFile(targetFilesMeta []types.TargetFileMeta, objects []*types.Object) error {
 	// Merge changeSet into lockFile
 	writeLockFile()
 	return nil
@@ -93,15 +97,9 @@ func writeLockFile() error {
 	return nil
 }
 
-func getLockFile() *lockFile {
+func getLockFile() *LockFile {
 	if loadedLockFile == nil {
-		if _, err := toml.DecodeFile(lockFilePath, loadedLockFile); err != nil {
-			if err != nil && !os.IsNotExist(err) {
-				log.Fatalf("failed to read lock file")
-			} else {
-				loadedLockFile = &lockFile{}
-			}
-		}
+		log.Fatal("Lock file not loaded")
 	}
 	return loadedLockFile
 }

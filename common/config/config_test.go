@@ -31,7 +31,7 @@ func TestConfigValidate(t *testing.T) {
 }
 
 func setConfigFile(t *testing.T, fileName string) {
-	fixturePath := filepath.Join("testdata", fileName)
+	fixturePath := filepath.Join("testdata", "config_files", fileName)
 	config.SetConfigFilePath(fixturePath)
 }
 

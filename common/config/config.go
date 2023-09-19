@@ -6,6 +6,7 @@ import (
 )
 
 var configFilePath = "salami.yaml"
+var loadedConfig *ConfigType
 
 func SetConfigFilePath(path string) {
 	configFilePath = path
@@ -34,8 +35,6 @@ func GetLlmConfig() types.LlmConfig {
 		Model:    compilerLlmConfig.Model,
 	}
 }
-
-var loadedConfig *ConfigType
 
 func getConfig() *ConfigType {
 	if loadedConfig == nil {

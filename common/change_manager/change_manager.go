@@ -13,8 +13,8 @@ func GenerateChangeSet(
 }
 
 func ComputeNewObjects(
-	changeSet *types.ChangeSet,
 	previousObjects []*types.Object,
+	changeSet *types.ChangeSet,
 ) []*types.Object {
 	return nil
 }
