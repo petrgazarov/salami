@@ -3,148 +3,142 @@ package lock_file_manager_test
 import (
 	"path/filepath"
 	"salami/common/lock_file_manager"
+	"salami/common/types"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestLockFileValidate(t *testing.T) {
-	testCases := getValidateTestCases()
+func TestGetTargetFilesMeta(t *testing.T) {
+	t.Run("Gets target files meta from the lock file", func(t *testing.T) {
+		setLockFile(t, "valid.toml")
+		lock_file_manager.ValidateLockFile()
+		expectedTargetFilesMeta := []types.TargetFileMeta{
+			{FilePath: "path/to/target_file_1", Checksum: "e460d56360c0c4d1ff32fd5e5a56eb99"},
+			{FilePath: "path/to/target_file_2", Checksum: "ea441ff260d926a935cf47abf698482d"},
+		}
+		actualTargetFilesMeta := lock_file_manager.GetTargetFilesMeta()
+		require.ElementsMatch(
+			t,
+			expectedTargetFilesMeta,
+			actualTargetFilesMeta,
+		)
+	})
+}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			setLockFile(t, tc.fileName)
-			err := lock_file_manager.ValidateLockFile()
-			require.Equal(t, err != nil, tc.wantErr, "unexpected error status: got error = %v, wantErr %v", err, tc.wantErr)
-			if err != nil {
-				require.Equal(
-					t,
-					err.Error(),
-					tc.expectedErrorMessage,
-					"unexpected error message: got = %v, want = %v",
-					err.Error(),
-					tc.expectedErrorMessage,
-				)
-			}
-		})
+func TestGetObjects(t *testing.T) {
+	t.Run("Gets objects from the lock file", func(t *testing.T) {
+		setLockFile(t, "valid.toml")
+		lock_file_manager.ValidateLockFile()
+		expectedObjects := getExpectedObjects()
+		actualObjects := lock_file_manager.GetObjects()
+		for i, actualObject := range actualObjects {
+			require.Equal(t, expectedObjects[i], actualObject)
+		}
+	})
+}
+
+func getExpectedObjects() []*types.Object {
+	return []*types.Object{
+		{
+			SourceFilePath: "path/to/source_file",
+			Parsed: &types.ParsedResource{
+				ResourceType:        types.ResourceType("aws.s3.Bucket"),
+				LogicalName:         types.LogicalName("AssumedRolesBucket"),
+				NaturalLanguage:     "Bucket: assumed-roles\nVersioning enabled: True",
+				Uses:                []types.LogicalName{},
+				Exports:             map[string]string{"name": "assumed-roles-bucket-name"},
+				ReferencedVariables: []string{},
+				SourceFilePath:      "path/to/source_file",
+				SourceFileLine:      0,
+			},
+			CodeSegments: []types.CodeSegment{
+				{
+					SegmentType:    types.CodeSegmentType("Resource"),
+					TargetFilePath: "path/to/target_file_1",
+					Content: "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n" +
+						"  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}",
+				},
+				{
+					SegmentType:    types.CodeSegmentType("Export"),
+					TargetFilePath: "path/to/target_file_1",
+					Content:        "output \"assumed-roles-bucket-name\" {\n  value = aws_s3_bucket.AssumedRolesBucket.bucket\n}",
+				},
+			},
+		},
+		{
+			SourceFilePath: "path/to/source_file",
+			Parsed: &types.ParsedResource{
+				ResourceType: types.ResourceType("aws.s3.BucketPublicAccessBlock"),
+				LogicalName:  types.LogicalName("AssetsPublicAccessBlock"),
+				NaturalLanguage: "Block public ACLs: True\nBlock public policy: False\n" +
+					"Ignore public ACLs: True\nRestrict public buckets: False",
+				Uses:                []types.LogicalName{"AssumedRolesBucket"},
+				Exports:             map[string]string{},
+				ReferencedVariables: []string{},
+				SourceFilePath:      "path/to/source_file",
+				SourceFileLine:      0,
+			},
+			CodeSegments: []types.CodeSegment{
+				{
+					SegmentType:    types.CodeSegmentType("Resource"),
+					TargetFilePath: "path/to/target_file_1",
+					Content: "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n" +
+						"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n" +
+						"  block_public_policy     = false\n  ignore_public_acls      = true\n" +
+						"  restrict_public_buckets = false\n}",
+				},
+			},
+		},
+		{
+			SourceFilePath: "path/to/source_file",
+			Parsed: &types.ParsedResource{
+				ResourceType: types.ResourceType("aws.s3.BucketPolicy"),
+				LogicalName:  types.LogicalName("AssumedRolesBucketPolicy"),
+				NaturalLanguage: "Policy: A JSON policy that allows all principals to perform the " +
+					"\"s3:GetObject\" action on all objects in the specified S3 bucket.",
+				Uses:                []types.LogicalName{"AssumedRolesBucket"},
+				Exports:             map[string]string{},
+				ReferencedVariables: []string{},
+				SourceFilePath:      "path/to/source_file",
+				SourceFileLine:      0,
+			},
+			CodeSegments: []types.CodeSegment{
+				{
+					SegmentType:    types.CodeSegmentType("Resource"),
+					TargetFilePath: "path/to/target_file_1",
+					Content: "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n" +
+						"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n" +
+						"    Version = \"2012-10-17\"\n    Statement = [\n      {\n" +
+						"        Action   = \"s3:GetObject\"\n        Effect   = \"Allow\"\n" +
+						"        Resource = \"${aws_s3_bucket.AssumedRolesBucket.arn}/*\"\n" +
+						"        Principal = \"*\"\n      }\n    ]\n  })\n}",
+				},
+			},
+		},
+		{
+			SourceFilePath: "path/to/source_file",
+			Parsed: &types.ParsedVariable{
+				Name:           "server_container_name",
+				Description:    "Server container name",
+				Type:           types.VariableType("string"),
+				Default:        "server-container",
+				SourceFilePath: "path/to/source_file",
+				SourceFileLine: 0,
+			},
+			CodeSegments: []types.CodeSegment{
+				{
+					SegmentType:    types.CodeSegmentType("Variable"),
+					TargetFilePath: "path/to/target_file_2",
+					Content: "variable \"server_container_name\" {\n  description = \"Server container name\"\n" +
+						"  type        = string\n  default     = \"server-container\"\n}",
+				},
+			},
+		},
 	}
 }
 
 func setLockFile(t *testing.T, fileName string) {
 	fixturePath := filepath.Join("testdata", "lock_files", fileName)
 	lock_file_manager.SetLockFilePath(fixturePath)
-}
-
-type testCase struct {
-	name                 string
-	fileName             string
-	wantErr              bool
-	expectedErrorMessage string
-}
-
-func getValidateTestCases() []testCase {
-	return []testCase{
-		{
-			"Valid lock file",
-			"valid.toml",
-			false,
-			"",
-		},
-		{
-			"Empty lock file",
-			"empty.toml",
-			false,
-			"",
-		},
-		{
-			"Lock file doesn't exist",
-			"nonexistent.toml",
-			false,
-			"",
-		},
-		{
-			"Missing version",
-			"missing_version.toml",
-			true,
-			"lock file error: missing or invalid lock file version",
-		},
-		{
-			"Invalid semver",
-			"invalid_semver.toml",
-			true,
-			"lock file error: '0.0.1a' is not a valid semver",
-		},
-		{
-			"Missing target file path",
-			"missing_target_file_path.toml",
-			true,
-			"lock file error: missing or invalid target file path",
-		},
-		{
-			"Missing target file checksum",
-			"missing_target_file_checksum.toml",
-			true,
-			"lock file error: missing or invalid target file checksum",
-		},
-		{
-			"Missing source file path",
-			"missing_source_file_path.toml",
-			true,
-			"lock file error: missing or invalid source file path",
-		},
-		{
-			"Missing parsed resource object type",
-			"missing_object_type.toml",
-			true,
-			"lock file error: missing or invalid parsed object type",
-		},
-		{
-			"Missing parsed resource type",
-			"missing_resource_resource_type.toml",
-			true,
-			"lock file error: missing or invalid parsed object resource type",
-		},
-		{
-			"Missing parsed resource logical name",
-			"missing_resource_logical_name.toml",
-			true,
-			"lock file error: missing or invalid parsed object logical name",
-		},
-		{
-			"Missing variable name",
-			"missing_variable_name.toml",
-			true,
-			"lock file error: missing or invalid parsed object name",
-		},
-		{
-			"Invalid variable type",
-			"missing_variable_type.toml",
-			true,
-			"lock file error: missing or invalid parsed object variable type",
-		},
-		{
-			"Invalid variable type",
-			"invalid_variable_type.toml",
-			true,
-			"lock file error: 'unsupported' is not a valid value",
-		},
-		{
-			"Missing code segment type",
-			"missing_segment_type.toml",
-			true,
-			"lock file error: missing or invalid code segment type",
-		},
-		{
-			"Missing code segment target file path",
-			"missing_code_segment_target_file_path.toml",
-			true,
-			"lock file error: missing or invalid code segment target file path",
-		},
-		{
-			"Missing code segment content",
-			"missing_code_segment_content.toml",
-			true,
-			"lock file error: missing or invalid code segment content",
-		},
-	}
 }

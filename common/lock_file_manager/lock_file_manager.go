@@ -35,7 +35,7 @@ func GetObjects() []*types.Object {
 		var parsed types.ParsedObject
 		switch objects[i].Parsed.getObjectType() {
 		case "Resource":
-			parsedResource := objects[i].Parsed.(*ParsedResource)
+			parsedResource := objects[i].Parsed.(ParsedResource)
 			uses := make([]types.LogicalName, len(parsedResource.Uses))
 			for j, use := range parsedResource.Uses {
 				uses[j] = types.LogicalName(use)
@@ -50,7 +50,7 @@ func GetObjects() []*types.Object {
 				SourceFilePath:      objects[i].SourceFilePath,
 			}
 		case "Variable":
-			parsedVariable := objects[i].Parsed.(*ParsedVariable)
+			parsedVariable := objects[i].Parsed.(ParsedVariable)
 			parsed = &types.ParsedVariable{
 				Description:    parsedVariable.Description,
 				Name:           parsedVariable.Name,

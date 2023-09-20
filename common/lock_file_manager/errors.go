@@ -35,7 +35,6 @@ func getMissingFieldError(field string) error {
 		return "[*]"
 	})
 
-	fmt.Println("field", field)
 	fieldName := fieldNameMap[field]
 	if fieldName == "" {
 		fieldName = field
