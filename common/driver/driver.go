@@ -3,7 +3,6 @@ package driver
 import (
 	"os"
 	"path/filepath"
-	"sync"
 
 	"salami/backend/target"
 	"salami/backend/target_file_manager"
@@ -29,7 +28,7 @@ func Run() []error {
 	if len(errors) > 0 {
 		return errors
 	}
-	if errors := writeTargetFiles(newTargetFiles); len(errors) > 0 {
+	if errors := target_file_manager.WriteTargetFiles(newTargetFiles, config.GetTargetDir()); len(errors) > 0 {
 		return errors
 	}
 
@@ -98,33 +97,4 @@ func resolveTarget() target.Target {
 	targetConfig := config.GetTargetConfig()
 	llmConfig := config.GetLlmConfig()
 	return target.ResolveTarget(targetConfig, llmConfig)
-}
-
-func writeTargetFiles(targetFiles []*types.TargetFile) []error {
-	errChan := make(chan error, len(targetFiles))
-	var wg sync.WaitGroup
-
-	for _, targetFile := range targetFiles {
-		wg.Add(1)
-		go func(tf *types.TargetFile) {
-			defer wg.Done()
-			err := target_file_manager.WriteTargetFile(tf)
-			if err != nil {
-				errChan <- err
-			}
-		}(targetFile)
-	}
-
-	wg.Wait()
-	close(errChan)
-
-	var errors []error
-	for err := range errChan {
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return errors
-	}
-	return nil
 }
