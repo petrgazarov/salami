@@ -3,7 +3,9 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"salami/common/types"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"gopkg.in/yaml.v3"
@@ -34,6 +36,10 @@ func ValidateConfig() error {
 				return getInvalidFieldError(namespace, nil)
 			case "dir_exists":
 				return &ConfigError{Message: fmt.Sprintf("'%s' directory could not be resolved", fieldValue)}
+			case "target_dir_valid":
+				return &ConfigError{
+					Message: "target directory cannot be outside of the current working directory",
+				}
 			case "required":
 				return getMissingFieldError(namespace)
 			default:
@@ -48,7 +54,7 @@ type CompilerConfig struct {
 	Target    CompilerTargetConfig `yaml:"target" validate:"valid_target"`
 	Llm       CompilerLlmConfig    `yaml:"llm" validate:"valid_llm"`
 	SourceDir string               `yaml:"source_dir" validate:"required,dir_exists"`
-	TargetDir string               `yaml:"target_dir" validate:"required"`
+	TargetDir string               `yaml:"target_dir" validate:"required,target_dir_valid"`
 }
 
 type ConfigType struct {
@@ -88,10 +94,32 @@ func validateDirExists(fl validator.FieldLevel) bool {
 	return !os.IsNotExist(err)
 }
 
+// Target directory cannot be outside of the current working directory
+func validateTargetDir(fl validator.FieldLevel) bool {
+	targetDir := fl.Field().String()
+	absTargetDir, err := filepath.Abs(targetDir)
+	if err != nil {
+		return false
+	}
+
+	rootDir, err := os.Getwd()
+	if err != nil {
+		return false
+	}
+
+	rel, err := filepath.Rel(rootDir, absTargetDir)
+	if err != nil {
+		return false
+	}
+
+	return !strings.HasPrefix(rel, "..")
+}
+
 func newValidator() *validator.Validate {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	validate.RegisterValidation("valid_target", validateTarget)
 	validate.RegisterValidation("valid_llm", validateLlm)
 	validate.RegisterValidation("dir_exists", validateDirExists)
+	validate.RegisterValidation("target_dir_valid", validateTargetDir)
 	return validate
 }

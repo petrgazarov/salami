@@ -110,5 +110,11 @@ func getTestCases() []testCase {
 			true,
 			"config error: could not parse config file. Ensure it is valid yaml format",
 		},
+		{
+			"Target directory outside of program's root directory",
+			"target_dir_outside_root.yaml",
+			true,
+			"config error: target directory cannot be outside of the current working directory",
+		},
 	}
 }
