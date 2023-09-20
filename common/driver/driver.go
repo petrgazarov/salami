@@ -84,19 +84,20 @@ func generateCode(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]*types.TargetFile, []*types.Object, []error) {
 	previousObjects := lock_file_manager.GetObjects()
-	changeSet, err := change_manager.GenerateChangeSet(previousObjects, symbolTable)
-	if err != nil {
-		return nil, nil, []error{err}
-	}
-	targetConfig := config.GetTargetConfig()
-	llmConfig := config.GetLlmConfig()
-	resolvedTarget := target.ResolveTarget(targetConfig, llmConfig)
-	if errors := resolvedTarget.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
+	changeSet := change_manager.GenerateChangeSet(previousObjects, symbolTable)
+	target := resolveTarget()
+	if errors := target.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
 		return nil, nil, errors
 	}
-	objects := change_manager.ComputeNewObjects(previousObjects, changeSet)
-	targetFiles := resolvedTarget.GetNewFiles(objects)
-	return targetFiles, objects, nil
+	newObjects := change_manager.ComputeNewObjects(previousObjects, changeSet)
+	targetFiles := target.GetFilesFromObjects(newObjects)
+	return targetFiles, newObjects, nil
+}
+
+func resolveTarget() target.Target {
+	targetConfig := config.GetTargetConfig()
+	llmConfig := config.GetLlmConfig()
+	return target.ResolveTarget(targetConfig, llmConfig)
 }
 
 func writeTargetFiles(targetFiles []*types.TargetFile) []error {

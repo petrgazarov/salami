@@ -8,7 +8,7 @@ import (
 
 type Target interface {
 	GenerateCode(*types.ChangeSet, *symbol_table.SymbolTable) []error
-	GetNewFiles([]*types.Object) []*types.TargetFile
+	GetFilesFromObjects([]*types.Object) []*types.TargetFile
 }
 
 func ResolveTarget(

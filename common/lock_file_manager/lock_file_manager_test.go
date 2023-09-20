@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetTargetFilesMeta(t *testing.T) {
-	t.Run("Gets target files meta from the lock file", func(t *testing.T) {
+	t.Run("should get target files meta from the lock file", func(t *testing.T) {
 		setLockFile(t, "valid.toml")
 		lock_file_manager.ValidateLockFile()
 		expectedTargetFilesMeta := []types.TargetFileMeta{
@@ -27,7 +27,7 @@ func TestGetTargetFilesMeta(t *testing.T) {
 }
 
 func TestGetObjects(t *testing.T) {
-	t.Run("Gets objects from the lock file", func(t *testing.T) {
+	t.Run("should get objects from the lock file", func(t *testing.T) {
 		setLockFile(t, "valid.toml")
 		lock_file_manager.ValidateLockFile()
 		expectedObjects := getExpectedObjects()

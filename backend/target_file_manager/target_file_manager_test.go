@@ -62,7 +62,7 @@ func TestGenerateTargetFilesMeta(t *testing.T) {
 	wantErr := false
 	expectedErrorMessage := ""
 
-	t.Run("Computes checksums and returns TargetFilesMeta", func(t *testing.T) {
+	t.Run("should compute checksums and return TargetFilesMeta", func(t *testing.T) {
 		fileMetas, err := target_file_manager.GenerateTargetFilesMeta(targetFiles)
 		require.Equal(t, err != nil, wantErr, "unexpected error status: got error = %v, wantErr %v", err, wantErr)
 		if err != nil {
