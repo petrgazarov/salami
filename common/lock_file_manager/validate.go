@@ -2,8 +2,10 @@ package lock_file_manager
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 
+	"github.com/BurntSushi/toml"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -50,56 +52,42 @@ type TargetFileMeta struct {
 }
 
 type Object struct {
-	SourceFilePath string        `toml:"source_file_path" validate:"required"`
-	Parsed         ParsedObject  `toml:"parsed" validate:"required"`
-	CodeSegments   []CodeSegment `toml:"code_segments" validate:"required,dive"`
-}
-
-type ParsedObject interface {
-	validate() error
-	getObjectType() string
+	SourceFilePath string         `toml:"source_file_path" validate:"required"`
+	ParsedResource *ParsedResource `toml:"parsed_resource" validate:"required_without=ParsedVariable"`
+	ParsedVariable *ParsedVariable `toml:"parsed_variable" validate:"required_without=ParsedResource"`
+	CodeSegments   []CodeSegment  `toml:"code_segments" validate:"required,dive"`
 }
 
 type ParsedVariable struct {
-	ObjectType   string `toml:"object_type" validate:"required,eq=Variable"`
 	Name         string `toml:"name" validate:"required"`
 	Description  string `toml:"description"`
 	VariableType string `toml:"type" validate:"required,oneof=string number boolean"`
 	DefaultValue string `toml:"default"`
 }
 
-func (v ParsedVariable) validate() error {
-	validate := validator.New()
-	return validate.Struct(v)
-}
-
-func (v ParsedVariable) getObjectType() string {
-	return v.ObjectType
-}
-
 type ParsedResource struct {
-	ObjectType          string            `toml:"object_type" validate:"required,eq=Resource"`
 	ResourceType        string            `toml:"resource_type" validate:"required"`
 	LogicalName         string            `toml:"logical_name" validate:"required"`
-	NaturalLanguage     string            `toml:"natural_language" validate:"required"`
+	NaturalLanguage     string            `toml:"natural_language"`
 	Uses                []string          `toml:"uses"`
 	Exports             map[string]string `toml:"exports"`
 	ReferencedVariables []string          `toml:"referenced_variables"`
-}
-
-func (r ParsedResource) validate() error {
-	validate := validator.New()
-	return validate.Struct(r)
-}
-
-func (r ParsedResource) getObjectType() string {
-	return r.ObjectType
 }
 
 type CodeSegment struct {
 	SegmentType    string `toml:"segment_type" validate:"required,oneof=Variable Resource Export"`
 	TargetFilePath string `toml:"target_file_path" validate:"required"`
 	Content        string `toml:"content" validate:"required"`
+}
+
+func decodeLockFile(lockFile *LockFile) error {
+	if _, err := toml.DecodeFile(lockFilePath, lockFile); err != nil {
+		if err != nil && !os.IsNotExist(err) {
+			return &LockFileError{Message: "could not parse lock file"}
+		}
+	}
+	loadedLockFile = lockFile
+	return nil
 }
 
 func validateSemVer(fl validator.FieldLevel) bool {

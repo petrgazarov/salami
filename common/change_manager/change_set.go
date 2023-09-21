@@ -7,10 +7,10 @@ import (
 )
 
 func GenerateChangeSet(
-	previousObjects []*types.Object,
+	previousResources map[types.LogicalName]*types.Object,
+	previousVariables map[string]*types.Object,
 	symbolTable *symbol_table.SymbolTable,
 ) *types.ChangeSet {
-	previousResources, previousVariables := previousObjectsMap(previousObjects)
 	seenResources := make(map[types.LogicalName]bool)
 	seenVariables := make(map[string]bool)
 	changeSet := &types.ChangeSet{
@@ -105,20 +105,4 @@ func recordVariableDeletions(
 			})
 		}
 	}
-}
-
-func previousObjectsMap(objects []*types.Object) (map[types.LogicalName]*types.Object, map[string]*types.Object) {
-	resources := make(map[types.LogicalName]*types.Object)
-	variables := make(map[string]*types.Object)
-
-	for _, object := range objects {
-		switch v := object.Parsed.(type) {
-		case *types.ParsedResource:
-			resources[v.LogicalName] = object
-		case *types.ParsedVariable:
-			variables[v.Name] = object
-		}
-	}
-
-	return resources, variables
 }

@@ -33,9 +33,8 @@ func GetObjects() []*types.Object {
 	result := make([]*types.Object, len(objects))
 	for i := range objects {
 		var parsed types.ParsedObject
-		switch objects[i].Parsed.getObjectType() {
-		case "Resource":
-			parsedResource := objects[i].Parsed.(ParsedResource)
+		if objects[i].ParsedResource != nil {
+			parsedResource := objects[i].ParsedResource
 			uses := make([]types.LogicalName, len(parsedResource.Uses))
 			for j, use := range parsedResource.Uses {
 				uses[j] = types.LogicalName(use)
@@ -49,8 +48,8 @@ func GetObjects() []*types.Object {
 				ReferencedVariables: parsedResource.ReferencedVariables,
 				SourceFilePath:      objects[i].SourceFilePath,
 			}
-		case "Variable":
-			parsedVariable := objects[i].Parsed.(ParsedVariable)
+		} else if objects[i].ParsedVariable != nil {
+			parsedVariable := objects[i].ParsedVariable
 			parsed = &types.ParsedVariable{
 				Description:    parsedVariable.Description,
 				Name:           parsedVariable.Name,

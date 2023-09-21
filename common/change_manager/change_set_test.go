@@ -12,15 +12,17 @@ import (
 
 func TestGenerateChangeSet(t *testing.T) {
 	t.Run("should return an empty change set when there are no changes", func(t *testing.T) {
-		previousObjects, previousResources, previousVariables := getPreviousObjects()
+		previousResourcesMap, previousVariablesMap := getPreviousObjectMaps()
+		previousResources, previousVariables := convertObjectMapsToSlices(previousResourcesMap, previousVariablesMap)
 		symbolTable, err := symbol_table.NewSymbolTable(previousResources, previousVariables)
 		require.NoError(t, err)
-		changeSet := change_manager.GenerateChangeSet(previousObjects, symbolTable)
+		changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
 		require.Equal(t, changeSet, &types.ChangeSet{Diffs: []types.ChangeSetDiff{}})
 	})
 
 	t.Run("should return a change set with additions, deletions, and changes when they exist", func(t *testing.T) {
-		previousObjects, previousResources, previousVariables := getPreviousObjects()
+		previousResourcesMap, previousVariablesMap := getPreviousObjectMaps()
+		previousResources, previousVariables := convertObjectMapsToSlices(previousResourcesMap, previousVariablesMap)
 		newResources := previousResources[:1]
 		newResources = append(
 			newResources,
@@ -55,7 +57,7 @@ func TestGenerateChangeSet(t *testing.T) {
 		})
 		symbolTable, err := symbol_table.NewSymbolTable(newResources, previousVariables)
 		require.NoError(t, err)
-		changeSet := change_manager.GenerateChangeSet(previousObjects, symbolTable)
+		changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
 		changeSetDiffs := sortChangeSetDiffs(changeSet.Diffs)
 		require.Equal(t, 4, len(changeSetDiffs))
 		expectedDiffs := getExpectedChangeSetDiffs()
@@ -65,7 +67,7 @@ func TestGenerateChangeSet(t *testing.T) {
 	})
 }
 
-func getPreviousObjects() ([]*types.Object, []*types.ParsedResource, []*types.ParsedVariable) {
+func getPreviousObjectMaps() (map[types.LogicalName]*types.Object, map[string]*types.Object) {
 	objects := []*types.Object{
 		{
 			SourceFilePath: "path/to/source_file",
@@ -164,16 +166,19 @@ func getPreviousObjects() ([]*types.Object, []*types.ParsedResource, []*types.Pa
 		},
 	}
 
-	resources := []*types.ParsedResource{}
-	variables := []*types.ParsedVariable{}
-	for _, obj := range objects {
-		if res, ok := obj.Parsed.(*types.ParsedResource); ok {
-			resources = append(resources, res)
-		} else if var_, ok := obj.Parsed.(*types.ParsedVariable); ok {
-			variables = append(variables, var_)
+	resourcesMap := make(map[types.LogicalName]*types.Object)
+	variablesMap := make(map[string]*types.Object)
+
+	for _, object := range objects {
+		switch parsed := object.Parsed.(type) {
+		case *types.ParsedResource:
+			resourcesMap[parsed.LogicalName] = object
+		case *types.ParsedVariable:
+			variablesMap[parsed.Name] = object
 		}
 	}
-	return objects, resources, variables
+
+	return resourcesMap, variablesMap
 }
 
 func getExpectedChangeSetDiffs() []types.ChangeSetDiff {
@@ -277,6 +282,23 @@ func getExpectedChangeSetDiffs() []types.ChangeSetDiff {
 			},
 		},
 	}
+}
+
+func convertObjectMapsToSlices(
+	resourcesMap map[types.LogicalName]*types.Object,
+	variablesMap map[string]*types.Object,
+) ([]*types.ParsedResource, []*types.ParsedVariable) {
+	resources := make([]*types.ParsedResource, 0)
+	for _, resource := range resourcesMap {
+		resources = append(resources, resource.Parsed.(*types.ParsedResource))
+	}
+
+	variables := make([]*types.ParsedVariable, 0)
+	for _, variable := range variablesMap {
+		variables = append(variables, variable.Parsed.(*types.ParsedVariable))
+	}
+
+	return resources, variables
 }
 
 func sortChangeSetDiffs(diffs []types.ChangeSetDiff) []types.ChangeSetDiff {

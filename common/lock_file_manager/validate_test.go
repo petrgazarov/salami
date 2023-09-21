@@ -18,8 +18,8 @@ func TestLockFileValidate(t *testing.T) {
 			if err != nil {
 				require.Equal(
 					t,
-					err.Error(),
 					tc.expectedErrorMessage,
+					err.Error(),
 					"unexpected error message: got = %v, want = %v",
 					err.Error(),
 					tc.expectedErrorMessage,
@@ -87,34 +87,28 @@ func getValidateTestCases() []validateTestCase {
 			"lock file error: missing or invalid source file path",
 		},
 		{
-			"Missing parsed resource object type",
-			"missing_object_type.toml",
-			true,
-			"lock file error: missing or invalid parsed object type",
-		},
-		{
 			"Missing parsed resource type",
-			"missing_resource_resource_type.toml",
+			"missing_resource_type.toml",
 			true,
-			"lock file error: missing or invalid parsed object resource type",
+			"lock file error: missing or invalid parsed resource type",
 		},
 		{
 			"Missing parsed resource logical name",
 			"missing_resource_logical_name.toml",
 			true,
-			"lock file error: missing or invalid parsed object logical name",
+			"lock file error: missing or invalid parsed resource logical name",
 		},
 		{
 			"Missing variable name",
 			"missing_variable_name.toml",
 			true,
-			"lock file error: missing or invalid parsed object name",
+			"lock file error: missing or invalid parsed variable name",
 		},
 		{
 			"Invalid variable type",
 			"missing_variable_type.toml",
 			true,
-			"lock file error: missing or invalid parsed object variable type",
+			"lock file error: missing or invalid parsed variable type",
 		},
 		{
 			"Invalid variable type",

@@ -11,8 +11,7 @@ file_path = "path/to/target_file_2"
 [[objects]]
 source_file_path = "path/to/source_file"
 
-[objects.parsed]
-object_type = "Resource"
+[objects.parsed_resource]
 resource_type = "aws.s3.Bucket"
 logical_name = "AssumedRolesBucket"
 natural_language = """\
@@ -44,8 +43,7 @@ output "assumed-roles-bucket-name" {
 [[objects]]
 source_file_path = "path/to/source_file"
 
-[objects.parsed]
-object_type = "Resource"
+[objects.parsed_resource]
 resource_type = "aws.s3.BucketPublicAccessBlock"
 logical_name = "AssetsPublicAccessBlock"
 natural_language = """\
@@ -73,8 +71,7 @@ resource "aws_s3_bucket_public_access_block" "AssetsPublicAccessBlock" {
 [[objects]]
 source_file_path = "path/to/source_file"
 
-[objects.parsed]
-object_type = "Resource"
+[objects.parsed_resource]
 resource_type = "aws.s3.BucketPolicy"
 logical_name = "AssumedRolesBucketPolicy"
 natural_language = """\
@@ -106,8 +103,7 @@ resource "aws_s3_bucket_policy" "AssumedRolesBucketPolicy" {
 [[objects]]
 source_file_path = "path/to/source_file"
 
-[objects.parsed]
-object_type = "Variable"
+[objects.parsed_variable]
 name = "server_container_name"
 description = "Server container name"
 type = "string"

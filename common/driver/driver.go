@@ -82,15 +82,35 @@ func getSourceFilePaths() ([]string, error) {
 func generateCode(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]*types.TargetFile, []*types.Object, []error) {
-	previousObjects := lock_file_manager.GetObjects()
-	changeSet := change_manager.GenerateChangeSet(previousObjects, symbolTable)
+	previousResources, previousVariables := getPreviousObjectsMaps()
+	changeSet := change_manager.GenerateChangeSet(previousResources, previousVariables, symbolTable)
 	target := resolveTarget()
 	if errors := target.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
 		return nil, nil, errors
 	}
-	newObjects := change_manager.ComputeNewObjects(previousObjects, changeSet)
+	newObjects := change_manager.ComputeNewObjects(previousResources, previousVariables, changeSet)
 	targetFiles := target.GetFilesFromObjects(newObjects)
 	return targetFiles, newObjects, nil
+}
+
+func getPreviousObjectsMaps() (
+	map[types.LogicalName]*types.Object,
+	map[string]*types.Object,
+) {
+	previousObjects := lock_file_manager.GetObjects()
+	resources := make(map[types.LogicalName]*types.Object)
+	variables := make(map[string]*types.Object)
+
+	for _, object := range previousObjects {
+		switch v := object.Parsed.(type) {
+		case *types.ParsedResource:
+			resources[v.LogicalName] = object
+		case *types.ParsedVariable:
+			variables[v.Name] = object
+		}
+	}
+
+	return resources, variables
 }
 
 func resolveTarget() target.Target {
