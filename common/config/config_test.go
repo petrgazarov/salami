@@ -114,7 +114,13 @@ func getTestCases() []testCase {
 			"Target directory outside of program's root directory",
 			"target_dir_outside_root.yaml",
 			true,
-			"config error: target directory cannot be outside of the current working directory",
+			"config error: target directory must be a subdirectory inside the root of the project",
+		},
+		{
+			"Target directory equals the program's root directory",
+			"target_dir_equals_root.yaml",
+			true,
+			"config error: target directory must be a subdirectory inside the root of the project",
 		},
 	}
 }

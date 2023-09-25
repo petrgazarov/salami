@@ -38,7 +38,7 @@ func ValidateConfig() error {
 				return &ConfigError{Message: fmt.Sprintf("'%s' directory could not be resolved", fieldValue)}
 			case "target_dir_valid":
 				return &ConfigError{
-					Message: "target directory cannot be outside of the current working directory",
+					Message: "target directory must be a subdirectory inside the root of the project",
 				}
 			case "required":
 				return getMissingFieldError(namespace)
@@ -94,7 +94,6 @@ func validateDirExists(fl validator.FieldLevel) bool {
 	return !os.IsNotExist(err)
 }
 
-// Target directory cannot be outside of the current working directory
 func validateTargetDir(fl validator.FieldLevel) bool {
 	targetDir := fl.Field().String()
 	absTargetDir, err := filepath.Abs(targetDir)
@@ -109,6 +108,10 @@ func validateTargetDir(fl validator.FieldLevel) bool {
 
 	rel, err := filepath.Rel(rootDir, absTargetDir)
 	if err != nil {
+		return false
+	}
+
+	if rel == "." {
 		return false
 	}
 
