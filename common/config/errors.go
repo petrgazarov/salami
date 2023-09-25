@@ -30,5 +30,8 @@ func getInvalidFieldError(namespace string, value interface{}) error {
 
 func getMissingFieldError(namespace string) error {
 	fieldName := fieldNameMap[namespace]
+	if fieldName == "" {
+		fieldName = namespace
+	}
 	return &ConfigError{Message: fmt.Sprintf("%s is required", fieldName)}
 }

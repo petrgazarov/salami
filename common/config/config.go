@@ -2,8 +2,11 @@ package config
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"salami/common/types"
+
+	"gopkg.in/yaml.v3"
 )
 
 var configFilePath = "salami.yaml"
@@ -12,6 +15,17 @@ var loadedConfig *ConfigType
 func SetConfigFilePath(path string) {
 	configFilePath = path
 	loadedConfig = nil
+}
+
+func LoadConfig() error {
+	yamlFile, err := os.ReadFile(configFilePath)
+	if err != nil {
+		return err
+	}
+	if err = yaml.Unmarshal(yamlFile, &loadedConfig); err != nil {
+		return &ConfigError{Message: "could not parse config file. Ensure it is valid yaml format"}
+	}
+	return nil
 }
 
 func GetSourceDir() string {

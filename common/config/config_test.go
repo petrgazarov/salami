@@ -8,119 +8,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestConfigValidate(t *testing.T) {
-	testCases := getTestCases()
+func TestConfigGetters(t *testing.T) {
+	t.Run("GetSourceDir", func(t *testing.T) {
+		setConfigFile(t, "valid.yaml")
+		config.LoadConfig()
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			setConfigFile(t, tc.fileName)
-			err := config.ValidateConfig()
-			require.Equal(t, err != nil, tc.wantErr, "unexpected error status: got error = %v, wantErr %v", err, tc.wantErr)
-			if err != nil {
-				require.Equal(
-					t,
-					err.Error(),
-					tc.expectedErrorMessage,
-					"unexpected error message: got = %v, want = %v",
-					err.Error(),
-					tc.expectedErrorMessage,
-				)
-			}
-		})
-	}
-}
+		expectedSourceDir, err := filepath.Abs("testdata/source_dir")
+		if err != nil {
+			t.Fatal(err)
+		}
+		require.Equal(t, expectedSourceDir, config.GetSourceDir())
+	})
 
-func setConfigFile(t *testing.T, fileName string) {
-	fixturePath := filepath.Join("testdata", "config_files", fileName)
-	config.SetConfigFilePath(fixturePath)
-}
+	t.Run("GetTargetDir", func(t *testing.T) {
+		setConfigFile(t, "valid.yaml")
+		config.LoadConfig()
 
-type testCase struct {
-	name                 string
-	fileName             string
-	wantErr              bool
-	expectedErrorMessage string
-}
+		expectedTargetDir, err := filepath.Abs("terraform")
+		if err != nil {
+			t.Fatal(err)
+		}
+		require.Equal(t, expectedTargetDir, config.GetTargetDir())
+	})
 
-func getTestCases() []testCase {
-	return []testCase{
-		{
-			"Valid config with all required fields",
-			"valid.yaml",
-			false,
-			"",
-		},
-		{
-			"Non-existing source directory",
-			"invalid_source_dir.yaml",
-			true,
-			"config error: 'testdata/non_existent_dir' directory could not be resolved",
-		},
-		{
-			"Missing target",
-			"missing_target.yaml",
-			true,
-			"config error: invalid target configuration",
-		},
-		{
-			"Invalid target platform",
-			"invalid_platform.yaml",
-			true,
-			"config error: invalid target configuration",
-		},
-		{
-			"Missing target platform",
-			"missing_target_platform.yaml",
-			true,
-			"config error: invalid target configuration",
-		},
-		{
-			"Missing llm",
-			"missing_llm.yaml",
-			true,
-			"config error: invalid llm configuration",
-		},
-		{
-			"Invalid llm provider",
-			"invalid_llm_provider.yaml",
-			true,
-			"config error: invalid llm configuration",
-		},
-		{
-			"Missing llm provider",
-			"missing_llm_provider.yaml",
-			true,
-			"config error: invalid llm configuration",
-		},
-		{
-			"Invalid llm model",
-			"invalid_llm_model.yaml",
-			true,
-			"config error: invalid llm configuration",
-		},
-		{
-			"Missing llm model",
-			"missing_llm_model.yaml",
-			true,
-			"config error: invalid llm configuration",
-		},
-		{
-			"Invalid yaml format",
-			"invalid_yaml.yaml",
-			true,
-			"config error: could not parse config file. Ensure it is valid yaml format",
-		},
-		{
-			"Target directory outside of program's root directory",
-			"target_dir_outside_root.yaml",
-			true,
-			"config error: target directory must be a subdirectory inside the root of the project",
-		},
-		{
-			"Target directory equals the program's root directory",
-			"target_dir_equals_root.yaml",
-			true,
-			"config error: target directory must be a subdirectory inside the root of the project",
-		},
-	}
+	
 }

@@ -8,20 +8,16 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
-	"gopkg.in/yaml.v3"
 )
 
 func ValidateConfig() error {
-	yamlFile, err := os.ReadFile(configFilePath)
+	err := LoadConfig()
 	if err != nil {
 		return err
 	}
-	if err = yaml.Unmarshal(yamlFile, &loadedConfig); err != nil {
-		return &ConfigError{Message: "could not parse config file. Ensure it is valid yaml format"}
-	}
 	validate := newValidator()
 
-	if err = validate.Struct(loadedConfig); err != nil {
+	if err := validate.Struct(getConfig()); err != nil {
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return err
 		}
