@@ -1,0 +1,12 @@
+@resource(aws.acm.Certificate, CumuliServerCertificate)
+Name: cumuli-server-acm-certificate
+Domain name: app.{domain_name}
+Validation method: DNS
+
+@resource(aws.route53.Record, CumuliValidationRecord)
+In $CumuliHostedZone
+The name, type and records are derived from the $CumuliServerCertificate domain validation option.
+Ttl: 300
+
+@resource(aws.acm.CertificateValidation, CumuliCertificateValidation)
+For $CumuliServerCertificate, using $CumuliValidationRecord

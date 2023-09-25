@@ -1,0 +1,36 @@
+@resource(aws.ec2.SecurityGroup, ALBSecurityGroup)
+In $CumuliVpc
+Name: cumuli-alb-security-group
+Description: Security group for ALB
+Allows all egress traffic
+Allows ingress traffic on port 443 from anywhere
+
+@resource(aws.lb.LoadBalancer, CumuliServerAlb)
+In $PublicSubnetA and $PublicSubnetB
+Name: cumuli-server-alb
+Internal: False
+Security group: ALBSecurityGroup
+Deletion protection enabled.
+Idle timeout: 3600
+
+resource(aws.lb.TargetGroup, CumuliServerTargetGroup)
+In $CumuliVpc
+Name: cumuli-server-target-group
+Port: 80, Protocol: HTTP
+Target type: IP
+Health check: every 30 seconds on path "/" using the HTTP protocol on the traffic port
+Stickiness:
+  Type: "lb_cookie"
+  Cookie duration: 1 day
+
+@resource(aws.lb.Listener, CumuliServerListener)
+For $CumuliServerAlb, using $CumuliServerCertificate
+Port: 443, Protocol: HTTPS
+SSL policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+Default action: forward incoming requests to $CumuliServerTargetGroup
+
+@resource(aws.route53.Record, AppALBRecord)
+In $CumuliHostedZone
+Name: app.{domain_name}
+Type: A
+Alias has "name" and "zone_id" of $CumuliServerAlb, and "evaluate_target_health" set to True

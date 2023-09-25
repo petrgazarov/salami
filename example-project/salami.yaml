@@ -5,4 +5,4 @@ compiler:
     provider: openai
     model: gpt-4
   source_dir: ial
-  target_dir: terraform
+  target_dir: iac

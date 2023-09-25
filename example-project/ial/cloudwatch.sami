@@ -1,0 +1,5 @@
+@resource(aws.cloudwatch.LogGroup, CumuliServerLogGroup)
+Name: cumuli-server-log-group
+
+@resource(aws.cloudwatch.LogGroup, PythonExecLogGroup)
+Name: python-exec-log-group

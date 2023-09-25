@@ -1,15 +1,14 @@
-Resource type: s3.Bucket
-Logical name: CumuliCloudtrailLogsBucket
+@resource(aws.s3.Bucket, CumuliCloudtrailLogsBucket)
 Bucket name: cumuli-cloudtrail-logs
 
-@uses(CumuliCloudtrailLogsBucket)
-Resource type: s3.BucketPolicy
-Logical name: CumuliCloudtrailLogsBucketPolicy
-Policy: A JSON policy with two statements. The first statement allows the "cloudtrail.amazonaws.com" service to put objects into the bucket, with the condition that the bucket owner has full control. The second statement allows the same service to get the bucket's ACL.
+@resource(aws.s3.BucketPolicy, CumuliCloudtrailLogsBucketPolicy)
+For $CumuliCloudtrailLogsBucket
+Policy with two statements:
+  1. Allow the "cloudtrail.amazonaws.com" service to put objects into the bucket, with the condition that the bucket owner has full control.
+  2. Allow the same service to get the bucket's ACL.
 
-@uses(CumuliCloudtrailLogsBucket)
-Resource type: cloudtrail.Trail
-Logical name: CumuliCloudtrail
+@resource(aws.cloudtrail.Trail, CumuliCloudtrail)
+For $CumuliCloudtrailLogsBucket
 Name: cumuli-cloudtrail
 Global service events: True
 Multi-region: True

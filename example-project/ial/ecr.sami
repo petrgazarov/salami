@@ -1,0 +1,37 @@
+@resource(aws.ecr.Repository, CumuliServerRepository)
+Name: cumuli-server
+Has mutable image tags.
+
+@resource(aws.ecr.LifecyclePolicy, CumuliServerRepoLifecyclePolicy)
+For $CumuliServerRepository
+Policy retains only the last 10 untagged images in the repository. Images beyond this count will expire.
+
+@resource(aws.iam.Role, CumuliEcsExecutionRole)
+Name: cumuli-server-ecs-execution-role
+Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume the role
+
+@resource(aws.ecr.RepositoryPolicy, CumuliServerRepositoryPolicy)
+For $CumuliServerRepository
+Policy allows $CumuliEcsExecutionRole to perform three actions on the ECR repository:
+  1. "ecr:GetDownloadUrlForLayer"
+  2. "ecr:BatchGetImage"
+  3. "ecr:BatchCheckLayerAvailability"
+
+@resource(aws.ecr.Repository, PythonExecRepository)
+Name: python-exec
+Has mutable image tags
+
+@resource(aws.ecr.LifecyclePolicy, PythonExecRepoLifecyclePolicy)
+For $PythonExecRepository
+Policy retains only the last 10 untagged images in the repository. Images beyond this count will expire.
+
+@resource(aws.iam.Role, PythonExecEcsExecutionRole)
+Name: python-exec-ecs-execution-role
+Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume the role
+
+@resource(aws.ecr.RepositoryPolicy, PythonExecRepositoryPolicy)
+For $PythonExecRepository
+Policy allows $PythonExecEcsExecutionRole to perform three actions on the ECR repository:
+  1. "ecr:GetDownloadUrlForLayer"
+  2. "ecr:BatchGetImage"
+  3. "ecr:BatchCheckLayerAvailability"

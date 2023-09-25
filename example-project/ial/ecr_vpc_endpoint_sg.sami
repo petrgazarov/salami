@@ -1,0 +1,6 @@
+@resource(aws.ec2.SecurityGroup, EcrVpcEndpointSG)
+In $CumuliVpc
+Name: ecr-vpc-endpoint-sg
+Description: Security Group for ECR VPC Endpoint
+Egress: []
+Ingress: Allow TCP traffic on port 443 from security groups $CumuliServerEcsSecurityGroup and $PythonExecEcsSecurityGroup

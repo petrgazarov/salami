@@ -1,7 +1,0 @@
-@uses(CumuliVpc, CumuliServerEcsSecurityGroup, PythonExecEcsSecurityGroup)
-Resource type: ec2.SecurityGroup
-Logical name: EcrVpcEndpointSG
-Name: ecr-vpc-endpoint-sg
-Description: Security Group for ECR VPC Endpoint
-Egress: []
-Ingress: A rule that allows TCP traffic on port 443 from the security groups CumuliServerEcsSecurityGroup and PythonExecEcsSecurityGroup.
