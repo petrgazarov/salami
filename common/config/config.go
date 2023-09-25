@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"path/filepath"
 	"salami/common/types"
 )
 
@@ -14,11 +15,19 @@ func SetConfigFilePath(path string) {
 }
 
 func GetSourceDir() string {
-	return getConfig().Compiler.SourceDir
+	absPath, err := filepath.Abs(getConfig().Compiler.SourceDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return absPath
 }
 
 func GetTargetDir() string {
-	return getConfig().Compiler.TargetDir
+	absPath, err := filepath.Abs(getConfig().Compiler.TargetDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return absPath
 }
 
 func GetTargetConfig() types.TargetConfig {

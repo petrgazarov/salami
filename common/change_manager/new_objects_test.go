@@ -3,7 +3,7 @@ package change_manager_test
 import (
 	"salami/common/change_manager"
 	"salami/common/types"
-	"salami/common/utils"
+	"salami/common/utils/object_utils"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -12,7 +12,7 @@ import (
 func TestComputeNewObjects(t *testing.T) {
 	t.Run("should return all new objects", func(t *testing.T) {
 		previousObjects := getObjects("testdata/new_objects_test/previous_objects.json")
-		previousResourcesMap, previousVariablesMap := utils.GetObjectMaps(previousObjects)
+		previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(previousObjects)
 		changeSetDiffs := getChangeSetDiffs("testdata/new_objects_test/change_set_diffs.json")
 		changeSet := &types.ChangeSet{
 			Diffs: changeSetDiffs,

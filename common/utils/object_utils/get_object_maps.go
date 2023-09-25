@@ -1,4 +1,4 @@
-package utils
+package object_utils
 
 import "salami/common/types"
 

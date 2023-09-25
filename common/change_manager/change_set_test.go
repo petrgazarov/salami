@@ -7,7 +7,7 @@ import (
 	"salami/common/change_manager"
 	"salami/common/symbol_table"
 	"salami/common/types"
-	"salami/common/utils"
+	"salami/common/utils/object_utils"
 	"sort"
 	"testing"
 
@@ -17,8 +17,8 @@ import (
 func TestGenerateChangeSet(t *testing.T) {
 	t.Run("should return an empty change set when there are no changes", func(t *testing.T) {
 		previousObjects := getObjects("testdata/change_set_test/previous_objects.json")
-		previousResourcesMap, previousVariablesMap := utils.GetObjectMaps(previousObjects)
-		newResources, newVariables := utils.ObjectsToParsedObjects(previousObjects)
+		previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(previousObjects)
+		newResources, newVariables := object_utils.ObjectsToParsedObjects(previousObjects)
 		symbolTable, err := symbol_table.NewSymbolTable(newResources, newVariables)
 		require.NoError(t, err)
 		changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
@@ -27,10 +27,10 @@ func TestGenerateChangeSet(t *testing.T) {
 
 	t.Run("should return a change set with additions, deletions, and changes when they exist", func(t *testing.T) {
 		previousObjects := getObjects("testdata/change_set_test/previous_objects.json")
-		previousResourcesMap, previousVariablesMap := utils.GetObjectMaps(previousObjects)
+		previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(previousObjects)
 
 		newObjects := getObjects("testdata/change_set_test/new_objects.json")
-		newResources, newVariables := utils.ObjectsToParsedObjects(newObjects)
+		newResources, newVariables := object_utils.ObjectsToParsedObjects(newObjects)
 		symbolTable, err := symbol_table.NewSymbolTable(newResources, newVariables)
 
 		require.NoError(t, err)

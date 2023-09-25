@@ -1,7 +1,6 @@
 package driver
 
 import (
-	"os"
 	"path/filepath"
 
 	"salami/backend/target"
@@ -11,7 +10,8 @@ import (
 	"salami/common/lock_file_manager"
 	"salami/common/symbol_table"
 	"salami/common/types"
-	"salami/common/utils"
+	"salami/common/utils/file_utils"
+	"salami/common/utils/object_utils"
 	"salami/frontend/semantic_analyzer"
 )
 
@@ -64,26 +64,20 @@ func runFrontend() (*symbol_table.SymbolTable, []error) {
 }
 
 func getSourceFilePaths() ([]string, error) {
-	sourceDir := config.GetSourceDir()
-	var files []string
-
-	error := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() && filepath.Ext(path) == salamiFileExtension {
-			files = append(files, path)
-		}
-		return nil
-	})
-
-	return files, error
+	filter := func(path string) bool {
+		return filepath.Ext(path) == salamiFileExtension
+	}
+	salamiPaths, err := file_utils.GetFilePaths(config.GetSourceDir(), filter)
+	if err != nil {
+		return nil, err
+	}
+	return salamiPaths, nil
 }
 
 func generateCode(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]*types.TargetFile, []*types.Object, []error) {
-	previousResourcesMap, previousVariablesMap := utils.GetObjectMaps(lock_file_manager.GetObjects())
+	previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(lock_file_manager.GetObjects())
 	changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
 	target := resolveTarget()
 	if errors := target.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
