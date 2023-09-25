@@ -1,0 +1,99 @@
+[
+  {
+    "SourceFilePath": "path/to/source_file",
+    "ParsedResource": {
+      "ResourceType": "aws.s3.Bucket",
+      "LogicalName": "AssumedRolesBucket",
+      "NaturalLanguage": "Bucket: assumed-roles\nVersioning enabled: True",
+      "Uses": [],
+      "Exports": {
+        "name": "assumed-roles-bucket-name"
+      },
+      "ReferencedVariables": [],
+      "SourceFilePath": "path/to/source_file",
+      "SourceFileLine": 0
+    },
+    "CodeSegments": [
+      {
+        "SegmentType": "Resource",
+        "Content": "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}"
+      },
+      {
+        "SegmentType": "Export",
+        "Content": "output \"assumed-roles-bucket-name\" {\n  value = aws_s3_bucket.AssumedRolesBucket.bucket\n}"
+      }
+    ]
+  },
+  {
+    "SourceFilePath": "path/to/source_file",
+    "ParsedResource": {
+      "ResourceType": "aws.s3.BucketPolicy",
+      "LogicalName": "AssumedRolesBucketPolicy",
+      "NaturalLanguage": "Policy: A JSON policy that denies everyone access",
+      "Uses": ["AssumedRolesBucket"],
+      "Exports": {},
+      "ReferencedVariables": [],
+      "SourceFilePath": "path/to/source_file",
+      "SourceFileLine": 0
+    },
+    "CodeSegments": [
+      {
+        "SegmentType": "Resource",
+        "Content": "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.bucket \n  policy = jsonencode({\n    Version: \"2012-10-17\",\n    Statement: [{\n      Effect: \"Deny\",\n      Principal: \"*\",\n      Action: \"s3:*\",\n      Resource: \"arn:aws:s3:::${aws_s3_bucket.AssumedRolesBucket.bucket}/*\"\n    }]\n  })\n}"
+      }
+    ]
+  },
+  {
+    "SourceFilePath": "path/to/source_file",
+    "ParsedVariable": {
+      "Name": "server_container_name",
+      "Description": "Server container name",
+      "Type": "string",
+      "Default": "server-container",
+      "SourceFilePath": "path/to/source_file",
+      "SourceFileLine": 0
+    },
+    "CodeSegments": [
+      {
+        "SegmentType": "Variable",
+        "Content": "variable \"server_container_name\" {\n  description = \"Server container name\"\n  type        = string\n  default     = \"server-container\"\n}"
+      }
+    ]
+  },
+  {
+    "SourceFilePath": "path/to/source_file",
+    "ParsedResource": {
+      "ResourceType": "aws.logs.LogGroup",
+      "LogicalName": "LogsGroup",
+      "NaturalLanguage": "Log group: /ecs/my-app\nRetention: 30 days",
+      "Uses": [],
+      "Exports": {},
+      "ReferencedVariables": [],
+      "SourceFilePath": "path/to/source_file",
+      "SourceFileLine": 1
+    },
+    "CodeSegments": [
+      {
+        "SegmentType": "Resource",
+        "Content": "resource \"aws_cloudwatch_log_group\" \"LogsGroup\" {\n  name = \"/ecs/my-app\" \n  retention_in_days = 30 \n}"
+      }
+    ]
+  },
+  {
+    "SourceFilePath": "path/to/source_file",
+    "ParsedVariable": {
+      "Name": "container port",
+      "Description": "Container port",
+      "Type": "string",
+      "Default": "8080",
+      "SourceFilePath": "path/to/source_file",
+      "SourceFileLine": 15
+    },
+    "CodeSegments": [
+      {
+        "SegmentType": "Variable",
+        "Content": "variable \"container_port\" {\n description = \"Container port\" \n type = string \n default = \"8080\" \n}"
+      }
+    ]
+  }
+]

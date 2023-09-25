@@ -52,10 +52,18 @@ type TargetFileMeta struct {
 }
 
 type Object struct {
-	SourceFilePath string         `toml:"source_file_path" validate:"required"`
+	SourceFilePath string          `toml:"source_file_path" validate:"required"`
 	ParsedResource *ParsedResource `toml:"parsed_resource" validate:"required_without=ParsedVariable"`
 	ParsedVariable *ParsedVariable `toml:"parsed_variable" validate:"required_without=ParsedResource"`
-	CodeSegments   []CodeSegment  `toml:"code_segments" validate:"required,dive"`
+	CodeSegments   []CodeSegment   `toml:"code_segments" validate:"required,dive"`
+}
+
+func (o *Object) IsResource() bool {
+	return o.ParsedResource != nil
+}
+
+func (o *Object) IsVariable() bool {
+	return o.ParsedVariable != nil
 }
 
 type ParsedVariable struct {
@@ -76,7 +84,6 @@ type ParsedResource struct {
 
 type CodeSegment struct {
 	SegmentType    string `toml:"segment_type" validate:"required,oneof=Variable Resource Export"`
-	TargetFilePath string `toml:"target_file_path" validate:"required"`
 	Content        string `toml:"content" validate:"required"`
 }
 

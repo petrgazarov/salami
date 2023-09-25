@@ -29,48 +29,23 @@ func GetTargetFilesMeta() []types.TargetFileMeta {
 }
 
 func GetObjects() []*types.Object {
-	objects := getLockFile().Objects
-	result := make([]*types.Object, len(objects))
-	for i := range objects {
-		var parsed types.ParsedObject
-		if objects[i].ParsedResource != nil {
-			parsedResource := objects[i].ParsedResource
-			uses := make([]types.LogicalName, len(parsedResource.Uses))
-			for j, use := range parsedResource.Uses {
-				uses[j] = types.LogicalName(use)
-			}
-			parsed = &types.ParsedResource{
-				ResourceType:        types.ResourceType(parsedResource.ResourceType),
-				LogicalName:         types.LogicalName(parsedResource.LogicalName),
-				NaturalLanguage:     parsedResource.NaturalLanguage,
-				Uses:                uses,
-				Exports:             parsedResource.Exports,
-				ReferencedVariables: parsedResource.ReferencedVariables,
-				SourceFilePath:      objects[i].SourceFilePath,
-			}
-		} else if objects[i].ParsedVariable != nil {
-			parsedVariable := objects[i].ParsedVariable
-			parsed = &types.ParsedVariable{
-				Description:    parsedVariable.Description,
-				Name:           parsedVariable.Name,
-				Default:        parsedVariable.DefaultValue,
-				Type:           types.VariableType(parsedVariable.VariableType),
-				SourceFilePath: objects[i].SourceFilePath,
-			}
+	lockFileObjects := getLockFile().Objects
+	result := make([]*types.Object, len(lockFileObjects))
+	for i := range lockFileObjects {
+		currentObject := lockFileObjects[i]
+		var parsedResource *types.ParsedResource
+		var parsedVariable *types.ParsedVariable
+		if currentObject.IsResource() {
+			parsedResource = getCommonParsedResource(currentObject)
+		} else if currentObject.IsVariable() {
+			parsedVariable = getCommonParsedVariable(currentObject)
 		}
-
-		codeSegments := make([]types.CodeSegment, len(objects[i].CodeSegments))
-		for j, segment := range objects[i].CodeSegments {
-			codeSegments[j] = types.CodeSegment{
-				SegmentType:    types.CodeSegmentType(segment.SegmentType),
-				Content:        segment.Content,
-				TargetFilePath: segment.TargetFilePath,
-			}
-		}
+		codeSegments := getCommonCodeSegments(currentObject)
 
 		result[i] = &types.Object{
-			SourceFilePath: objects[i].SourceFilePath,
-			Parsed:         parsed,
+			SourceFilePath: currentObject.SourceFilePath,
+			ParsedResource: parsedResource,
+			ParsedVariable: parsedVariable,
 			CodeSegments:   codeSegments,
 		}
 	}
@@ -81,6 +56,43 @@ func UpdateLockFile(targetFilesMeta []types.TargetFileMeta, objects []*types.Obj
 	// Merge changeSet into lockFile
 	writeLockFile()
 	return nil
+}
+
+func getCommonParsedResource(lockFileObject Object) *types.ParsedResource {
+	uses := make([]types.LogicalName, len(lockFileObject.ParsedResource.Uses))
+	for j, use := range lockFileObject.ParsedResource.Uses {
+		uses[j] = types.LogicalName(use)
+	}
+	return &types.ParsedResource{
+		ResourceType:        types.ResourceType(lockFileObject.ParsedResource.ResourceType),
+		LogicalName:         types.LogicalName(lockFileObject.ParsedResource.LogicalName),
+		NaturalLanguage:     lockFileObject.ParsedResource.NaturalLanguage,
+		Uses:                uses,
+		Exports:             lockFileObject.ParsedResource.Exports,
+		ReferencedVariables: lockFileObject.ParsedResource.ReferencedVariables,
+		SourceFilePath:      lockFileObject.SourceFilePath,
+	}
+}
+
+func getCommonParsedVariable(lockFileObject Object) *types.ParsedVariable {
+	return &types.ParsedVariable{
+		Description:    lockFileObject.ParsedVariable.Description,
+		Name:           lockFileObject.ParsedVariable.Name,
+		Default:        lockFileObject.ParsedVariable.DefaultValue,
+		Type:           types.VariableType(lockFileObject.ParsedVariable.VariableType),
+		SourceFilePath: lockFileObject.SourceFilePath,
+	}
+}
+
+func getCommonCodeSegments(lockFileObject Object) []types.CodeSegment {
+	codeSegments := make([]types.CodeSegment, len(lockFileObject.CodeSegments))
+	for j, segment := range lockFileObject.CodeSegments {
+		codeSegments[j] = types.CodeSegment{
+			SegmentType:    types.CodeSegmentType(segment.SegmentType),
+			Content:        segment.Content,
+		}
+	}
+	return codeSegments
 }
 
 func writeLockFile() error {

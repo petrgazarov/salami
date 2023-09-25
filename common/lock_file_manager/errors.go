@@ -17,7 +17,6 @@ var fieldNameMap = map[string]string{
 	"LockFile.Objects[*].ParsedVariable.Name":            "parsed variable name",
 	"LockFile.Objects[*].ParsedVariable.VariableType":    "parsed variable type",
 	"LockFile.Objects[*].CodeSegments[*].SegmentType":    "code segment type",
-	"LockFile.Objects[*].CodeSegments[*].TargetFilePath": "code segment target file path",
 	"LockFile.Objects[*].CodeSegments[*].Content":        "code segment content",
 }
 

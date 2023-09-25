@@ -123,12 +123,6 @@ func getValidateTestCases() []validateTestCase {
 			"lock file error: missing or invalid code segment type",
 		},
 		{
-			"Missing code segment target file path",
-			"missing_code_segment_target_file_path.toml",
-			true,
-			"lock file error: missing or invalid code segment target file path",
-		},
-		{
 			"Missing code segment content",
 			"missing_code_segment_content.toml",
 			true,

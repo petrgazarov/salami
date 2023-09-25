@@ -34,14 +34,14 @@ func recordResourceChangesOrAdditions(
 	for logicalName, resource := range symbolTable.ResourceTable {
 		object := &types.Object{
 			SourceFilePath: resource.SourceFilePath,
-			Parsed:         resource,
+			ParsedResource: resource,
 		}
 		if _, ok := previousResources[logicalName]; !ok {
 			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
 				OldObject: nil,
 				NewObject: object,
 			})
-		} else if !reflect.DeepEqual(previousResources[logicalName].Parsed, object.Parsed) {
+		} else if !reflect.DeepEqual(previousResources[logicalName].ParsedResource, object.ParsedResource) {
 			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
 				OldObject: previousResources[logicalName],
 				NewObject: object,
@@ -60,14 +60,14 @@ func recordVariableChangesOrAdditions(
 	for name, variable := range symbolTable.VariableTable {
 		object := &types.Object{
 			SourceFilePath: variable.SourceFilePath,
-			Parsed:         variable,
+			ParsedVariable: variable,
 		}
 		if _, ok := previousVariables[name]; !ok {
 			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
 				OldObject: nil,
 				NewObject: object,
 			})
-		} else if !reflect.DeepEqual(previousVariables[name].Parsed, object.Parsed) {
+		} else if !reflect.DeepEqual(previousVariables[name].ParsedVariable, object.ParsedVariable) {
 			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
 				OldObject: previousVariables[name],
 				NewObject: object,

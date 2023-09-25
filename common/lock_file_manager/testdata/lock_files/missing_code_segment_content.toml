@@ -24,11 +24,9 @@ referenced_variables = []
 
 [[objects.code_segments]]
 segment_type = "Resource"
-target_file_path = "path/to/target_file"
 
 [[objects.code_segments]]
 segment_type = "Export"
-target_file_path = "path/to/target_file"
 content = """\
 output "assumed-roles-bucket-name" {
   value = aws_s3_bucket.AssumedRolesBucket.bucket
@@ -51,7 +49,6 @@ referenced_variables = []
 
 [[objects.code_segments]]
 segment_type = "Resource"
-target_file_path = "path/to/target_file"
 content = """\
 resource "aws_s3_bucket_public_access_block" "AssetsPublicAccessBlock" {
   bucket = aws_s3_bucket.AssumedRolesBucket.id
@@ -76,7 +73,6 @@ referenced_variables = []
 
 [[objects.code_segments]]
 segment_type = "Resource"
-target_file_path = "path/to/target_file"
 content = """\
 resource "aws_s3_bucket_policy" "AssumedRolesBucketPolicy" {
   bucket = aws_s3_bucket.AssumedRolesBucket.id
@@ -105,7 +101,6 @@ default = "server-container"
 
 [[objects.code_segments]]
 segment_type = "Variable"
-target_file_path = "path/to/target_file"
 content = """\
 variable "server_container_name" {
   description = "Server container name"

@@ -11,6 +11,7 @@ import (
 	"salami/common/lock_file_manager"
 	"salami/common/symbol_table"
 	"salami/common/types"
+	"salami/common/utils"
 	"salami/frontend/semantic_analyzer"
 )
 
@@ -24,7 +25,7 @@ func Run() []error {
 	if len(errors) > 0 {
 		return errors
 	}
-	newTargetFiles, objects, errors := generateCode(symbolTable)
+	newTargetFiles, newObjects, errors := generateCode(symbolTable)
 	if len(errors) > 0 {
 		return errors
 	}
@@ -36,7 +37,7 @@ func Run() []error {
 	if err != nil {
 		return []error{err}
 	}
-	if err := lock_file_manager.UpdateLockFile(newTargetFilesMeta, objects); err != nil {
+	if err := lock_file_manager.UpdateLockFile(newTargetFilesMeta, newObjects); err != nil {
 		return []error{err}
 	}
 	return nil
@@ -82,35 +83,15 @@ func getSourceFilePaths() ([]string, error) {
 func generateCode(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]*types.TargetFile, []*types.Object, []error) {
-	previousResources, previousVariables := getPreviousObjectsMaps()
-	changeSet := change_manager.GenerateChangeSet(previousResources, previousVariables, symbolTable)
+	previousResourcesMap, previousVariablesMap := utils.GetObjectMaps(lock_file_manager.GetObjects())
+	changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
 	target := resolveTarget()
 	if errors := target.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
 		return nil, nil, errors
 	}
-	newObjects := change_manager.ComputeNewObjects(previousResources, previousVariables, changeSet)
+	newObjects := change_manager.ComputeNewObjects(previousResourcesMap, previousVariablesMap, changeSet)
 	targetFiles := target.GetFilesFromObjects(newObjects)
 	return targetFiles, newObjects, nil
-}
-
-func getPreviousObjectsMaps() (
-	map[types.LogicalName]*types.Object,
-	map[string]*types.Object,
-) {
-	previousObjects := lock_file_manager.GetObjects()
-	resources := make(map[types.LogicalName]*types.Object)
-	variables := make(map[string]*types.Object)
-
-	for _, object := range previousObjects {
-		switch v := object.Parsed.(type) {
-		case *types.ParsedResource:
-			resources[v.LogicalName] = object
-		case *types.ParsedVariable:
-			variables[v.Name] = object
-		}
-	}
-
-	return resources, variables
 }
 
 func resolveTarget() target.Target {

@@ -1,10 +1,5 @@
 package types
 
-type ParsedObject interface {
-	GetSourceFileLine() int
-	GetSourceFilePath() string
-}
-
 type ResourceType string
 type LogicalName string
 
@@ -17,14 +12,6 @@ type ParsedResource struct {
 	ReferencedVariables []string
 	SourceFilePath      string
 	SourceFileLine      int
-}
-
-func (r *ParsedResource) GetSourceFileLine() int {
-	return r.SourceFileLine
-}
-
-func (r *ParsedResource) GetSourceFilePath() string {
-	return r.SourceFilePath
 }
 
 func NewParsedResource(SourceFilePath string, SourceFileLine int) *ParsedResource {
@@ -46,14 +33,6 @@ type ParsedVariable struct {
 	Type           VariableType
 	SourceFilePath string
 	SourceFileLine int
-}
-
-func (v *ParsedVariable) GetSourceFileLine() int {
-	return v.SourceFileLine
-}
-
-func (v *ParsedVariable) GetSourceFilePath() string {
-	return v.SourceFilePath
 }
 
 func NewParsedVariable(SourceFilePath string, SourceFileLine int) *ParsedVariable {

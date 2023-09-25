@@ -5,13 +5,21 @@ type CodeSegmentType string
 type CodeSegment struct {
 	SegmentType    CodeSegmentType
 	Content        string
-	TargetFilePath string
 }
 
 type Object struct {
 	SourceFilePath string
-	Parsed         ParsedObject
+	ParsedResource *ParsedResource
+	ParsedVariable *ParsedVariable
 	CodeSegments   []CodeSegment
+}
+
+func (o *Object) IsResource() bool {
+	return o.ParsedResource != nil
+}
+
+func (o *Object) IsVariable() bool {
+	return o.ParsedVariable != nil
 }
 
 type ChangeSetDiff struct {
