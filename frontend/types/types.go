@@ -5,8 +5,6 @@ type TokenType int
 const (
 	DecoratorName TokenType = iota
 	DecoratorArg
-	FieldName
-	FieldValue
 	NaturalLanguage
 	Newline
 	EOF
@@ -16,8 +14,6 @@ const (
 var TokenTypeNames = map[TokenType]string{
 	DecoratorName:   "DecoratorName",
 	DecoratorArg:    "DecoratorArg",
-	FieldName:       "FieldName",
-	FieldValue:      "FieldValue",
 	NaturalLanguage: "NaturalLanguage",
 	Newline:         "Newline",
 	EOF:             "EOF",
@@ -33,12 +29,4 @@ type Token struct {
 	Value  string
 	Line   int
 	Column int
-}
-
-var ValidFieldNames = map[string]bool{
-	"Resource type": true,
-	"Logical name":  true,
-	"Description":   true,
-	"Name":          true,
-	"Default":       true,
 }

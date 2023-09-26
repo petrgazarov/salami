@@ -79,7 +79,7 @@ func (sa *SemanticAnalyzer) ensureReferencedVariablesAreDefined() error {
 
 func (sa *SemanticAnalyzer) ensureUsedResourcesExist() error {
 	for _, resource := range sa.symbolTable.ResourceTable {
-		for _, logicalName := range resource.Uses {
+		for _, logicalName := range resource.ReferencedResources {
 			if _, exists := sa.symbolTable.LookupResource(logicalName); !exists {
 				return &errors.SemanticError{
 					SourceFilePath: resource.SourceFilePath,

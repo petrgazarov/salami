@@ -15,8 +15,7 @@ func TestResourceRequiredFields(t *testing.T) {
 			ResourceType:        "",
 			LogicalName:         "CumuliServerLogGroup",
 			NaturalLanguage:     "Name: cumuli-server-log-group",
-			Uses:                []types.LogicalName{},
-			Exports:             make(map[string]string),
+			ReferencedResources: []types.LogicalName{},
 			ReferencedVariables: []string{},
 			SourceFilePath:      "dummy/file/path",
 		},
@@ -40,8 +39,7 @@ func TestResourceRequiredFields(t *testing.T) {
 		{
 			ResourceType:        "cloudwatch.LogGroup",
 			NaturalLanguage:     "Name: cumuli-server-log-group",
-			Uses:                []types.LogicalName{},
-			Exports:             make(map[string]string),
+			ReferencedResources: []types.LogicalName{},
 			ReferencedVariables: []string{},
 			SourceFilePath:      "dummy/file/path",
 		},
@@ -65,10 +63,10 @@ func TestResourceRequiredFields(t *testing.T) {
 func TestVariableRequiredFields(t *testing.T) {
 	variables := []*types.ParsedVariable{
 		{
-			Name:           "",
-			Description:    "Test variable",
-			Default:        "test-value",
-			SourceFilePath: "dummy/file/path",
+			Name:            "",
+			NaturalLanguage: "Test variable",
+			Default:         "test-value",
+			SourceFilePath:  "dummy/file/path",
 		},
 	}
 	semanticAnalyzer := createSemanticAnalyzer(t, []*types.ParsedResource{}, variables)
@@ -92,23 +90,24 @@ func TestReferencedVariablesAreDefined(t *testing.T) {
 		{
 			ResourceType: "aws.ecs.Service",
 			LogicalName:  "CumuliServerEcsService",
-			NaturalLanguage: `Name: cumuli-server
+			NaturalLanguage: `In $EcsCluster, using $ServerTaskDefinition
+Name: cumuli-server
 Desired count: 1
 Launch type: FARGATE
 ---
 Network configuration:
-	Assigned public IP.
-	Subnets: PublicSubnetA and PublicSubnetB.
-	Security group: CumuliServerEcsSecurityGroup.
+	Assigned public IP
+	Subnets: $PublicSubnetA and $PublicSubnetB
+	Security group: $CumuliServerEcsSecurityGroup
 Load balancers:
-	Target group: CumuliServerTargetGroup.
-	Container name: {server_container_name}.
-	Port: {container_port}.
+	Target group: $CumuliServerTargetGroup
+	Container name: {server_container_name}
+	Port: {container_port}
 Deployment:
-	ECS type deployment controller.
-	Deployment circuit breaker: enabled with rollback.
+	ECS type deployment controller
+	Deployment circuit breaker: enabled with rollback
 	Wait for steady state: True`,
-			Uses: []types.LogicalName{
+			ReferencedResources: []types.LogicalName{
 				"CumuliEcsCluster",
 				"CumuliServerTaskDefinition",
 				"PublicSubnetA",
@@ -116,17 +115,16 @@ Deployment:
 				"CumuliServerEcsSecurityGroup",
 				"CumuliServerTargetGroup",
 			},
-			Exports:             map[string]string{"name": "exported-name"},
 			ReferencedVariables: []string{"server_container_name", "container_port"},
 			SourceFilePath:      "dummy/file/path",
 		},
 	}
 	variables := []*types.ParsedVariable{
 		{
-			Name:           "server_container_name",
-			Description:    "Name of the container that runs the server",
-			Default:        "cumuli-server",
-			SourceFilePath: "dummy/file/path",
+			Name:            "server_container_name",
+			NaturalLanguage: "Name of the container that runs the server",
+			Default:         "cumuli-server",
+			SourceFilePath:  "dummy/file/path",
 		},
 	}
 
@@ -148,10 +146,8 @@ func TestUsedResourcesExist(t *testing.T) {
 		{
 			ResourceType: "ecr.LifecyclePolicy",
 			LogicalName:  "CumuliServerRepoLifecyclePolicy",
-			NaturalLanguage: "Policy: A JSON policy with a rule that retains only the last 10 untagged images in the repository. " +
-				"Images beyond this count will expire.",
-			Uses:                []types.LogicalName{"CumuliServerRepository"},
-			Exports:             make(map[string]string),
+			NaturalLanguage: "Policy retains only the last 10 untagged images in the repository. Images beyond this count will expire.",
+			ReferencedResources: []types.LogicalName{"CumuliServerRepository"},
 			ReferencedVariables: []string{},
 			SourceFilePath:      "dummy/file/path",
 		},

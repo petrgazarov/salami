@@ -66,23 +66,22 @@ func (o *Object) IsVariable() bool {
 }
 
 type ParsedVariable struct {
-	Name           string `toml:"name" validate:"required"`
-	Description    string `toml:"description"`
-	VariableType   string `toml:"type" validate:"required,oneof=string number boolean"`
-	DefaultValue   string `toml:"default"`
-	SourceFilePath string `toml:"source_file_path" validate:"required"`
-	SourceFileLine int    `toml:"source_file_line" validate:"required"`
+	Name            string `toml:"name" validate:"required"`
+	NaturalLanguage string `toml:"natural_language"`
+	VariableType    string `toml:"type" validate:"required,oneof=string number boolean"`
+	DefaultValue    string `toml:"default"`
+	SourceFilePath  string `toml:"source_file_path" validate:"required"`
+	SourceFileLine  int    `toml:"source_file_line" validate:"required"`
 }
 
 type ParsedResource struct {
-	ResourceType        string            `toml:"resource_type" validate:"required"`
-	LogicalName         string            `toml:"logical_name" validate:"required"`
-	NaturalLanguage     string            `toml:"natural_language"`
-	Uses                []string          `toml:"uses"`
-	Exports             map[string]string `toml:"exports"`
-	ReferencedVariables []string          `toml:"referenced_variables"`
-	SourceFilePath      string            `toml:"source_file_path" validate:"required"`
-	SourceFileLine      int               `toml:"source_file_line" validate:"required"`
+	ResourceType        string   `toml:"resource_type" validate:"required"`
+	LogicalName         string   `toml:"logical_name" validate:"required"`
+	NaturalLanguage     string   `toml:"natural_language"`
+	ReferencedResources []string `toml:"referenced_resources"`
+	ReferencedVariables []string `toml:"referenced_variables"`
+	SourceFilePath      string   `toml:"source_file_path" validate:"required"`
+	SourceFileLine      int      `toml:"source_file_line" validate:"required"`
 }
 
 type CodeSegment struct {

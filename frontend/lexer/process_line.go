@@ -18,12 +18,12 @@ func (l *Lexer) processDecoratorLine() ([]*types.Token, error) {
 		}
 	}
 	l.skipWhitespace()
-	if l.current() != '\n' {
+	if l.current() != '\n' && l.current() != 0 {
 		return nil, &errors.LexerError{
 			FilePath: l.filePath,
 			Line:     l.line,
 			Column:   l.column,
-			Message:  "decorator must be followed by arguments or a newline",
+			Message:  "decorator line must end in a newline or EOF",
 		}
 	}
 
@@ -76,4 +76,14 @@ func (l *Lexer) getDecoratorArgTokens() ([]*types.Token, error) {
 		}
 	}
 	return tokens, nil
+}
+
+func (l *Lexer) processLine() *types.Token {
+	startPosition := l.pos
+	startColumn := l.column
+	for l.current() != '\n' && l.current() != 0 {
+		l.advance()
+	}
+	lineText := l.source[startPosition:l.pos]
+	return l.newToken(types.NaturalLanguage, lineText, l.line, startColumn, false)
 }

@@ -4,5 +4,6 @@ compiler:
   llm:
     provider: openai
     model: gpt4
+    api_key: ${OPENAI_API_KEY}
   source_dir: ial
   target_dir: iac

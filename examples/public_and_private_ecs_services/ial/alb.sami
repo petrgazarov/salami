@@ -13,7 +13,7 @@ Security group: ALBSecurityGroup
 Deletion protection enabled.
 Idle timeout: 3600
 
-resource(aws.lb.TargetGroup, CumuliServerTargetGroup)
+@resource(aws.lb.TargetGroup, CumuliServerTargetGroup)
 In $CumuliVpc
 Name: cumuli-server-target-group
 Port: 80, Protocol: HTTP

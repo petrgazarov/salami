@@ -1,8 +1,8 @@
 package parser
 
 import (
-	commonTypes "salami/common/types"
 	"salami/common/errors"
+	commonTypes "salami/common/types"
 	frontendTypes "salami/frontend/types"
 )
 
@@ -45,17 +45,12 @@ func (p *Parser) Parse() ([]*commonTypes.ParsedResource, []*commonTypes.ParsedVa
 				p.setCurrentObjectType(Unset)
 			}
 		case frontendTypes.DecoratorName:
-			err := p.handleDecoratorLine()
-			if err != nil {
-				return nil, nil, err
-			}
-		case frontendTypes.FieldName:
-			err := p.handleFieldLine()
+			err := p.parseDecorator()
 			if err != nil {
 				return nil, nil, err
 			}
 		case frontendTypes.NaturalLanguage:
-			err := p.handleNaturalLanguageLine()
+			err := p.parseNaturalLanguage()
 			if err != nil {
 				return nil, nil, err
 			}
@@ -88,6 +83,17 @@ func (p *Parser) setCurrentObjectType(t ObjectType) {
 
 func (p *Parser) currentObjectTypeIs(objectType ObjectType) bool {
 	return p.currentObjectType == objectType
+}
+
+func (p *Parser) currentObject() commonTypes.ParsedObject {
+	switch p.currentObjectType {
+	case Resource:
+		return p.currentResource()
+	case Variable:
+		return p.currentVariable()
+	default:
+		return nil
+	}
 }
 
 func (p *Parser) currentToken() *frontendTypes.Token {

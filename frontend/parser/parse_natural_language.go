@@ -2,11 +2,12 @@ package parser
 
 import (
 	"regexp"
+	commonTypes "salami/common/types"
 	"salami/frontend/types"
 	"strings"
 )
 
-func (p *Parser) handleNaturalLanguageLine() error {
+func (p *Parser) parseNaturalLanguage() error {
 	freeTextToken := p.currentToken()
 	p.advance()
 	for p.currentToken().Type != types.Newline && p.currentToken().Type != types.EOF {
@@ -16,27 +17,15 @@ func (p *Parser) handleNaturalLanguageLine() error {
 	if p.currentObjectTypeIs(Unset) {
 		return p.parseError(
 			freeTextToken,
-			"ambiguous object type. Ensure object has Resource type field or @variable decorator before the current line",
+			"ambiguous object type. Object must start with a decorator",
 		)
 	}
-	if !p.currentObjectTypeIs(Resource) {
-		return p.parseError(freeTextToken, "natural language can only be used on resource")
-	}
-	err := p.addLineToNaturalLanguage(freeTextToken.Value)
+	p.currentObject().AddNaturalLanguage(freeTextToken.Value)
+	err := p.extractAndSetReferencedVariables(freeTextToken.Value)
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func (p *Parser) addLineToNaturalLanguage(line string) error {
-	addition := line
-
-	if p.currentResource().NaturalLanguage != "" {
-		addition = "\n" + addition
-	}
-	p.currentResource().NaturalLanguage += addition
-	err := p.extractAndSetReferencedVariables(line)
+	err = p.extractAndSetReferencedResources(freeTextToken.Value)
 	if err != nil {
 		return err
 	}
@@ -71,6 +60,40 @@ func (p *Parser) extractAndSetReferencedVariables(text string) error {
 		}
 		if isUnique {
 			p.currentResource().ReferencedVariables = append(p.currentResource().ReferencedVariables, variable)
+		}
+	}
+	return nil
+}
+
+func (p *Parser) extractAndSetReferencedResources(text string) error {
+	re := regexp.MustCompile(`\$([a-zA-Z0-9_]+)`)
+	matches := re.FindAllStringSubmatchIndex(text, -1)
+
+	for _, match := range matches {
+		// Ignore if the dollar sign is escaped
+		if match[0] > 0 && text[match[0]-1] == '\\' {
+			continue
+		}
+
+		resource := strings.TrimSpace(text[match[2]:match[3]])
+		if strings.Contains(resource, "$") {
+			return p.parseError(
+				p.currentToken(),
+				"Nested dollar signs in referenced resources are not allowed",
+			)
+		}
+		isUnique := true
+		for _, r := range p.currentResource().ReferencedResources {
+			if r == commonTypes.LogicalName(resource) {
+				isUnique = false
+				break
+			}
+		}
+		if isUnique {
+			p.currentResource().ReferencedResources = append(
+				p.currentResource().ReferencedResources,
+				commonTypes.LogicalName(resource),
+			)
 		}
 	}
 	return nil

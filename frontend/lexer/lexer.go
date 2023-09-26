@@ -34,11 +34,8 @@ func (l *Lexer) Run() ([]*types.Token, error) {
 			l.tokens = append(l.tokens, decoratorTokens...)
 
 		default:
-			lineTokens, err := l.processLine()
-			if err != nil {
-				return nil, err
-			}
-			l.tokens = append(l.tokens, lineTokens...)
+			lineToken := l.processLine()
+			l.tokens = append(l.tokens, lineToken)
 		}
 	}
 }

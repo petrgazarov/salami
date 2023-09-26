@@ -45,8 +45,7 @@ func getExpectedObjects() []*types.Object {
 				ResourceType:        types.ResourceType("aws.s3.Bucket"),
 				LogicalName:         types.LogicalName("AssumedRolesBucket"),
 				NaturalLanguage:     "Bucket: assumed-roles\nVersioning enabled: True",
-				Uses:                []types.LogicalName{},
-				Exports:             map[string]string{"name": "assumed-roles-bucket-name"},
+				ReferencedResources: []types.LogicalName{},
 				ReferencedVariables: []string{},
 				SourceFilePath:      "path/to/source_file",
 				SourceFileLine:      1,
@@ -69,8 +68,7 @@ func getExpectedObjects() []*types.Object {
 				LogicalName:  types.LogicalName("AssetsPublicAccessBlock"),
 				NaturalLanguage: "Block public ACLs: True\nBlock public policy: False\n" +
 					"Ignore public ACLs: True\nRestrict public buckets: False",
-				Uses:                []types.LogicalName{"AssumedRolesBucket"},
-				Exports:             map[string]string{},
+				ReferencedResources: []types.LogicalName{"AssumedRolesBucket"},
 				ReferencedVariables: []string{},
 				SourceFilePath:      "path/to/source_file",
 				SourceFileLine:      8,
@@ -91,8 +89,7 @@ func getExpectedObjects() []*types.Object {
 				LogicalName:  types.LogicalName("AssumedRolesBucketPolicy"),
 				NaturalLanguage: "Policy: A JSON policy that allows all principals to perform the " +
 					"\"s3:GetObject\" action on all objects in the specified S3 bucket.",
-				Uses:                []types.LogicalName{"AssumedRolesBucket"},
-				Exports:             map[string]string{},
+				ReferencedResources: []types.LogicalName{"AssumedRolesBucket"},
 				ReferencedVariables: []string{},
 				SourceFilePath:      "path/to/source_file",
 				SourceFileLine:      17,
@@ -111,12 +108,12 @@ func getExpectedObjects() []*types.Object {
 		},
 		{
 			ParsedVariable: &types.ParsedVariable{
-				Name:           "server_container_name",
-				Description:    "Server container name",
-				Type:           types.VariableType("string"),
-				Default:        "server-container",
-				SourceFilePath: "path/to/source_file",
-				SourceFileLine: 24,
+				Name:            "server_container_name",
+				NaturalLanguage: "Description: Server container name",
+				Type:            types.VariableType("string"),
+				Default:         "server-container",
+				SourceFilePath:  "path/to/source_file",
+				SourceFileLine:  24,
 			},
 			CodeSegments: []types.CodeSegment{
 				{

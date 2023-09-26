@@ -58,16 +58,15 @@ func UpdateLockFile(targetFilesMeta []types.TargetFileMeta, objects []*types.Obj
 }
 
 func getCommonParsedResource(lockFileObject Object) *types.ParsedResource {
-	uses := make([]types.LogicalName, len(lockFileObject.ParsedResource.Uses))
-	for j, use := range lockFileObject.ParsedResource.Uses {
-		uses[j] = types.LogicalName(use)
+	referencedResources := make([]types.LogicalName, len(lockFileObject.ParsedResource.ReferencedResources))
+	for j, use := range lockFileObject.ParsedResource.ReferencedResources {
+		referencedResources[j] = types.LogicalName(use)
 	}
 	return &types.ParsedResource{
 		ResourceType:        types.ResourceType(lockFileObject.ParsedResource.ResourceType),
 		LogicalName:         types.LogicalName(lockFileObject.ParsedResource.LogicalName),
 		NaturalLanguage:     lockFileObject.ParsedResource.NaturalLanguage,
-		Uses:                uses,
-		Exports:             lockFileObject.ParsedResource.Exports,
+		ReferencedResources: referencedResources,
 		ReferencedVariables: lockFileObject.ParsedResource.ReferencedVariables,
 		SourceFilePath:      lockFileObject.ParsedResource.SourceFilePath,
 		SourceFileLine:      lockFileObject.ParsedResource.SourceFileLine,
@@ -76,12 +75,12 @@ func getCommonParsedResource(lockFileObject Object) *types.ParsedResource {
 
 func getCommonParsedVariable(lockFileObject Object) *types.ParsedVariable {
 	return &types.ParsedVariable{
-		Description:    lockFileObject.ParsedVariable.Description,
-		Name:           lockFileObject.ParsedVariable.Name,
-		Default:        lockFileObject.ParsedVariable.DefaultValue,
-		Type:           types.VariableType(lockFileObject.ParsedVariable.VariableType),
-		SourceFilePath: lockFileObject.ParsedVariable.SourceFilePath,
-		SourceFileLine: lockFileObject.ParsedVariable.SourceFileLine,
+		Name:            lockFileObject.ParsedVariable.Name,
+		NaturalLanguage: lockFileObject.ParsedVariable.NaturalLanguage,
+		Default:         lockFileObject.ParsedVariable.DefaultValue,
+		Type:            types.VariableType(lockFileObject.ParsedVariable.VariableType),
+		SourceFilePath:  lockFileObject.ParsedVariable.SourceFilePath,
+		SourceFileLine:  lockFileObject.ParsedVariable.SourceFileLine,
 	}
 }
 
