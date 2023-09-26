@@ -2,22 +2,23 @@ package driver
 
 import (
 	"os"
+	"path/filepath"
 	"salami/common/types"
 	"salami/frontend/lexer"
 	"salami/frontend/parser"
 	"sync"
 )
 
-func parseFiles(files []string) ([]*types.ParsedResource, []*types.ParsedVariable, []error) {
-	resourcesChan := make(chan []*types.ParsedResource, len(files))
-	variablesChan := make(chan []*types.ParsedVariable, len(files))
-	errorChan := make(chan error, len(files))
+func parseFiles(filePaths []string, sourceDir string) ([]*types.ParsedResource, []*types.ParsedVariable, []error) {
+	resourcesChan := make(chan []*types.ParsedResource, len(filePaths))
+	variablesChan := make(chan []*types.ParsedVariable, len(filePaths))
+	errorChan := make(chan error, len(filePaths))
 
 	var wg sync.WaitGroup
-	for _, file := range files {
+	for _, filePath := range filePaths {
 		wg.Add(1)
-		go func(file string) {
-			resources, variables, err := parseFile(file)
+		go func(filePath string) {
+			resources, variables, err := parseFile(filePath, sourceDir)
 			if err != nil {
 				errorChan <- err
 			}
@@ -28,7 +29,7 @@ func parseFiles(files []string) ([]*types.ParsedResource, []*types.ParsedVariabl
 				variablesChan <- variables
 			}
 			wg.Done()
-		}(file)
+		}(filePath)
 	}
 	wg.Wait()
 	close(resourcesChan)
@@ -51,12 +52,13 @@ func parseFiles(files []string) ([]*types.ParsedResource, []*types.ParsedVariabl
 	return allResources, allVariables, allErrors
 }
 
-func parseFile(filePath string) (
+func parseFile(filePath string, sourceDir string) (
 	resources []*types.ParsedResource,
 	variables []*types.ParsedVariable,
 	err error,
 ) {
-	content, err := os.ReadFile(filePath)
+	fullRelativeFilePath := filepath.Join(sourceDir, filePath)
+	content, err := os.ReadFile(fullRelativeFilePath)
 	if err != nil {
 		return nil, nil, err
 	}

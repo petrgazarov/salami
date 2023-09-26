@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"salami/common/types"
 	"salami/common/utils/file_utils"
-	"strings"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -24,7 +23,7 @@ func WriteTargetFiles(targetFiles []*types.TargetFile, targetDir string) []error
 	for _, targetFile := range targetFiles {
 		targetFile := targetFile
 		g.Go(func() error {
-			if err := writeTargetFile(targetFile); err != nil {
+			if err := writeTargetFile(targetFile, targetDir); err != nil {
 				errs = append(errs, err)
 			}
 			return nil
@@ -46,15 +45,16 @@ func WriteTargetFiles(targetFiles []*types.TargetFile, targetDir string) []error
 	return nil
 }
 
-func writeTargetFile(targetFile *types.TargetFile) error {
-	dir := filepath.Dir(targetFile.FilePath)
+func writeTargetFile(targetFile *types.TargetFile, targetDir string) error {
+	fullRelativeFilePath := filepath.Join(targetDir, targetFile.FilePath)
+	dir := filepath.Dir(fullRelativeFilePath)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return err
 		}
 	}
 
-	file, err := os.OpenFile(targetFile.FilePath, os.O_RDWR|os.O_CREATE, 0644)
+	file, err := os.OpenFile(fullRelativeFilePath, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
@@ -78,37 +78,37 @@ func writeTargetFile(targetFile *types.TargetFile) error {
 }
 
 func deleteOldFiles(targetDir string, targetFiles []*types.TargetFile) error {
-	oldFilePaths, err := getOldFilePaths(targetDir, targetFiles)
-	if err != nil {
-		return err
-	}
+	// oldFilePaths, err := getOldFilePaths(targetDir, targetFiles)
+	// if err != nil {
+	// 	return err
+	// }
 
-	for _, file := range oldFilePaths {
-		if err := os.Remove(file); err != nil {
-			return err
-		}
-	}
-	isAncestorOfAnyTargetFile := func(path string, targetFiles []*types.TargetFile) bool {
-		for _, targetFile := range targetFiles {
-			if strings.HasPrefix(targetFile.FilePath, path) {
-				return true
-			}
-		}
-		return false
-	}
+	// for _, file := range oldFilePaths {
+	// 	if err := os.Remove(file); err != nil {
+	// 		return err
+	// 	}
+	// }
+	// isAncestorOfAnyTargetFile := func(path string, targetFiles []*types.TargetFile) bool {
+	// 	for _, targetFile := range targetFiles {
+	// 		if strings.HasPrefix(targetFile.FilePath, path) {
+	// 			return true
+	// 		}
+	// 	}
+	// 	return false
+	// }
 
-	emptySubdirectoryPaths, err := file_utils.GetSubdirectoryPaths(targetDir, func(path string) bool {
-		return !isAncestorOfAnyTargetFile(path, targetFiles)
-	})
-	if err != nil {
-		return err
-	}
+	// emptySubdirectoryPaths, err := file_utils.GetSubdirectoryPaths(targetDir, func(path string) bool {
+	// 	return !isAncestorOfAnyTargetFile(path, targetFiles)
+	// })
+	// if err != nil {
+	// 	return err
+	// }
 
-	for _, dir := range emptySubdirectoryPaths {
-		if err := os.RemoveAll(dir); err != nil {
-			return err
-		}
-	}
+	// for _, dir := range emptySubdirectoryPaths {
+	// 	if err := os.RemoveAll(dir); err != nil {
+	// 		return err
+	// 	}
+	// }
 	return nil
 }
 

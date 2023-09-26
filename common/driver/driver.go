@@ -37,13 +37,11 @@ func Run() []error {
 }
 
 func runFrontend() (*symbol_table.SymbolTable, []error) {
-	sourceFilePaths, err := file_utils.GetFilePaths(config.GetSourceDir(), func(path string) bool {
-		return filepath.Ext(path) == constants.SalamiFileExtension
-	})
+	sourceFilePaths, err := getSourceFilePaths()
 	if err != nil {
 		return nil, []error{err}
 	}
-	allResources, allVariables, errors := parseFiles(sourceFilePaths)
+	allResources, allVariables, errors := parseFiles(sourceFilePaths, config.GetSourceDir())
 	if len(errors) > 0 {
 		return nil, errors
 	}
@@ -134,4 +132,21 @@ func computeNewObjects(
 	})
 
 	return objects
+}
+
+func getSourceFilePaths() ([]string, error) {
+	sourceFilePaths, err := file_utils.GetFilePaths(config.GetSourceDir(), func(path string) bool {
+		return filepath.Ext(path) == constants.SalamiFileExtension
+	})
+	if err != nil {
+		return nil, err
+	}
+	relativeSourceFilePaths, err := file_utils.GetRelativeFilePaths(
+		config.GetSourceDir(),
+		sourceFilePaths,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return relativeSourceFilePaths, nil
 }

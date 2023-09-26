@@ -3,7 +3,6 @@ package config
 import (
 	"log"
 	"os"
-	"path/filepath"
 	"regexp"
 	"salami/common/types"
 
@@ -31,19 +30,11 @@ func LoadConfig() error {
 }
 
 func GetSourceDir() string {
-	absPath, err := filepath.Abs(getConfig().Compiler.SourceDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return absPath
+	return getConfig().Compiler.SourceDir
 }
 
 func GetTargetDir() string {
-	absPath, err := filepath.Abs(getConfig().Compiler.TargetDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return absPath
+	return getConfig().Compiler.TargetDir
 }
 
 func GetTargetConfig() types.TargetConfig {

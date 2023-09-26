@@ -18,7 +18,6 @@ func GetFilesFromObjects(objects []*types.Object) []*types.TargetFile {
 		for _, codeSegment := range object.CodeSegments {
 			currentContent += codeSegment.Content
 		}
-
 		if object.GetSourceFilePath() != lastSourceFilePath {
 			currentTargetFile = &types.TargetFile{
 				FilePath: getTargetFilePath(object.GetSourceFilePath()),
