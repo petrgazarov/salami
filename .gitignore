@@ -2,3 +2,4 @@ __pycache__
 main
 cpu.pprof
 .DS_Store
+coverage.out
