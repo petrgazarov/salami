@@ -2,16 +2,17 @@ package driver
 
 import (
 	"path/filepath"
+	"sort"
 
 	"salami/backend/target"
 	"salami/backend/target_file_manager"
-	"salami/common/change_manager"
+	backendTypes "salami/backend/types"
+	"salami/common/change_set"
 	"salami/common/config"
 	"salami/common/lock_file_manager"
 	"salami/common/symbol_table"
-	"salami/common/types"
+	commonTypes "salami/common/types"
 	"salami/common/utils/file_utils"
-	"salami/common/utils/object_utils"
 	"salami/frontend/semantic_analyzer"
 )
 
@@ -25,17 +26,9 @@ func Run() []error {
 	if len(errors) > 0 {
 		return errors
 	}
-	newTargetFiles, newObjects, errors := generateCode(symbolTable)
+	newTargetFilesMeta, newObjects, errors := runBackend(symbolTable)
 	if len(errors) > 0 {
 		return errors
-	}
-	if errors := target_file_manager.WriteTargetFiles(newTargetFiles, config.GetTargetDir()); len(errors) > 0 {
-		return errors
-	}
-
-	newTargetFilesMeta, err := target_file_manager.GenerateTargetFilesMeta(newTargetFiles)
-	if err != nil {
-		return []error{err}
 	}
 	if err := lock_file_manager.UpdateLockFile(newTargetFilesMeta, newObjects); err != nil {
 		return []error{err}
@@ -44,7 +37,9 @@ func Run() []error {
 }
 
 func runFrontend() (*symbol_table.SymbolTable, []error) {
-	sourceFilePaths, err := getSourceFilePaths()
+	sourceFilePaths, err := file_utils.GetFilePaths(config.GetSourceDir(), func(path string) bool {
+		return filepath.Ext(path) == salamiFileExtension
+	})
 	if err != nil {
 		return nil, []error{err}
 	}
@@ -63,33 +58,74 @@ func runFrontend() (*symbol_table.SymbolTable, []error) {
 	return symbolTable, nil
 }
 
-func getSourceFilePaths() ([]string, error) {
-	filter := func(path string) bool {
-		return filepath.Ext(path) == salamiFileExtension
+func runBackend(
+	symbolTable *symbol_table.SymbolTable,
+) ([]commonTypes.TargetFileMeta, []*commonTypes.Object, []error) {
+	newTargetFiles, newObjects, errors := generateCode(symbolTable)
+	if len(errors) > 0 {
+		return nil, nil, errors
 	}
-	salamiPaths, err := file_utils.GetFilePaths(config.GetSourceDir(), filter)
+
+	if errors := target_file_manager.WriteTargetFiles(newTargetFiles, config.GetTargetDir()); len(errors) > 0 {
+		return nil, nil, errors
+	}
+
+	newTargetFilesMeta, err := target_file_manager.GenerateTargetFilesMeta(newTargetFiles)
 	if err != nil {
-		return nil, err
+		return nil, nil, []error{err}
 	}
-	return salamiPaths, nil
+
+	return newTargetFilesMeta, newObjects, nil
 }
 
 func generateCode(
 	symbolTable *symbol_table.SymbolTable,
-) ([]*types.TargetFile, []*types.Object, []error) {
-	previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(lock_file_manager.GetObjects())
-	changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
+) ([]*commonTypes.TargetFile, []*commonTypes.Object, []error) {
+	previousObjects := lock_file_manager.GetObjects()
+	changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
 	target := resolveTarget()
 	if errors := target.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
 		return nil, nil, errors
 	}
-	newObjects := change_manager.ComputeNewObjects(previousResourcesMap, previousVariablesMap, changeSet)
+	newObjects := computeNewObjects(previousObjects, changeSet)
 	targetFiles := target.GetFilesFromObjects(newObjects)
 	return targetFiles, newObjects, nil
 }
 
-func resolveTarget() target.Target {
+func resolveTarget() backendTypes.Target {
 	targetConfig := config.GetTargetConfig()
 	llmConfig := config.GetLlmConfig()
 	return target.ResolveTarget(targetConfig, llmConfig)
+}
+
+func computeNewObjects(
+	previousObjects []*commonTypes.Object,
+	changeSet *commonTypes.ChangeSet,
+) []*commonTypes.Object {
+	changeSetRepository := change_set.NewChangeSetRepository(changeSet)
+
+	objects := make([]*commonTypes.Object, 0)
+	for _, object := range previousObjects {
+		if changeSetRepository.WasChanged(object) {
+			objects = append(objects, changeSetRepository.GetChanged(object))
+			continue
+		}
+		if !changeSetRepository.WasDeleted(object) {
+			objects = append(objects, object)
+		}
+	}
+	objects = append(objects, changeSetRepository.AddedObjects...)
+
+	sort.Slice(objects, func(i, j int) bool {
+		currentObject := objects[i]
+		nextObject := objects[j]
+
+		if currentObject.GetSourceFilePath() != nextObject.GetSourceFilePath() {
+			return currentObject.GetSourceFilePath() < nextObject.GetSourceFilePath()
+		} else {
+			return currentObject.GetSourceFileLine() < nextObject.GetSourceFileLine()
+		}
+	})
+
+	return objects
 }

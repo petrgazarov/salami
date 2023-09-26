@@ -2,7 +2,6 @@
   {
     "OldObject": null,
     "NewObject": {
-      "SourceFilePath": "path/to/source_file",
       "ParsedVariable": {
         "Name": "container port",
         "Description": "Container port",
@@ -10,19 +9,12 @@
         "Default": "8080",
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 15
-      },
-      "CodeSegments": [
-        {
-          "SegmentType": "Variable",
-          "Content": "variable \"container_port\" {\n description = \"Container port\" \n type = string \n default = \"8080\" \n}"
-        }
-      ]
+      }
     }
   },
   {
     "OldObject": null,
     "NewObject": {
-      "SourceFilePath": "path/to/source_file",
       "ParsedResource": {
         "ResourceType": "aws.logs.LogGroup",
         "LogicalName": "LogsGroup",
@@ -32,18 +24,11 @@
         "ReferencedVariables": [],
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 1
-      },
-      "CodeSegments": [
-        {
-          "SegmentType": "Resource",
-          "Content": "resource \"aws_cloudwatch_log_group\" \"LogsGroup\" {\n  name = \"/ecs/my-app\" \n  retention_in_days = 30 \n}"
-        }
-      ]
+      }
     }
   },
   {
     "OldObject": {
-      "SourceFilePath": "path/to/source_file",
       "ParsedResource": {
         "ResourceType": "aws.s3.BucketPublicAccessBlock",
         "LogicalName": "AssetsPublicAccessBlock",
@@ -65,7 +50,6 @@
   },
   {
     "OldObject": {
-      "SourceFilePath": "path/to/source_file",
       "ParsedResource": {
         "ResourceType": "aws.s3.BucketPolicy",
         "LogicalName": "AssumedRolesBucketPolicy",
@@ -84,7 +68,6 @@
       ]
     },
     "NewObject": {
-      "SourceFilePath": "path/to/source_file",
       "ParsedResource": {
         "ResourceType": "aws.s3.BucketPolicy",
         "LogicalName": "AssumedRolesBucketPolicy",
@@ -94,13 +77,7 @@
         "ReferencedVariables": [],
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 0
-      },
-      "CodeSegments": [
-        {
-          "SegmentType": "Resource",
-          "Content": "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.bucket \n  policy = jsonencode({\n    Version: \"2012-10-17\",\n    Statement: [{\n      Effect: \"Deny\",\n      Principal: \"*\",\n      Action: \"s3:*\",\n      Resource: \"arn:aws:s3:::${aws_s3_bucket.AssumedRolesBucket.bucket}/*\"\n    }]\n  })\n}"
-        }
-      ]
+      }
     }
   }
 ]

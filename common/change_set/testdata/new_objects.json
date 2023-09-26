@@ -1,6 +1,5 @@
 [
   {
-    "SourceFilePath": "path/to/source_file",
     "ParsedResource": {
       "ResourceType": "aws.s3.Bucket",
       "LogicalName": "AssumedRolesBucket",
@@ -25,30 +24,10 @@
     ]
   },
   {
-    "SourceFilePath": "path/to/source_file",
-    "ParsedResource": {
-      "ResourceType": "aws.s3.BucketPublicAccessBlock",
-      "LogicalName": "AssetsPublicAccessBlock",
-      "NaturalLanguage": "Block public ACLs: True\nBlock public policy: False\nIgnore public ACLs: True\nRestrict public buckets: False",
-      "Uses": ["AssumedRolesBucket"],
-      "Exports": {},
-      "ReferencedVariables": [],
-      "SourceFilePath": "path/to/source_file",
-      "SourceFileLine": 0
-    },
-    "CodeSegments": [
-      {
-        "SegmentType": "Resource",
-        "Content": "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n  block_public_policy     = false\n  ignore_public_acls      = true\n  restrict_public_buckets = false\n}"
-      }
-    ]
-  },
-  {
-    "SourceFilePath": "path/to/source_file",
     "ParsedResource": {
       "ResourceType": "aws.s3.BucketPolicy",
       "LogicalName": "AssumedRolesBucketPolicy",
-      "NaturalLanguage": "Policy: A JSON policy that allows all principals to perform the \"s3:GetObject\" action on all objects in the specified S3 bucket.",
+      "NaturalLanguage": "Policy: A JSON policy that denies everyone access",
       "Uses": ["AssumedRolesBucket"],
       "Exports": {},
       "ReferencedVariables": [],
@@ -63,7 +42,18 @@
     ]
   },
   {
-    "SourceFilePath": "path/to/source_file",
+    "ParsedResource": {
+      "ResourceType": "aws.logs.LogGroup",
+      "LogicalName": "LogsGroup",
+      "NaturalLanguage": "Log group: /ecs/my-app\nRetention: 30 days",
+      "Uses": [],
+      "Exports": {},
+      "ReferencedVariables": [],
+      "SourceFilePath": "path/to/source_file",
+      "SourceFileLine": 1
+    }
+  },
+  {
     "ParsedVariable": {
       "Name": "server_container_name",
       "Description": "Server container name",
@@ -78,5 +68,15 @@
         "Content": "variable \"server_container_name\" {\n  description = \"Server container name\"\n  type        = string\n  default     = \"server-container\"\n}"
       }
     ]
+  },
+  {
+    "ParsedVariable": {
+      "Name": "container port",
+      "Description": "Container port",
+      "Type": "string",
+      "Default": "8080",
+      "SourceFilePath": "path/to/source_file",
+      "SourceFileLine": 15
+    }
   }
 ]

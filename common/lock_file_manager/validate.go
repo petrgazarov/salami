@@ -52,7 +52,6 @@ type TargetFileMeta struct {
 }
 
 type Object struct {
-	SourceFilePath string          `toml:"source_file_path" validate:"required"`
 	ParsedResource *ParsedResource `toml:"parsed_resource" validate:"required_without=ParsedVariable"`
 	ParsedVariable *ParsedVariable `toml:"parsed_variable" validate:"required_without=ParsedResource"`
 	CodeSegments   []CodeSegment   `toml:"code_segments" validate:"required,dive"`
@@ -67,10 +66,12 @@ func (o *Object) IsVariable() bool {
 }
 
 type ParsedVariable struct {
-	Name         string `toml:"name" validate:"required"`
-	Description  string `toml:"description"`
-	VariableType string `toml:"type" validate:"required,oneof=string number boolean"`
-	DefaultValue string `toml:"default"`
+	Name           string `toml:"name" validate:"required"`
+	Description    string `toml:"description"`
+	VariableType   string `toml:"type" validate:"required,oneof=string number boolean"`
+	DefaultValue   string `toml:"default"`
+	SourceFilePath string `toml:"source_file_path" validate:"required"`
+	SourceFileLine int    `toml:"source_file_line" validate:"required"`
 }
 
 type ParsedResource struct {
@@ -80,11 +81,13 @@ type ParsedResource struct {
 	Uses                []string          `toml:"uses"`
 	Exports             map[string]string `toml:"exports"`
 	ReferencedVariables []string          `toml:"referenced_variables"`
+	SourceFilePath      string            `toml:"source_file_path" validate:"required"`
+	SourceFileLine      int               `toml:"source_file_line" validate:"required"`
 }
 
 type CodeSegment struct {
-	SegmentType    string `toml:"segment_type" validate:"required,oneof=Variable Resource Export"`
-	Content        string `toml:"content" validate:"required"`
+	SegmentType string `toml:"segment_type" validate:"required,oneof=Variable Resource Export"`
+	Content     string `toml:"content" validate:"required"`
 }
 
 func decodeLockFile(lockFile *LockFile) error {

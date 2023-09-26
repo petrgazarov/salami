@@ -1,6 +1,5 @@
 [
   {
-    "SourceFilePath": "path/to/source_file",
     "ParsedResource": {
       "ResourceType": "aws.s3.Bucket",
       "LogicalName": "AssumedRolesBucket",
@@ -25,7 +24,6 @@
     ]
   },
   {
-    "SourceFilePath": "path/to/source_file",
     "ParsedResource": {
       "ResourceType": "aws.s3.BucketPublicAccessBlock",
       "LogicalName": "AssetsPublicAccessBlock",
@@ -44,7 +42,6 @@
     ]
   },
   {
-    "SourceFilePath": "path/to/source_file",
     "ParsedResource": {
       "ResourceType": "aws.s3.BucketPolicy",
       "LogicalName": "AssumedRolesBucketPolicy",
@@ -63,7 +60,6 @@
     ]
   },
   {
-    "SourceFilePath": "path/to/source_file",
     "ParsedVariable": {
       "Name": "server_container_name",
       "Description": "Server container name",

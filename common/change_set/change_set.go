@@ -1,26 +1,27 @@
-package change_manager
+package change_set
 
 import (
 	"reflect"
 	"salami/common/symbol_table"
 	"salami/common/types"
+	"salami/common/utils/object_utils"
 )
 
-func GenerateChangeSet(
-	previousResources map[types.LogicalName]*types.Object,
-	previousVariables map[string]*types.Object,
+func NewChangeSet(
+	previousObjects []*types.Object,
 	symbolTable *symbol_table.SymbolTable,
 ) *types.ChangeSet {
+	previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(previousObjects)
 	seenResources := make(map[types.LogicalName]bool)
 	seenVariables := make(map[string]bool)
 	changeSet := &types.ChangeSet{
 		Diffs: make([]types.ChangeSetDiff, 0),
 	}
 
-	recordResourceChangesOrAdditions(symbolTable, changeSet, previousResources, seenResources)
-	recordVariableChangesOrAdditions(symbolTable, changeSet, previousVariables, seenVariables)
-	recordResourceDeletions(changeSet, previousResources, seenResources)
-	recordVariableDeletions(changeSet, previousVariables, seenVariables)
+	recordResourceChangesOrAdditions(symbolTable, changeSet, previousResourcesMap, seenResources)
+	recordVariableChangesOrAdditions(symbolTable, changeSet, previousVariablesMap, seenVariables)
+	recordResourceDeletions(changeSet, previousResourcesMap, seenResources)
+	recordVariableDeletions(changeSet, previousVariablesMap, seenVariables)
 
 	return changeSet
 }
@@ -33,7 +34,6 @@ func recordResourceChangesOrAdditions(
 ) {
 	for logicalName, resource := range symbolTable.ResourceTable {
 		object := &types.Object{
-			SourceFilePath: resource.SourceFilePath,
 			ParsedResource: resource,
 		}
 		if _, ok := previousResources[logicalName]; !ok {
@@ -59,7 +59,6 @@ func recordVariableChangesOrAdditions(
 ) {
 	for name, variable := range symbolTable.VariableTable {
 		object := &types.Object{
-			SourceFilePath: variable.SourceFilePath,
 			ParsedVariable: variable,
 		}
 		if _, ok := previousVariables[name]; !ok {

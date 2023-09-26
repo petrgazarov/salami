@@ -1,14 +1,6 @@
 package types
 
-type CodeSegmentType string
-
-type CodeSegment struct {
-	SegmentType    CodeSegmentType
-	Content        string
-}
-
 type Object struct {
-	SourceFilePath string
 	ParsedResource *ParsedResource
 	ParsedVariable *ParsedVariable
 	CodeSegments   []CodeSegment
@@ -20,6 +12,24 @@ func (o *Object) IsResource() bool {
 
 func (o *Object) IsVariable() bool {
 	return o.ParsedVariable != nil
+}
+
+func (o *Object) GetSourceFilePath() string {
+	if o.IsResource() {
+		return o.ParsedResource.SourceFilePath
+	} else if o.IsVariable() {
+		return o.ParsedVariable.SourceFilePath
+	}
+	return ""
+}
+
+func (o *Object) GetSourceFileLine() int {
+	if o.IsResource() {
+		return o.ParsedResource.SourceFileLine
+	} else if o.IsVariable() {
+		return o.ParsedVariable.SourceFileLine
+	}
+	return 0
 }
 
 type ChangeSetDiff struct {
@@ -52,4 +62,11 @@ const LlmGpt4Model = "gpt-4"
 type TargetFile struct {
 	FilePath string
 	Content  string
+}
+
+type CodeSegmentType string
+
+type CodeSegment struct {
+	SegmentType CodeSegmentType
+	Content     string
 }

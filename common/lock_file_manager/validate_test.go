@@ -81,12 +81,6 @@ func getValidateTestCases() []validateTestCase {
 			"lock file error: missing or invalid target file checksum",
 		},
 		{
-			"Missing source file path",
-			"missing_source_file_path.toml",
-			true,
-			"lock file error: missing or invalid source file path",
-		},
-		{
 			"Missing parsed resource type",
 			"missing_resource_type.toml",
 			true,
@@ -97,6 +91,18 @@ func getValidateTestCases() []validateTestCase {
 			"missing_resource_logical_name.toml",
 			true,
 			"lock file error: missing or invalid parsed resource logical name",
+		},
+		{
+			"Missing resource source file path",
+			"missing_resource_source_file_path.toml",
+			true,
+			"lock file error: missing or invalid parsed resource source file path",
+		},
+		{
+			"Missing resource source file line",
+			"missing_resource_source_file_line.toml",
+			true,
+			"lock file error: missing or invalid parsed resource source file line",
 		},
 		{
 			"Missing variable name",
@@ -115,6 +121,18 @@ func getValidateTestCases() []validateTestCase {
 			"invalid_variable_type.toml",
 			true,
 			"lock file error: 'unsupported' is not a valid value",
+		},
+		{
+			"Missing variable source file path",
+			"missing_variable_source_file_path.toml",
+			true,
+			"lock file error: missing or invalid parsed variable source file path",
+		},
+		{
+			"Missing variable source file line",
+			"missing_variable_source_file_line.toml",
+			true,
+			"lock file error: missing or invalid parsed variable source file line",
 		},
 		{
 			"Missing code segment type",

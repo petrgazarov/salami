@@ -41,7 +41,6 @@ func TestGetObjects(t *testing.T) {
 func getExpectedObjects() []*types.Object {
 	return []*types.Object{
 		{
-			SourceFilePath: "path/to/source_file",
 			ParsedResource: &types.ParsedResource{
 				ResourceType:        types.ResourceType("aws.s3.Bucket"),
 				LogicalName:         types.LogicalName("AssumedRolesBucket"),
@@ -50,22 +49,21 @@ func getExpectedObjects() []*types.Object {
 				Exports:             map[string]string{"name": "assumed-roles-bucket-name"},
 				ReferencedVariables: []string{},
 				SourceFilePath:      "path/to/source_file",
-				SourceFileLine:      0,
+				SourceFileLine:      1,
 			},
 			CodeSegments: []types.CodeSegment{
 				{
-					SegmentType:    types.CodeSegmentType("Resource"),
+					SegmentType: types.CodeSegmentType("Resource"),
 					Content: "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n" +
 						"  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}",
 				},
 				{
-					SegmentType:    types.CodeSegmentType("Export"),
-					Content:        "output \"assumed-roles-bucket-name\" {\n  value = aws_s3_bucket.AssumedRolesBucket.bucket\n}",
+					SegmentType: types.CodeSegmentType("Export"),
+					Content:     "output \"assumed-roles-bucket-name\" {\n  value = aws_s3_bucket.AssumedRolesBucket.bucket\n}",
 				},
 			},
 		},
 		{
-			SourceFilePath: "path/to/source_file",
 			ParsedResource: &types.ParsedResource{
 				ResourceType: types.ResourceType("aws.s3.BucketPublicAccessBlock"),
 				LogicalName:  types.LogicalName("AssetsPublicAccessBlock"),
@@ -75,11 +73,11 @@ func getExpectedObjects() []*types.Object {
 				Exports:             map[string]string{},
 				ReferencedVariables: []string{},
 				SourceFilePath:      "path/to/source_file",
-				SourceFileLine:      0,
+				SourceFileLine:      8,
 			},
 			CodeSegments: []types.CodeSegment{
 				{
-					SegmentType:    types.CodeSegmentType("Resource"),
+					SegmentType: types.CodeSegmentType("Resource"),
 					Content: "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n" +
 						"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n" +
 						"  block_public_policy     = false\n  ignore_public_acls      = true\n" +
@@ -88,7 +86,6 @@ func getExpectedObjects() []*types.Object {
 			},
 		},
 		{
-			SourceFilePath: "path/to/source_file",
 			ParsedResource: &types.ParsedResource{
 				ResourceType: types.ResourceType("aws.s3.BucketPolicy"),
 				LogicalName:  types.LogicalName("AssumedRolesBucketPolicy"),
@@ -98,11 +95,11 @@ func getExpectedObjects() []*types.Object {
 				Exports:             map[string]string{},
 				ReferencedVariables: []string{},
 				SourceFilePath:      "path/to/source_file",
-				SourceFileLine:      0,
+				SourceFileLine:      17,
 			},
 			CodeSegments: []types.CodeSegment{
 				{
-					SegmentType:    types.CodeSegmentType("Resource"),
+					SegmentType: types.CodeSegmentType("Resource"),
 					Content: "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n" +
 						"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n" +
 						"    Version = \"2012-10-17\"\n    Statement = [\n      {\n" +
@@ -113,18 +110,17 @@ func getExpectedObjects() []*types.Object {
 			},
 		},
 		{
-			SourceFilePath: "path/to/source_file",
 			ParsedVariable: &types.ParsedVariable{
 				Name:           "server_container_name",
 				Description:    "Server container name",
 				Type:           types.VariableType("string"),
 				Default:        "server-container",
 				SourceFilePath: "path/to/source_file",
-				SourceFileLine: 0,
+				SourceFileLine: 24,
 			},
 			CodeSegments: []types.CodeSegment{
 				{
-					SegmentType:    types.CodeSegmentType("Variable"),
+					SegmentType: types.CodeSegmentType("Variable"),
 					Content: "variable \"server_container_name\" {\n  description = \"Server container name\"\n" +
 						"  type        = string\n  default     = \"server-container\"\n}",
 				},

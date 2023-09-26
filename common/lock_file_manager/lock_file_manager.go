@@ -43,7 +43,6 @@ func GetObjects() []*types.Object {
 		codeSegments := getCommonCodeSegments(currentObject)
 
 		result[i] = &types.Object{
-			SourceFilePath: currentObject.SourceFilePath,
 			ParsedResource: parsedResource,
 			ParsedVariable: parsedVariable,
 			CodeSegments:   codeSegments,
@@ -70,7 +69,8 @@ func getCommonParsedResource(lockFileObject Object) *types.ParsedResource {
 		Uses:                uses,
 		Exports:             lockFileObject.ParsedResource.Exports,
 		ReferencedVariables: lockFileObject.ParsedResource.ReferencedVariables,
-		SourceFilePath:      lockFileObject.SourceFilePath,
+		SourceFilePath:      lockFileObject.ParsedResource.SourceFilePath,
+		SourceFileLine:      lockFileObject.ParsedResource.SourceFileLine,
 	}
 }
 
@@ -80,7 +80,8 @@ func getCommonParsedVariable(lockFileObject Object) *types.ParsedVariable {
 		Name:           lockFileObject.ParsedVariable.Name,
 		Default:        lockFileObject.ParsedVariable.DefaultValue,
 		Type:           types.VariableType(lockFileObject.ParsedVariable.VariableType),
-		SourceFilePath: lockFileObject.SourceFilePath,
+		SourceFilePath: lockFileObject.ParsedVariable.SourceFilePath,
+		SourceFileLine: lockFileObject.ParsedVariable.SourceFileLine,
 	}
 }
 
@@ -88,8 +89,8 @@ func getCommonCodeSegments(lockFileObject Object) []types.CodeSegment {
 	codeSegments := make([]types.CodeSegment, len(lockFileObject.CodeSegments))
 	for j, segment := range lockFileObject.CodeSegments {
 		codeSegments[j] = types.CodeSegment{
-			SegmentType:    types.CodeSegmentType(segment.SegmentType),
-			Content:        segment.Content,
+			SegmentType: types.CodeSegmentType(segment.SegmentType),
+			Content:     segment.Content,
 		}
 	}
 	return codeSegments

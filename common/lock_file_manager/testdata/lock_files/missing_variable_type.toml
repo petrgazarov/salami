@@ -10,7 +10,6 @@ file_path = "path/to/target_file_2"
 checksum = "ea441ff260d926a935cf47abf698482d"
 
 [[objects]]
-source_file_path = "path/to/source_file"
 
 [objects.parsed_resource]
 resource_type = "aws.s3.Bucket"
@@ -21,6 +20,8 @@ Versioning enabled: True"""
 uses = []
 exports = { name = "assumed-roles-bucket-name" }
 referenced_variables = []
+source_file_path = "path/to/source_file"
+source_file_line = 1
 
 [[objects.code_segments]]
 segment_type = "Resource"
@@ -40,7 +41,6 @@ output "assumed-roles-bucket-name" {
 }"""
 
 [[objects]]
-source_file_path = "path/to/source_file"
 
 [objects.parsed_resource]
 resource_type = "aws.s3.BucketPublicAccessBlock"
@@ -53,6 +53,8 @@ Restrict public buckets: False"""
 uses = ["AssumedRolesBucket"]
 exports = {}
 referenced_variables = []
+source_file_path = "path/to/source_file"
+source_file_line = 8
 
 [[objects.code_segments]]
 segment_type = "Resource"
@@ -67,7 +69,6 @@ resource "aws_s3_bucket_public_access_block" "AssetsPublicAccessBlock" {
 }"""
 
 [[objects]]
-source_file_path = "path/to/source_file"
 
 [objects.parsed_resource]
 resource_type = "aws.s3.BucketPolicy"
@@ -77,6 +78,8 @@ Policy: A JSON policy that allows all principals to perform the "s3:GetObject" a
 uses = ["AssumedRolesBucket"]
 exports = {}
 referenced_variables = []
+source_file_path = "path/to/source_file"
+source_file_line = 17
 
 [[objects.code_segments]]
 segment_type = "Resource"
@@ -98,12 +101,13 @@ resource "aws_s3_bucket_policy" "AssumedRolesBucketPolicy" {
 }"""
 
 [[objects]]
-source_file_path = "path/to/source_file"
 
 [objects.parsed_variable]
 name = "server_container_name"
 description = "Server container name"
 default = "server-container"
+source_file_path = "path/to/source_file"
+source_file_line = 24
 
 [[objects.code_segments]]
 segment_type = "Variable"

@@ -13,6 +13,7 @@ checksum = "ea441ff260d926a935cf47abf698482d"
 
 [objects.parsed_resource]
 resource_type = "aws.s3.Bucket"
+logical_name = "AssumedRolesBucket"
 natural_language = """\
 Bucket: assumed-roles
 Versioning enabled: True"""
@@ -106,7 +107,6 @@ name = "server_container_name"
 description = "Server container name"
 type = "string"
 default = "server-container"
-source_file_path = "path/to/source_file"
 source_file_line = 24
 
 [[objects.code_segments]]

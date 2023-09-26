@@ -1,10 +1,10 @@
-package change_manager_test
+package change_set_test
 
 import (
 	"encoding/json"
 	"io"
 	"os"
-	"salami/common/change_manager"
+	"salami/common/change_set"
 	"salami/common/symbol_table"
 	"salami/common/types"
 	"salami/common/utils/object_utils"
@@ -14,30 +14,27 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGenerateChangeSet(t *testing.T) {
+func TestNewChangeSet(t *testing.T) {
 	t.Run("should return an empty change set when there are no changes", func(t *testing.T) {
-		previousObjects := getObjects("testdata/change_set_test/previous_objects.json")
-		previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(previousObjects)
+		previousObjects := getObjects("testdata/previous_objects.json")
 		newResources, newVariables := object_utils.ObjectsToParsedObjects(previousObjects)
 		symbolTable, err := symbol_table.NewSymbolTable(newResources, newVariables)
 		require.NoError(t, err)
-		changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
+		changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
 		require.Equal(t, changeSet, &types.ChangeSet{Diffs: []types.ChangeSetDiff{}})
 	})
 
 	t.Run("should return a change set with additions, deletions, and changes when they exist", func(t *testing.T) {
-		previousObjects := getObjects("testdata/change_set_test/previous_objects.json")
-		previousResourcesMap, previousVariablesMap := object_utils.GetObjectMaps(previousObjects)
-
-		newObjects := getObjects("testdata/change_set_test/new_objects.json")
+		previousObjects := getObjects("testdata/previous_objects.json")
+		newObjects := getObjects("testdata/new_objects.json")
 		newResources, newVariables := object_utils.ObjectsToParsedObjects(newObjects)
 		symbolTable, err := symbol_table.NewSymbolTable(newResources, newVariables)
 
 		require.NoError(t, err)
-		changeSet := change_manager.GenerateChangeSet(previousResourcesMap, previousVariablesMap, symbolTable)
+		changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
 		changeSetDiffs := sortChangeSetDiffs(changeSet.Diffs)
 		require.Equal(t, 4, len(changeSetDiffs))
-		expectedDiffs := getChangeSetDiffs("testdata/change_set_test/change_set_diffs.json")
+		expectedDiffs := getChangeSetDiffs("testdata/change_set_diffs.json")
 		for i, actualDiff := range changeSetDiffs {
 			require.Equal(t, expectedDiffs[i], actualDiff)
 		}
