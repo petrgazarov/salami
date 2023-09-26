@@ -53,11 +53,12 @@ type TargetConfig struct {
 type LlmConfig struct {
 	Provider string
 	Model    string
+	ApiKey   string
 }
 
 const TerraformPlatform = "terraform"
 const LlmOpenaiProvider = "openai"
-const LlmGpt4Model = "gpt-4"
+const LlmGpt4Model = "gpt4"
 
 type TargetFile struct {
 	FilePath string

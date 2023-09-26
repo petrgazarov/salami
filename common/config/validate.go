@@ -64,12 +64,13 @@ type CompilerTargetConfig struct {
 type CompilerLlmConfig struct {
 	Provider string `yaml:"provider"`
 	Model    string `yaml:"model"`
+	ApiKey   string `yaml:"api_key"`
 }
 
 func validateTarget(fl validator.FieldLevel) bool {
 	target, ok := fl.Field().Interface().(CompilerTargetConfig)
 	if !ok {
-		return true
+		return false
 	}
 	return target.Platform == types.TerraformPlatform
 }
@@ -77,11 +78,12 @@ func validateTarget(fl validator.FieldLevel) bool {
 func validateLlm(fl validator.FieldLevel) bool {
 	llmConfig, ok := fl.Field().Interface().(CompilerLlmConfig)
 	if !ok {
-		return true
+		return false
 	}
-	provider := llmConfig.Provider
-	model := llmConfig.Model
-	return provider == types.LlmOpenaiProvider && model == types.LlmGpt4Model
+	validLlmProvider := llmConfig.Provider == types.LlmOpenaiProvider
+	validLlmModel := llmConfig.Model == types.LlmGpt4Model
+	apiKeyExists := llmConfig.ApiKey != ""
+	return validLlmProvider && validLlmModel && apiKeyExists
 }
 
 func validateDirExists(fl validator.FieldLevel) bool {

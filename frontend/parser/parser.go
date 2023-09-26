@@ -2,7 +2,7 @@ package parser
 
 import (
 	commonTypes "salami/common/types"
-	"salami/frontend/errors"
+	"salami/common/errors"
 	frontendTypes "salami/frontend/types"
 )
 
@@ -63,7 +63,7 @@ func (p *Parser) Parse() ([]*commonTypes.ParsedResource, []*commonTypes.ParsedVa
 			return nil, nil, p.parseError(p.currentToken())
 		}
 	}
-	return nil, nil, &errors.MissingEOFToken{FilePath: p.filePath}
+	return nil, nil, &errors.MissingEOFTokenError{FilePath: p.filePath}
 }
 
 func (p *Parser) currentResource() *commonTypes.ParsedResource {

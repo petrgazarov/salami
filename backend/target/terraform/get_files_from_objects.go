@@ -1,9 +1,12 @@
 package terraform
 
 import (
+	"salami/common/constants"
 	"salami/common/types"
 	"strings"
 )
+
+const terraformFileExtension = ".tf"
 
 func GetFilesFromObjects(objects []*types.Object) []*types.TargetFile {
 	targetFiles := []*types.TargetFile{}
@@ -32,8 +35,8 @@ func GetFilesFromObjects(objects []*types.Object) []*types.TargetFile {
 }
 
 func getTargetFilePath(sourceFilePath string) string {
-	if strings.HasSuffix(sourceFilePath, ".sami") {
-		return strings.TrimSuffix(sourceFilePath, ".sami") + ".tf"
+	if strings.HasSuffix(sourceFilePath, constants.SalamiFileExtension) {
+		return strings.TrimSuffix(sourceFilePath, constants.SalamiFileExtension) + terraformFileExtension
 	}
 	return sourceFilePath
 }

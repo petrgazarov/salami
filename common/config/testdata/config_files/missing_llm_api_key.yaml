@@ -4,6 +4,5 @@ compiler:
   llm:
     provider: openai
     model: gpt4
-    api_key: 1234567890
   source_dir: testdata/source_dir
-  target_dir: .
+  target_dir: terraform

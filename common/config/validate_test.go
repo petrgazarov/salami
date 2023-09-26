@@ -105,6 +105,12 @@ func getTestCases() []testCase {
 			"config error: invalid llm configuration",
 		},
 		{
+			"Missing llm api key",
+			"missing_llm_api_key.yaml",
+			true,
+			"config error: invalid llm configuration",
+		},
+		{
 			"Invalid yaml format",
 			"invalid_yaml.yaml",
 			true,

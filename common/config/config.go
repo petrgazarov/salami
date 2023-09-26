@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"salami/common/types"
 
 	"gopkg.in/yaml.v3"
@@ -22,6 +23,7 @@ func LoadConfig() error {
 	if err != nil {
 		return err
 	}
+	yamlFile = []byte(substituteEnvVars(string(yamlFile)))
 	if err = yaml.Unmarshal(yamlFile, &loadedConfig); err != nil {
 		return &ConfigError{Message: "could not parse config file. Ensure it is valid yaml format"}
 	}
@@ -56,6 +58,7 @@ func GetLlmConfig() types.LlmConfig {
 	return types.LlmConfig{
 		Provider: compilerLlmConfig.Provider,
 		Model:    compilerLlmConfig.Model,
+		ApiKey:   compilerLlmConfig.ApiKey,
 	}
 }
 
@@ -64,4 +67,12 @@ func getConfig() *ConfigType {
 		log.Fatal("Config not loaded")
 	}
 	return loadedConfig
+}
+
+func substituteEnvVars(input string) string {
+	re := regexp.MustCompile(`\$\{(.+?)\}`)
+	return re.ReplaceAllStringFunc(input, func(s string) string {
+		varName := s[2 : len(s)-1]
+		return os.Getenv(varName)
+	})
 }

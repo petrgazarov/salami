@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"salami/frontend/errors"
+	"salami/common/errors"
 	"salami/frontend/types"
 	"unicode"
 )

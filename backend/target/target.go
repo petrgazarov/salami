@@ -18,9 +18,7 @@ func ResolveTarget(
 	llmConfig commonTypes.LlmConfig,
 ) backendTypes.Target {
 	var target backendTypes.Target
-	if targetConfig.Platform == commonTypes.TerraformPlatform &&
-		llmConfig.Provider == commonTypes.LlmOpenaiProvider &&
-		llmConfig.Model == commonTypes.LlmGpt4Model {
+	if targetConfig.Platform == commonTypes.TerraformPlatform {
 		target = targetFuncsMap["terraform"]
 	}
 	return target

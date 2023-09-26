@@ -1,9 +1,15 @@
 package terraform
 
 import (
+	backendTypes "salami/backend/types"
 	"salami/common/symbol_table"
-	"salami/common/types"
+	commonTypes "salami/common/types"
 )
-func GenerateCode(*types.ChangeSet, *symbol_table.SymbolTable) []error {
+
+func GenerateCode(
+	changeSet *commonTypes.ChangeSet,
+	symbolTable *symbol_table.SymbolTable,
+	llm *backendTypes.Llm,
+) []error {
 	return nil
 }

@@ -4,19 +4,19 @@ import (
 	"path/filepath"
 	"sort"
 
+	"salami/backend/llm"
 	"salami/backend/target"
 	"salami/backend/target_file_manager"
 	backendTypes "salami/backend/types"
 	"salami/common/change_set"
 	"salami/common/config"
+	"salami/common/constants"
 	"salami/common/lock_file_manager"
 	"salami/common/symbol_table"
 	commonTypes "salami/common/types"
 	"salami/common/utils/file_utils"
 	"salami/frontend/semantic_analyzer"
 )
-
-const salamiFileExtension = ".sami"
 
 func Run() []error {
 	if err := runValidations(); err != nil {
@@ -38,7 +38,7 @@ func Run() []error {
 
 func runFrontend() (*symbol_table.SymbolTable, []error) {
 	sourceFilePaths, err := file_utils.GetFilePaths(config.GetSourceDir(), func(path string) bool {
-		return filepath.Ext(path) == salamiFileExtension
+		return filepath.Ext(path) == constants.SalamiFileExtension
 	})
 	if err != nil {
 		return nil, []error{err}
@@ -84,7 +84,8 @@ func generateCode(
 	previousObjects := lock_file_manager.GetObjects()
 	changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
 	target := resolveTarget()
-	if errors := target.GenerateCode(changeSet, symbolTable); len(errors) > 0 {
+	llm := resolveLlm()
+	if errors := target.GenerateCode(changeSet, symbolTable, &llm); len(errors) > 0 {
 		return nil, nil, errors
 	}
 	newObjects := computeNewObjects(previousObjects, changeSet)
@@ -96,6 +97,11 @@ func resolveTarget() backendTypes.Target {
 	targetConfig := config.GetTargetConfig()
 	llmConfig := config.GetLlmConfig()
 	return target.ResolveTarget(targetConfig, llmConfig)
+}
+
+func resolveLlm() backendTypes.Llm {
+	llmConfig := config.GetLlmConfig()
+	return llm.ResolveLlm(llmConfig)
 }
 
 func computeNewObjects(
