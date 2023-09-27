@@ -16,13 +16,13 @@ func SetLockFilePath(path string) {
 	loadedLockFile = nil
 }
 
-func GetTargetFilesMeta() []types.TargetFileMeta {
-	targetFilesMeta := getLockFile().TargetFilesMeta
-	result := make([]types.TargetFileMeta, len(targetFilesMeta))
-	for i := range targetFilesMeta {
+func GetTargetFileMetas() []types.TargetFileMeta {
+	targetFileMetas := getLockFile().TargetFileMetas
+	result := make([]types.TargetFileMeta, len(targetFileMetas))
+	for i := range targetFileMetas {
 		result[i] = types.TargetFileMeta{
-			FilePath: targetFilesMeta[i].FilePath,
-			Checksum: targetFilesMeta[i].Checksum,
+			FilePath: targetFileMetas[i].FilePath,
+			Checksum: targetFileMetas[i].Checksum,
 		}
 	}
 	return result
@@ -40,18 +40,17 @@ func GetObjects() []*types.Object {
 		} else if currentObject.IsVariable() {
 			parsedVariable = getCommonParsedVariable(currentObject)
 		}
-		codeSegments := getCommonCodeSegments(currentObject)
 
 		result[i] = &types.Object{
 			ParsedResource: parsedResource,
 			ParsedVariable: parsedVariable,
-			CodeSegments:   codeSegments,
+			TargetCode:     currentObject.TargetCode,
 		}
 	}
 	return result
 }
 
-func UpdateLockFile(targetFilesMeta []types.TargetFileMeta, objects []*types.Object) error {
+func UpdateLockFile(targetFileMetas []types.TargetFileMeta, objects []*types.Object) error {
 	// Merge changeSet into lockFile
 	writeLockFile()
 	return nil
@@ -82,17 +81,6 @@ func getCommonParsedVariable(lockFileObject Object) *types.ParsedVariable {
 		SourceFilePath:  lockFileObject.ParsedVariable.SourceFilePath,
 		SourceFileLine:  lockFileObject.ParsedVariable.SourceFileLine,
 	}
-}
-
-func getCommonCodeSegments(lockFileObject Object) []types.CodeSegment {
-	codeSegments := make([]types.CodeSegment, len(lockFileObject.CodeSegments))
-	for j, segment := range lockFileObject.CodeSegments {
-		codeSegments[j] = types.CodeSegment{
-			SegmentType: types.CodeSegmentType(segment.SegmentType),
-			Content:     segment.Content,
-		}
-	}
-	return codeSegments
 }
 
 func writeLockFile() error {

@@ -26,11 +26,11 @@ func Run() []error {
 	if len(errors) > 0 {
 		return errors
 	}
-	newTargetFilesMeta, newObjects, errors := runBackend(symbolTable)
+	newTargetFileMetas, newObjects, errors := runBackend(symbolTable)
 	if len(errors) > 0 {
 		return errors
 	}
-	if err := lock_file_manager.UpdateLockFile(newTargetFilesMeta, newObjects); err != nil {
+	if err := lock_file_manager.UpdateLockFile(newTargetFileMetas, newObjects); err != nil {
 		return []error{err}
 	}
 	return nil
@@ -59,27 +59,33 @@ func runFrontend() (*symbol_table.SymbolTable, []error) {
 func runBackend(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]commonTypes.TargetFileMeta, []*commonTypes.Object, []error) {
-	newTargetFiles, newObjects, errors := generateCode(symbolTable)
+	previousObjects := lock_file_manager.GetObjects()
+	newTargetFiles, newObjects, errors := generateCode(previousObjects, symbolTable)
 	if len(errors) > 0 {
 		return nil, nil, errors
 	}
-
 	if errors := target_file_manager.WriteTargetFiles(newTargetFiles, config.GetTargetDir()); len(errors) > 0 {
 		return nil, nil, errors
 	}
 
-	newTargetFilesMeta, err := target_file_manager.GenerateTargetFilesMeta(newTargetFiles)
+	oldTargetFileMetas := lock_file_manager.GetTargetFileMetas()
+	newTargetFileMetas, err := target_file_manager.GenerateTargetFileMetas(newTargetFiles)
 	if err != nil {
 		return nil, nil, []error{err}
 	}
 
-	return newTargetFilesMeta, newObjects, nil
+	oldFilePaths := getOldFilePaths(oldTargetFileMetas, newTargetFileMetas)
+	if errors := target_file_manager.DeleteTargetFiles(oldFilePaths, config.GetTargetDir()); len(errors) > 0 {
+		return nil, nil, errors
+	}
+
+	return newTargetFileMetas, newObjects, nil
 }
 
 func generateCode(
+	previousObjects []*commonTypes.Object,
 	symbolTable *symbol_table.SymbolTable,
 ) ([]*commonTypes.TargetFile, []*commonTypes.Object, []error) {
-	previousObjects := lock_file_manager.GetObjects()
 	changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
 	target := resolveTarget()
 	llm := resolveLlm()
@@ -100,6 +106,23 @@ func resolveTarget() backendTypes.Target {
 func resolveLlm() backendTypes.Llm {
 	llmConfig := config.GetLlmConfig()
 	return llm.ResolveLlm(llmConfig)
+}
+
+func getSourceFilePaths() ([]string, error) {
+	sourceFilePaths, err := file_utils.GetFilePaths(config.GetSourceDir(), func(path string) bool {
+		return filepath.Ext(path) == constants.SalamiFileExtension
+	})
+	if err != nil {
+		return nil, err
+	}
+	relativeSourceFilePaths, err := file_utils.GetRelativeFilePaths(
+		config.GetSourceDir(),
+		sourceFilePaths,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return relativeSourceFilePaths, nil
 }
 
 func computeNewObjects(
@@ -134,19 +157,21 @@ func computeNewObjects(
 	return objects
 }
 
-func getSourceFilePaths() ([]string, error) {
-	sourceFilePaths, err := file_utils.GetFilePaths(config.GetSourceDir(), func(path string) bool {
-		return filepath.Ext(path) == constants.SalamiFileExtension
-	})
-	if err != nil {
-		return nil, err
+func getOldFilePaths(
+	oldTargetFileMetas []commonTypes.TargetFileMeta,
+	newTargetFileMetas []commonTypes.TargetFileMeta,
+) []string {
+	newMetaMap := make(map[string]bool)
+	for _, meta := range newTargetFileMetas {
+		newMetaMap[meta.FilePath] = true
 	}
-	relativeSourceFilePaths, err := file_utils.GetRelativeFilePaths(
-		config.GetSourceDir(),
-		sourceFilePaths,
-	)
-	if err != nil {
-		return nil, err
+
+	oldFilePaths := make([]string, 0)
+	for _, meta := range oldTargetFileMetas {
+		if _, exists := newMetaMap[meta.FilePath]; !exists {
+			oldFilePaths = append(oldFilePaths, meta.FilePath)
+		}
 	}
-	return relativeSourceFilePaths, nil
+
+	return oldFilePaths
 }

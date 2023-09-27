@@ -14,19 +14,15 @@ func GetFilesFromObjects(objects []*types.Object) []*types.TargetFile {
 	var currentTargetFile *types.TargetFile
 	var lastSourceFilePath string
 	for _, object := range objects {
-		currentContent := ""
-		for _, codeSegment := range object.CodeSegments {
-			currentContent += codeSegment.Content
-		}
 		if object.GetSourceFilePath() != lastSourceFilePath {
 			currentTargetFile = &types.TargetFile{
 				FilePath: getTargetFilePath(object.GetSourceFilePath()),
-				Content:  currentContent,
+				Content:  object.TargetCode,
 			}
 			targetFiles = append(targetFiles, currentTargetFile)
 			lastSourceFilePath = object.GetSourceFilePath()
 		} else {
-			currentTargetFile.Content += ("\n\n" + currentContent)
+			currentTargetFile.Content += ("\n\n" + object.TargetCode)
 		}
 	}
 

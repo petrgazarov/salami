@@ -3,7 +3,7 @@ package types
 type Object struct {
 	ParsedResource *ParsedResource
 	ParsedVariable *ParsedVariable
-	CodeSegments   []CodeSegment
+	TargetCode     string
 }
 
 func (o *Object) IsResource() bool {
@@ -63,11 +63,4 @@ const LlmGpt4Model = "gpt4"
 type TargetFile struct {
 	FilePath string
 	Content  string
-}
-
-type CodeSegmentType string
-
-type CodeSegment struct {
-	SegmentType CodeSegmentType
-	Content     string
 }

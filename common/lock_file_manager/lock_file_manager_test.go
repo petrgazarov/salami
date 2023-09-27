@@ -9,19 +9,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetTargetFilesMeta(t *testing.T) {
+func TestGetTargetFileMetas(t *testing.T) {
 	t.Run("should get target files meta from the lock file", func(t *testing.T) {
 		setLockFile(t, "valid.toml")
 		lock_file_manager.ValidateLockFile()
-		expectedTargetFilesMeta := []types.TargetFileMeta{
+		expectedTargetFileMetas := []types.TargetFileMeta{
 			{FilePath: "path/to/target_file_1", Checksum: "e460d56360c0c4d1ff32fd5e5a56eb99"},
 			{FilePath: "path/to/target_file_2", Checksum: "ea441ff260d926a935cf47abf698482d"},
 		}
-		actualTargetFilesMeta := lock_file_manager.GetTargetFilesMeta()
+		actualTargetFileMetas := lock_file_manager.GetTargetFileMetas()
 		require.ElementsMatch(
 			t,
-			expectedTargetFilesMeta,
-			actualTargetFilesMeta,
+			expectedTargetFileMetas,
+			actualTargetFileMetas,
 		)
 	})
 }
@@ -50,17 +50,8 @@ func getExpectedObjects() []*types.Object {
 				SourceFilePath:      "path/to/source_file",
 				SourceFileLine:      1,
 			},
-			CodeSegments: []types.CodeSegment{
-				{
-					SegmentType: types.CodeSegmentType("Resource"),
-					Content: "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n" +
-						"  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}",
-				},
-				{
-					SegmentType: types.CodeSegmentType("Export"),
-					Content:     "output \"assumed-roles-bucket-name\" {\n  value = aws_s3_bucket.AssumedRolesBucket.bucket\n}",
-				},
-			},
+			TargetCode: "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n" +
+				"  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}",
 		},
 		{
 			ParsedResource: &types.ParsedResource{
@@ -73,15 +64,10 @@ func getExpectedObjects() []*types.Object {
 				SourceFilePath:      "path/to/source_file",
 				SourceFileLine:      8,
 			},
-			CodeSegments: []types.CodeSegment{
-				{
-					SegmentType: types.CodeSegmentType("Resource"),
-					Content: "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n" +
-						"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n" +
-						"  block_public_policy     = false\n  ignore_public_acls      = true\n" +
-						"  restrict_public_buckets = false\n}",
-				},
-			},
+			TargetCode: "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n" +
+				"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n" +
+				"  block_public_policy     = false\n  ignore_public_acls      = true\n" +
+				"  restrict_public_buckets = false\n}",
 		},
 		{
 			ParsedResource: &types.ParsedResource{
@@ -94,17 +80,12 @@ func getExpectedObjects() []*types.Object {
 				SourceFilePath:      "path/to/source_file",
 				SourceFileLine:      17,
 			},
-			CodeSegments: []types.CodeSegment{
-				{
-					SegmentType: types.CodeSegmentType("Resource"),
-					Content: "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n" +
-						"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n" +
-						"    Version = \"2012-10-17\"\n    Statement = [\n      {\n" +
-						"        Action   = \"s3:GetObject\"\n        Effect   = \"Allow\"\n" +
-						"        Resource = \"${aws_s3_bucket.AssumedRolesBucket.arn}/*\"\n" +
-						"        Principal = \"*\"\n      }\n    ]\n  })\n}",
-				},
-			},
+			TargetCode: "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n" +
+				"  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n" +
+				"    Version = \"2012-10-17\"\n    Statement = [\n      {\n" +
+				"        Action   = \"s3:GetObject\"\n        Effect   = \"Allow\"\n" +
+				"        Resource = \"${aws_s3_bucket.AssumedRolesBucket.arn}/*\"\n" +
+				"        Principal = \"*\"\n      }\n    ]\n  })\n}",
 		},
 		{
 			ParsedVariable: &types.ParsedVariable{
@@ -115,13 +96,8 @@ func getExpectedObjects() []*types.Object {
 				SourceFilePath:  "path/to/source_file",
 				SourceFileLine:  24,
 			},
-			CodeSegments: []types.CodeSegment{
-				{
-					SegmentType: types.CodeSegmentType("Variable"),
-					Content: "variable \"server_container_name\" {\n  description = \"Server container name\"\n" +
-						"  type        = string\n  default     = \"server-container\"\n}",
-				},
-			},
+			TargetCode: "variable \"server_container_name\" {\n  description = \"Server container name\"\n" +
+				"  type        = string\n  default     = \"server-container\"\n}",
 		},
 	}
 }

@@ -12,16 +12,7 @@
       "SourceFilePath": "path/to/source_file",
       "SourceFileLine": 0
     },
-    "CodeSegments": [
-      {
-        "SegmentType": "Resource",
-        "Content": "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}"
-      },
-      {
-        "SegmentType": "Export",
-        "Content": "output \"assumed-roles-bucket-name\" {\n  value = aws_s3_bucket.AssumedRolesBucket.bucket\n}"
-      }
-    ]
+    "TargetCode": "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}"
   },
   {
     "ParsedResource": {
@@ -34,12 +25,7 @@
       "SourceFilePath": "path/to/source_file",
       "SourceFileLine": 0
     },
-    "CodeSegments": [
-      {
-        "SegmentType": "Resource",
-        "Content": "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Action   = \"s3:GetObject\"\n        Effect   = \"Allow\"\n        Resource = \"${aws_s3_bucket.AssumedRolesBucket.arn}/*\"\n        Principal = \"*\"\n      }\n    ]\n  })\n}"
-      }
-    ]
+    "TargetCode": "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Action   = \"s3:GetObject\"\n        Effect   = \"Allow\"\n        Resource = \"${aws_s3_bucket.AssumedRolesBucket.arn}/*\"\n        Principal = \"*\"\n      }\n    ]\n  })\n}"
   },
   {
     "ParsedResource": {
@@ -62,12 +48,7 @@
       "SourceFilePath": "path/to/source_file",
       "SourceFileLine": 0
     },
-    "CodeSegments": [
-      {
-        "SegmentType": "Variable",
-        "Content": "variable \"server_container_name\" {\n  description = \"Server container name\"\n  type        = string\n  default     = \"server-container\"\n}"
-      }
-    ]
+    "TargetCode": "variable \"server_container_name\" {\n  description = \"Server container name\"\n  type        = string\n  default     = \"server-container\"\n}"
   },
   {
     "ParsedVariable": {

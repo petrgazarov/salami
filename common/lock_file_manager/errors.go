@@ -7,8 +7,8 @@ import (
 
 var fieldNameMap = map[string]string{
 	"LockFile.Version":                                  "lock file version",
-	"LockFile.TargetFilesMeta[*].FilePath":              "target file path",
-	"LockFile.TargetFilesMeta[*].Checksum":              "target file checksum",
+	"LockFile.TargetFileMetas[*].FilePath":              "target file path",
+	"LockFile.TargetFileMetas[*].Checksum":              "target file checksum",
 	"LockFile.Objects[*].ParsedResource":                "parsed resource",
 	"LockFile.Objects[*].ParsedResource.LogicalName":    "parsed resource logical name",
 	"LockFile.Objects[*].ParsedResource.ResourceType":   "parsed resource type",
@@ -19,8 +19,7 @@ var fieldNameMap = map[string]string{
 	"LockFile.Objects[*].ParsedVariable.SourceFileLine": "parsed variable source file line",
 	"LockFile.Objects[*].ParsedVariable.SourceFilePath": "parsed variable source file path",
 	"LockFile.Objects[*].ParsedVariable.VariableType":   "parsed variable type",
-	"LockFile.Objects[*].CodeSegments[*].SegmentType":   "code segment type",
-	"LockFile.Objects[*].CodeSegments[*].Content":       "code segment content",
+	"LockFile.Objects[*].TargetCode":                    "object target code",
 }
 
 type LockFileError struct {

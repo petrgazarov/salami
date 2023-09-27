@@ -135,16 +135,10 @@ func getValidateTestCases() []validateTestCase {
 			"lock file error: missing or invalid parsed variable source file line",
 		},
 		{
-			"Missing code segment type",
-			"missing_segment_type.toml",
+			"Missing object target code",
+			"missing_target_code.toml",
 			true,
-			"lock file error: missing or invalid code segment type",
-		},
-		{
-			"Missing code segment content",
-			"missing_code_segment_content.toml",
-			true,
-			"lock file error: missing or invalid code segment content",
+			"lock file error: missing or invalid object target code",
 		},
 	}
 }

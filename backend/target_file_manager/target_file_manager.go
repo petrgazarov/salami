@@ -10,10 +10,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func VerifyChecksums(targetFilesMeta []types.TargetFileMeta) error {
+func VerifyChecksums(targetFileMetas []types.TargetFileMeta) error {
 	var g errgroup.Group
 
-	for _, meta := range targetFilesMeta {
+	for _, meta := range targetFileMetas {
 		meta := meta
 		g.Go(func() error {
 			data, err := os.ReadFile(meta.FilePath)
@@ -35,9 +35,9 @@ func VerifyChecksums(targetFilesMeta []types.TargetFileMeta) error {
 	return g.Wait()
 }
 
-func GenerateTargetFilesMeta(targetFiles []*types.TargetFile) ([]types.TargetFileMeta, error) {
+func GenerateTargetFileMetas(targetFiles []*types.TargetFile) ([]types.TargetFileMeta, error) {
 	var g errgroup.Group
-	targetFilesMeta := make([]types.TargetFileMeta, len(targetFiles))
+	targetFileMetas := make([]types.TargetFileMeta, len(targetFiles))
 
 	for i, targetFile := range targetFiles {
 		i, targetFile := i, targetFile
@@ -45,7 +45,7 @@ func GenerateTargetFilesMeta(targetFiles []*types.TargetFile) ([]types.TargetFil
 			data := []byte(targetFile.Content)
 
 			md5Checksum := fmt.Sprintf("%x", md5.Sum(data))
-			targetFilesMeta[i] = types.TargetFileMeta{
+			targetFileMetas[i] = types.TargetFileMeta{
 				FilePath: targetFile.FilePath,
 				Checksum: md5Checksum,
 			}
@@ -58,5 +58,9 @@ func GenerateTargetFilesMeta(targetFiles []*types.TargetFile) ([]types.TargetFil
 		return nil, err
 	}
 
-	return targetFilesMeta, nil
+	return targetFileMetas, nil
+}
+
+func DeleteTargetFiles(filePaths []string, targetDir string) []error {
+	return nil
 }

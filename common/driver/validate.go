@@ -13,8 +13,8 @@ func runValidations() error {
 	if err := lock_file_manager.ValidateLockFile(); err != nil {
 		return err
 	}
-	targetFilesMeta := lock_file_manager.GetTargetFilesMeta()
-	if err := target_file_manager.VerifyChecksums(targetFilesMeta); err != nil {
+	targetFileMetas := lock_file_manager.GetTargetFileMetas()
+	if err := target_file_manager.VerifyChecksums(targetFileMetas); err != nil {
 		return err
 	}
 	return nil

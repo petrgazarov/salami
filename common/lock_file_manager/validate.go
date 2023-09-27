@@ -42,7 +42,7 @@ func ValidateLockFile() error {
 
 type LockFile struct {
 	Version         string           `toml:"version" validate:"required,semver"`
-	TargetFilesMeta []TargetFileMeta `toml:"target_files_meta" validate:"dive"`
+	TargetFileMetas []TargetFileMeta `toml:"target_files_meta" validate:"dive"`
 	Objects         []Object         `toml:"objects" validate:"dive"`
 }
 
@@ -54,7 +54,7 @@ type TargetFileMeta struct {
 type Object struct {
 	ParsedResource *ParsedResource `toml:"parsed_resource" validate:"required_without=ParsedVariable"`
 	ParsedVariable *ParsedVariable `toml:"parsed_variable" validate:"required_without=ParsedResource"`
-	CodeSegments   []CodeSegment   `toml:"code_segments" validate:"required,dive"`
+	TargetCode     string          `toml:"target_code" validate:"required"`
 }
 
 func (o *Object) IsResource() bool {
@@ -84,11 +84,6 @@ type ParsedResource struct {
 	SourceFileLine      int      `toml:"source_file_line" validate:"required"`
 }
 
-type CodeSegment struct {
-	SegmentType string `toml:"segment_type" validate:"required,oneof=Variable Resource Export"`
-	Content     string `toml:"content" validate:"required"`
-}
-
 func decodeLockFile(lockFile *LockFile) error {
 	if _, err := toml.DecodeFile(lockFilePath, lockFile); err != nil {
 		if err != nil && !os.IsNotExist(err) {
@@ -113,6 +108,6 @@ func newValidator() *validator.Validate {
 
 func isEmptyLockFile(lf *LockFile) bool {
 	return lf.Version == "" &&
-		len(lf.TargetFilesMeta) == 0 &&
+		len(lf.TargetFileMetas) == 0 &&
 		len(lf.Objects) == 0
 }

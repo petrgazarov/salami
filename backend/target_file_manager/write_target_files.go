@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"salami/common/types"
-	"salami/common/utils/file_utils"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -36,10 +35,6 @@ func WriteTargetFiles(targetFiles []*types.TargetFile, targetDir string) []error
 
 	if len(errs) > 0 {
 		return errs
-	}
-
-	if err := deleteOldFiles(targetDir, targetFiles); err != nil {
-		return []error{err}
 	}
 
 	return nil
@@ -75,61 +70,4 @@ func writeTargetFile(targetFile *types.TargetFile, targetDir string) error {
 	}
 
 	return nil
-}
-
-func deleteOldFiles(targetDir string, targetFiles []*types.TargetFile) error {
-	// oldFilePaths, err := getOldFilePaths(targetDir, targetFiles)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// for _, file := range oldFilePaths {
-	// 	if err := os.Remove(file); err != nil {
-	// 		return err
-	// 	}
-	// }
-	// isAncestorOfAnyTargetFile := func(path string, targetFiles []*types.TargetFile) bool {
-	// 	for _, targetFile := range targetFiles {
-	// 		if strings.HasPrefix(targetFile.FilePath, path) {
-	// 			return true
-	// 		}
-	// 	}
-	// 	return false
-	// }
-
-	// emptySubdirectoryPaths, err := file_utils.GetSubdirectoryPaths(targetDir, func(path string) bool {
-	// 	return !isAncestorOfAnyTargetFile(path, targetFiles)
-	// })
-	// if err != nil {
-	// 	return err
-	// }
-
-	// for _, dir := range emptySubdirectoryPaths {
-	// 	if err := os.RemoveAll(dir); err != nil {
-	// 		return err
-	// 	}
-	// }
-	return nil
-}
-
-func getOldFilePaths(targetDir string, targetFiles []*types.TargetFile) ([]string, error) {
-	targetFilesMap := make(map[string]bool)
-	for _, targetFile := range targetFiles {
-		targetFilesMap[targetFile.FilePath] = true
-	}
-
-	filter := func(path string) bool {
-		relativePath, err := filepath.Rel(targetDir, path)
-		if err != nil {
-			panic(err)
-		}
-		_, exists := targetFilesMap[relativePath]
-		return !exists
-	}
-
-	oldFiles, err := file_utils.GetFilePaths(targetDir, filter)
-	if err != nil {
-		return nil, err
-	}
-	return oldFiles, nil
 }

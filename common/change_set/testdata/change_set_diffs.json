@@ -39,12 +39,7 @@
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 0
       },
-      "CodeSegments": [
-        {
-          "SegmentType": "Resource",
-          "Content": "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n  block_public_policy     = false\n  ignore_public_acls      = true\n  restrict_public_buckets = false\n}"
-        }
-      ]
+      "TargetCode": "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n  block_public_policy     = false\n  ignore_public_acls      = true\n  restrict_public_buckets = false\n}"
     },
     "NewObject": null
   },
@@ -60,12 +55,7 @@
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 0
       },
-      "CodeSegments": [
-        {
-          "SegmentType": "Resource",
-          "Content": "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Action   = \"s3:GetObject\"\n        Effect   = \"Allow\"\n        Resource = \"${aws_s3_bucket.AssumedRolesBucket.arn}/*\"\n        Principal = \"*\"\n      }\n    ]\n  })\n}"
-        }
-      ]
+      "TargetCode": "resource \"aws_s3_bucket_policy\" \"AssumedRolesBucketPolicy\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Action   = \"s3:GetObject\"\n        Effect   = \"Allow\"\n        Resource = \"${aws_s3_bucket.AssumedRolesBucket.arn}/*\"\n        Principal = \"*\"\n      }\n    ]\n  })\n}"
     },
     "NewObject": {
       "ParsedResource": {

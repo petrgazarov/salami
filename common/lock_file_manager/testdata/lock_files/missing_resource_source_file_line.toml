@@ -10,6 +10,13 @@ file_path = "path/to/target_file_2"
 checksum = "ea441ff260d926a935cf47abf698482d"
 
 [[objects]]
+target_code = """\
+resource "aws_s3_bucket" "AssumedRolesBucket" {
+  bucket = "assumed-roles"
+  versioning {
+    enabled = true
+  }
+}"""
 
 [objects.parsed_resource]
 resource_type = "aws.s3.Bucket"
@@ -21,24 +28,16 @@ referenced_resources = []
 referenced_variables = []
 source_file_path = "path/to/source_file"
 
-[[objects.code_segments]]
-segment_type = "Resource"
-content = """\
-resource "aws_s3_bucket" "AssumedRolesBucket" {
-  bucket = "assumed-roles"
-  versioning {
-    enabled = true
-  }
-}"""
-
-[[objects.code_segments]]
-segment_type = "Export"
-content = """\
-output "assumed-roles-bucket-name" {
-  value = aws_s3_bucket.AssumedRolesBucket.bucket
-}"""
-
 [[objects]]
+target_code = """\
+resource "aws_s3_bucket_public_access_block" "AssetsPublicAccessBlock" {
+  bucket = aws_s3_bucket.AssumedRolesBucket.id
+
+  block_public_acls       = true
+  block_public_policy     = false
+  ignore_public_acls      = true
+  restrict_public_buckets = false
+}"""
 
 [objects.parsed_resource]
 resource_type = "aws.s3.BucketPublicAccessBlock"
@@ -53,33 +52,8 @@ referenced_variables = []
 source_file_path = "path/to/source_file"
 source_file_line = 8
 
-[[objects.code_segments]]
-segment_type = "Resource"
-content = """\
-resource "aws_s3_bucket_public_access_block" "AssetsPublicAccessBlock" {
-  bucket = aws_s3_bucket.AssumedRolesBucket.id
-
-  block_public_acls       = true
-  block_public_policy     = false
-  ignore_public_acls      = true
-  restrict_public_buckets = false
-}"""
-
 [[objects]]
-
-[objects.parsed_resource]
-resource_type = "aws.s3.BucketPolicy"
-logical_name = "AssumedRolesBucketPolicy"
-natural_language = """\
-Policy: A JSON policy that allows all principals to perform the "s3:GetObject" action on all objects in the specified S3 bucket."""
-referenced_resources = ["AssumedRolesBucket"]
-referenced_variables = []
-source_file_path = "path/to/source_file"
-source_file_line = 17
-
-[[objects.code_segments]]
-segment_type = "Resource"
-content = """\
+target_code = """\
 resource "aws_s3_bucket_policy" "AssumedRolesBucketPolicy" {
   bucket = aws_s3_bucket.AssumedRolesBucket.id
 
@@ -96,7 +70,23 @@ resource "aws_s3_bucket_policy" "AssumedRolesBucketPolicy" {
   })
 }"""
 
+[objects.parsed_resource]
+resource_type = "aws.s3.BucketPolicy"
+logical_name = "AssumedRolesBucketPolicy"
+natural_language = """\
+Policy: A JSON policy that allows all principals to perform the "s3:GetObject" action on all objects in the specified S3 bucket."""
+referenced_resources = ["AssumedRolesBucket"]
+referenced_variables = []
+source_file_path = "path/to/source_file"
+source_file_line = 17
+
 [[objects]]
+target_code = """\
+variable "server_container_name" {
+  description = "Server container name"
+  type        = string
+  default     = "server-container"
+}"""
 
 [objects.parsed_variable]
 name = "server_container_name"
@@ -105,12 +95,3 @@ type = "string"
 default = "server-container"
 source_file_path = "path/to/source_file"
 source_file_line = 24
-
-[[objects.code_segments]]
-segment_type = "Variable"
-content = """\
-variable "server_container_name" {
-  description = "Server container name"
-  type        = string
-  default     = "server-container"
-}"""

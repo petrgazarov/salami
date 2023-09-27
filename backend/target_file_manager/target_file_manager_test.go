@@ -50,7 +50,7 @@ func TestVerifyChecksums(t *testing.T) {
 	}
 }
 
-func TestGenerateTargetFilesMeta(t *testing.T) {
+func TestGenerateTargetFileMetas(t *testing.T) {
 	targetFiles := []*types.TargetFile{
 		{FilePath: "testdata/target_file_1.tf", Content: "some content123"},
 		{FilePath: "testdata/target_file_2.tf", Content: "another content456"},
@@ -62,8 +62,8 @@ func TestGenerateTargetFilesMeta(t *testing.T) {
 	wantErr := false
 	expectedErrorMessage := ""
 
-	t.Run("should compute checksums and return TargetFilesMeta", func(t *testing.T) {
-		fileMetas, err := target_file_manager.GenerateTargetFilesMeta(targetFiles)
+	t.Run("should compute checksums and return TargetFileMetas", func(t *testing.T) {
+		fileMetas, err := target_file_manager.GenerateTargetFileMetas(targetFiles)
 		require.Equal(t, err != nil, wantErr, "unexpected error status: got error = %v, wantErr %v", err, wantErr)
 		if err != nil {
 			require.Equal(
