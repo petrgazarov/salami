@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"salami/common/types"
 
@@ -62,5 +63,17 @@ func GenerateTargetFileMetas(targetFiles []*types.TargetFile) ([]types.TargetFil
 }
 
 func DeleteTargetFiles(filePaths []string, targetDir string) []error {
-	return nil
+	var errs []error
+
+	for _, filePath := range filePaths {
+		fullPath := filepath.Join(targetDir, filePath)
+		err := os.Remove(fullPath)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	return errs
 }

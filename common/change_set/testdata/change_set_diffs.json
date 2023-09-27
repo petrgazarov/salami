@@ -10,7 +10,8 @@
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 15
       }
-    }
+    },
+    "DiffType": "add"
   },
   {
     "OldObject": null,
@@ -25,7 +26,8 @@
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 1
       }
-    }
+    },
+    "DiffType": "add"
   },
   {
     "OldObject": {
@@ -41,7 +43,41 @@
       },
       "TargetCode": "resource \"aws_s3_bucket_public_access_block\" \"AssetsPublicAccessBlock\" {\n  bucket = aws_s3_bucket.AssumedRolesBucket.id\n\n  block_public_acls       = true\n  block_public_policy     = false\n  ignore_public_acls      = true\n  restrict_public_buckets = false\n}"
     },
-    "NewObject": null
+    "NewObject": null,
+    "DiffType": "remove"
+  },
+  {
+    "OldObject": {
+      "ParsedResource": {
+        "ResourceType": "aws.s3.Bucket",
+        "LogicalName": "AssumedRolesBucket",
+        "NaturalLanguage": "Bucket: assumed-roles\nVersioning enabled: True",
+        "Uses": [],
+        "Exports": {
+          "name": "assumed-roles-bucket-name"
+        },
+        "ReferencedVariables": [],
+        "SourceFilePath": "path/to/source_file",
+        "SourceFileLine": 0
+      },
+      "TargetCode": "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}"
+    },
+    "NewObject": {
+      "ParsedResource": {
+        "ResourceType": "aws.s3.Bucket",
+        "LogicalName": "AssumedRolesBucket",
+        "NaturalLanguage": "Bucket: assumed-roles\nVersioning enabled: True",
+        "Uses": [],
+        "Exports": {
+          "name": "assumed-roles-bucket-name"
+        },
+        "ReferencedVariables": [],
+        "SourceFilePath": "path/to/source_file",
+        "SourceFileLine": 5
+      },
+      "TargetCode": "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}"
+    },
+    "DiffType": "update"
   },
   {
     "OldObject": {
@@ -68,6 +104,7 @@
         "SourceFilePath": "path/to/source_file",
         "SourceFileLine": 0
       }
-    }
+    },
+    "DiffType": "replace"
   }
 ]

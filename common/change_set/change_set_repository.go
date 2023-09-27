@@ -51,23 +51,22 @@ func NewChangeSetRepository(changeSet *types.ChangeSet) *ChangeSetRepository {
 	for _, diff := range changeSet.Diffs {
 		oldObject := diff.OldObject
 		newObject := diff.NewObject
+		diffType := diff.DiffType
 
-		if oldObject != nil && oldObject.IsResource() {
-			if newObject == nil {
+		if diffType == types.DiffTypeRemove {
+			if oldObject.IsResource() {
 				deletedResources[oldObject.ParsedResource.LogicalName] = oldObject
-			} else {
-				changedResources[newObject.ParsedResource.LogicalName] = newObject
-			}
-		} else if oldObject != nil && oldObject.IsVariable() {
-			if newObject == nil {
+			} else if oldObject.IsVariable() {
 				deletedVariables[oldObject.ParsedVariable.Name] = oldObject
-			} else {
+			}
+		} else if diffType == types.DiffTypeAdd {
+			addedObjects = append(addedObjects, newObject)
+		} else {
+			if newObject.IsResource() {
+				changedResources[newObject.ParsedResource.LogicalName] = newObject
+			} else if newObject.IsVariable() {
 				changedVariables[newObject.ParsedVariable.Name] = newObject
 			}
-		}
-
-		if oldObject == nil {
-			addedObjects = append(addedObjects, newObject)
 		}
 	}
 

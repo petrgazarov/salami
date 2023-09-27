@@ -33,7 +33,7 @@ func TestNewChangeSet(t *testing.T) {
 		require.NoError(t, err)
 		changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
 		changeSetDiffs := sortChangeSetDiffs(changeSet.Diffs)
-		require.Equal(t, 4, len(changeSetDiffs))
+		require.Equal(t, 5, len(changeSetDiffs))
 		expectedDiffs := getChangeSetDiffs("testdata/change_set_diffs.json")
 		for i, actualDiff := range changeSetDiffs {
 			require.Equal(t, expectedDiffs[i], actualDiff)

@@ -144,9 +144,9 @@ Deployment:
 func TestUsedResourcesExist(t *testing.T) {
 	resources := []*types.ParsedResource{
 		{
-			ResourceType: "ecr.LifecyclePolicy",
-			LogicalName:  "CumuliServerRepoLifecyclePolicy",
-			NaturalLanguage: "Policy retains only the last 10 untagged images in the repository. Images beyond this count will expire.",
+			ResourceType:        "ecr.LifecyclePolicy",
+			LogicalName:         "CumuliServerRepoLifecyclePolicy",
+			NaturalLanguage:     "Policy retains only the last 10 untagged images in the repository. Images beyond this count will expire.",
 			ReferencedResources: []types.LogicalName{"CumuliServerRepository"},
 			ReferencedVariables: []string{},
 			SourceFilePath:      "dummy/file/path",
@@ -155,7 +155,7 @@ func TestUsedResourcesExist(t *testing.T) {
 	semanticAnalyzer := createSemanticAnalyzer(t, resources, []*types.ParsedVariable{})
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
-		expectedErrorMessage := "\ndummy/file/path\n  semantic error: Used resource 'CumuliServerRepository' is not defined"
+		expectedErrorMessage := "\ndummy/file/path\n  semantic error: Referenced resource 'CumuliServerRepository' is not defined"
 		require.Equal(
 			t,
 			expectedErrorMessage,

@@ -76,7 +76,7 @@ func getCommonParsedVariable(lockFileObject Object) *types.ParsedVariable {
 	return &types.ParsedVariable{
 		Name:            lockFileObject.ParsedVariable.Name,
 		NaturalLanguage: lockFileObject.ParsedVariable.NaturalLanguage,
-		Default:         lockFileObject.ParsedVariable.DefaultValue,
+		Default:         lockFileObject.ParsedVariable.Default,
 		Type:            types.VariableType(lockFileObject.ParsedVariable.VariableType),
 		SourceFilePath:  lockFileObject.ParsedVariable.SourceFilePath,
 		SourceFileLine:  lockFileObject.ParsedVariable.SourceFileLine,

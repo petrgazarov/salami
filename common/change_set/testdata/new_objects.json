@@ -10,7 +10,7 @@
       },
       "ReferencedVariables": [],
       "SourceFilePath": "path/to/source_file",
-      "SourceFileLine": 0
+      "SourceFileLine": 5
     },
     "TargetCode": "resource \"aws_s3_bucket\" \"AssumedRolesBucket\" {\n  bucket = \"assumed-roles\"\n  versioning {\n    enabled = true\n  }\n}"
   },

@@ -69,7 +69,7 @@ type ParsedVariable struct {
 	Name            string `toml:"name" validate:"required"`
 	NaturalLanguage string `toml:"natural_language"`
 	VariableType    string `toml:"type" validate:"required,oneof=string number boolean"`
-	DefaultValue    string `toml:"default"`
+	Default         string `toml:"default"`
 	SourceFilePath  string `toml:"source_file_path" validate:"required"`
 	SourceFileLine  int    `toml:"source_file_line" validate:"required"`
 }

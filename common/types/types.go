@@ -32,9 +32,17 @@ func (o *Object) GetSourceFileLine() int {
 	return 0
 }
 
+const (
+	DiffTypeAdd     = "add"
+	DiffTypeRemove  = "remove"
+	DiffTypeReplace = "replace"
+	DiffTypeUpdate  = "update"
+)
+
 type ChangeSetDiff struct {
 	OldObject *Object
 	NewObject *Object
+	DiffType  string
 }
 
 type ChangeSet struct {

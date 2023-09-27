@@ -83,7 +83,7 @@ func (sa *SemanticAnalyzer) ensureUsedResourcesExist() error {
 			if _, exists := sa.symbolTable.LookupResource(logicalName); !exists {
 				return &errors.SemanticError{
 					SourceFilePath: resource.SourceFilePath,
-					Message:        fmt.Sprintf("Used resource '%s' is not defined", logicalName),
+					Message:        fmt.Sprintf("Referenced resource '%s' is not defined", logicalName),
 				}
 			}
 		}
