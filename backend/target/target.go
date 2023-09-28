@@ -6,20 +6,14 @@ import (
 	commonTypes "salami/common/types"
 )
 
-var targetFuncsMap = map[string]backendTypes.Target{
-	"terraform": {
-		GenerateCode:        terraform.GenerateCode,
-		GetFilesFromObjects: terraform.GetFilesFromObjects,
-	},
+var targetFuncsMap = map[string]backendTypes.NewTargetFunc{
+	commonTypes.TerraformPlatform: terraform.NewTarget,
 }
 
-func ResolveTarget(
-	targetConfig commonTypes.TargetConfig,
-	llmConfig commonTypes.LlmConfig,
-) backendTypes.Target {
+func ResolveTarget(targetConfig commonTypes.TargetConfig) backendTypes.Target {
 	var target backendTypes.Target
 	if targetConfig.Platform == commonTypes.TerraformPlatform {
-		target = targetFuncsMap["terraform"]
+		target = targetFuncsMap[commonTypes.TerraformPlatform]()
 	}
 	return target
 }

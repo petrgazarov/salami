@@ -15,7 +15,7 @@ func NewChangeSet(
 	seenResources := make(map[types.LogicalName]bool)
 	seenVariables := make(map[string]bool)
 	changeSet := &types.ChangeSet{
-		Diffs: make([]types.ChangeSetDiff, 0),
+		Diffs: make([]*types.ChangeSetDiff, 0),
 	}
 
 	recordResourceChangesOrAdditions(symbolTable, changeSet, previousResourcesMap, seenResources)
@@ -37,25 +37,25 @@ func recordResourceChangesOrAdditions(
 			ParsedResource: resource,
 		}
 		if _, ok := previousResources[logicalName]; !ok {
-			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
+			changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
 				OldObject: nil,
 				NewObject: object,
 				DiffType:  types.DiffTypeAdd,
 			})
 		} else if !reflect.DeepEqual(previousResources[logicalName].ParsedResource, object.ParsedResource) {
-			if shouldReplaceObject(previousResources[logicalName], object) {
-				changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
+			if shouldUpdateObject(previousResources[logicalName], object) {
+				changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
 					OldObject: previousResources[logicalName],
 					NewObject: object,
-					DiffType:  types.DiffTypeReplace,
+					DiffType:  types.DiffTypeUpdate,
 				})
 			} else {
 				previousObject := previousResources[logicalName]
 				object.TargetCode = previousObject.TargetCode
-				changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
+				changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
 					OldObject: previousResources[logicalName],
 					NewObject: object,
-					DiffType:  types.DiffTypeUpdate,
+					DiffType:  types.DiffTypeMove,
 				})
 			}
 		}
@@ -74,19 +74,19 @@ func recordVariableChangesOrAdditions(
 			ParsedVariable: variable,
 		}
 		if _, ok := previousVariables[name]; !ok {
-			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
+			changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
 				OldObject: nil,
 				NewObject: object,
 				DiffType:  types.DiffTypeAdd,
 			})
 		} else if !reflect.DeepEqual(previousVariables[name].ParsedVariable, object.ParsedVariable) {
 			var diffType string
-			if shouldReplaceObject(previousVariables[name], object) {
-				diffType = types.DiffTypeReplace
-			} else {
+			if shouldUpdateObject(previousVariables[name], object) {
 				diffType = types.DiffTypeUpdate
+			} else {
+				diffType = types.DiffTypeMove
 			}
-			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
+			changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
 				OldObject: previousVariables[name],
 				NewObject: object,
 				DiffType:  diffType,
@@ -103,7 +103,7 @@ func recordResourceDeletions(
 ) {
 	for logicalName, object := range previousResources {
 		if !seenResources[logicalName] {
-			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
+			changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
 				OldObject: object,
 				NewObject: nil,
 				DiffType:  types.DiffTypeRemove,
@@ -119,7 +119,7 @@ func recordVariableDeletions(
 ) {
 	for name, object := range previousVariables {
 		if !seenVariables[name] {
-			changeSet.Diffs = append(changeSet.Diffs, types.ChangeSetDiff{
+			changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
 				OldObject: object,
 				NewObject: nil,
 				DiffType:  types.DiffTypeRemove,
@@ -128,7 +128,7 @@ func recordVariableDeletions(
 	}
 }
 
-func shouldReplaceObject(oldObject *types.Object, newObject *types.Object) bool {
+func shouldUpdateObject(oldObject *types.Object, newObject *types.Object) bool {
 	if oldObject.IsResource() {
 		resourceTypeChanged := oldObject.ParsedResource.ResourceType != newObject.ParsedResource.ResourceType
 		naturalLanguageChanged := oldObject.ParsedResource.NaturalLanguage != newObject.ParsedResource.NaturalLanguage

@@ -7,7 +7,6 @@ import (
 	"salami/backend/llm"
 	"salami/backend/target"
 	"salami/backend/target_file_manager"
-	backendTypes "salami/backend/types"
 	"salami/common/change_set"
 	"salami/common/config"
 	"salami/common/constants"
@@ -22,17 +21,21 @@ func Run() []error {
 	if err := runValidations(); err != nil {
 		return []error{err}
 	}
+
 	symbolTable, errors := runFrontend()
 	if len(errors) > 0 {
 		return errors
 	}
+
 	newTargetFileMetas, newObjects, errors := runBackend(symbolTable)
 	if len(errors) > 0 {
 		return errors
 	}
+
 	if err := lock_file_manager.UpdateLockFile(newTargetFileMetas, newObjects); err != nil {
 		return []error{err}
 	}
+	
 	return nil
 }
 
@@ -41,18 +44,22 @@ func runFrontend() (*symbol_table.SymbolTable, []error) {
 	if err != nil {
 		return nil, []error{err}
 	}
+
 	allResources, allVariables, errors := parseFiles(sourceFilePaths, config.GetSourceDir())
 	if len(errors) > 0 {
 		return nil, errors
 	}
+
 	symbolTable, err := symbol_table.NewSymbolTable(allResources, allVariables)
 	if err != nil {
 		return nil, []error{err}
 	}
+
 	semanticAnalyzer := semantic_analyzer.NewSemanticAnalyzer(symbolTable)
 	if err = semanticAnalyzer.Analyze(); err != nil {
 		return nil, []error{err}
 	}
+
 	return symbolTable, nil
 }
 
@@ -60,22 +67,22 @@ func runBackend(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]commonTypes.TargetFileMeta, []*commonTypes.Object, []error) {
 	previousObjects := lock_file_manager.GetObjects()
+	targetDir := config.GetTargetDir()
 	newTargetFiles, newObjects, errors := generateCode(previousObjects, symbolTable)
 	if len(errors) > 0 {
 		return nil, nil, errors
 	}
-	if errors := target_file_manager.WriteTargetFiles(newTargetFiles, config.GetTargetDir()); len(errors) > 0 {
+	if errors := target_file_manager.WriteTargetFiles(newTargetFiles, targetDir); len(errors) > 0 {
 		return nil, nil, errors
 	}
 
-	oldTargetFileMetas := lock_file_manager.GetTargetFileMetas()
 	newTargetFileMetas, err := target_file_manager.GenerateTargetFileMetas(newTargetFiles)
 	if err != nil {
 		return nil, nil, []error{err}
 	}
 
-	oldFilePaths := getOldFilePaths(oldTargetFileMetas, newTargetFileMetas)
-	if errors := target_file_manager.DeleteTargetFiles(oldFilePaths, config.GetTargetDir()); len(errors) > 0 {
+	oldFilePaths := getOldFilePaths(newTargetFileMetas)
+	if errors := target_file_manager.DeleteTargetFiles(oldFilePaths, targetDir); len(errors) > 0 {
 		return nil, nil, errors
 	}
 
@@ -87,25 +94,17 @@ func generateCode(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]*commonTypes.TargetFile, []*commonTypes.Object, []error) {
 	changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
-	target := resolveTarget()
-	llm := resolveLlm()
-	if errors := target.GenerateCode(changeSet, symbolTable, &llm); len(errors) > 0 {
+	llm := llm.ResolveLlm(config.GetLlmConfig())
+	target := target.ResolveTarget(config.GetTargetConfig())
+
+	if errors := target.GenerateCode(changeSet, symbolTable, llm); len(errors) > 0 {
 		return nil, nil, errors
 	}
+
 	newObjects := computeNewObjects(previousObjects, changeSet)
 	targetFiles := target.GetFilesFromObjects(newObjects)
+
 	return targetFiles, newObjects, nil
-}
-
-func resolveTarget() backendTypes.Target {
-	targetConfig := config.GetTargetConfig()
-	llmConfig := config.GetLlmConfig()
-	return target.ResolveTarget(targetConfig, llmConfig)
-}
-
-func resolveLlm() backendTypes.Llm {
-	llmConfig := config.GetLlmConfig()
-	return llm.ResolveLlm(llmConfig)
 }
 
 func getSourceFilePaths() ([]string, error) {
@@ -115,6 +114,7 @@ func getSourceFilePaths() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	relativeSourceFilePaths, err := file_utils.GetRelativeFilePaths(
 		config.GetSourceDir(),
 		sourceFilePaths,
@@ -122,6 +122,7 @@ func getSourceFilePaths() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return relativeSourceFilePaths, nil
 }
 
@@ -157,10 +158,8 @@ func computeNewObjects(
 	return objects
 }
 
-func getOldFilePaths(
-	oldTargetFileMetas []commonTypes.TargetFileMeta,
-	newTargetFileMetas []commonTypes.TargetFileMeta,
-) []string {
+func getOldFilePaths(newTargetFileMetas []commonTypes.TargetFileMeta) []string {
+	oldTargetFileMetas := lock_file_manager.GetTargetFileMetas()
 	newMetaMap := make(map[string]bool)
 	for _, meta := range newTargetFileMetas {
 		newMetaMap[meta.FilePath] = true

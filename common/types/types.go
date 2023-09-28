@@ -32,11 +32,15 @@ func (o *Object) GetSourceFileLine() int {
 	return 0
 }
 
+func (o *Object) SetTargetCode(targetCode string) {
+	o.TargetCode = targetCode
+}
+
 const (
-	DiffTypeAdd     = "add"
-	DiffTypeRemove  = "remove"
-	DiffTypeReplace = "replace"
-	DiffTypeUpdate  = "update"
+	DiffTypeAdd    = "add"
+	DiffTypeRemove = "remove"
+	DiffTypeUpdate = "update"
+	DiffTypeMove   = "move"
 )
 
 type ChangeSetDiff struct {
@@ -45,8 +49,12 @@ type ChangeSetDiff struct {
 	DiffType  string
 }
 
+func (ch *ChangeSetDiff) ShouldGenerateCode() bool {
+	return ch.DiffType == DiffTypeAdd || ch.DiffType == DiffTypeUpdate
+}
+
 type ChangeSet struct {
-	Diffs []ChangeSetDiff
+	Diffs []*ChangeSetDiff
 }
 
 type TargetFileMeta struct {
@@ -67,6 +75,7 @@ type LlmConfig struct {
 const TerraformPlatform = "terraform"
 const LlmOpenaiProvider = "openai"
 const LlmGpt4Model = "gpt4"
+const LlmOpenaiGpt4 = LlmOpenaiProvider + "_" + LlmGpt4Model
 
 type TargetFile struct {
 	FilePath string

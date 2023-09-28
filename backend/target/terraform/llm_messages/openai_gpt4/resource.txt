@@ -1,0 +1,5 @@
+Resource type: {{.ResourceType}}
+Logical name: {{.LogicalName}}
+{{.NaturalLanguage}}
+
+{{.ReferencedObjectsSection}}

@@ -11,12 +11,26 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-func CreateCompletion(
-	messages []*backendTypes.LlmMessage,
-	llmConfig commonTypes.LlmConfig,
-) (string, error) {
-	client := getClient(llmConfig)
-	response, err := client.CreateChatCompletion(context.Background(), getChatCompletionRequest(messages, llmConfig))
+type OpenaiGpt4 struct {
+	slug   string
+	model  string
+	client *openai.Client
+}
+
+func NewLlm(llmConfig commonTypes.LlmConfig) backendTypes.Llm {
+	return &OpenaiGpt4{
+		client: getClient(llmConfig),
+		model:  getModel(llmConfig),
+		slug:   commonTypes.LlmOpenaiGpt4,
+	}
+}
+
+func (o *OpenaiGpt4) GetSlug() string {
+	return o.slug
+}
+
+func (o *OpenaiGpt4) CreateCompletion(messages []*backendTypes.LlmMessage) (string, error) {
+	response, err := o.client.CreateChatCompletion(context.Background(), o.getChatCompletionRequest(messages))
 	if err != nil {
 		return "", err
 	}
@@ -36,13 +50,8 @@ func CreateCompletion(
 	return code, nil
 }
 
-var initializedClient *openai.Client
-
 func getClient(llmConfig commonTypes.LlmConfig) *openai.Client {
-	if initializedClient == nil {
-		initializedClient = openai.NewClient(llmConfig.ApiKey)
-	}
-	return initializedClient
+	return openai.NewClient(llmConfig.ApiKey)
 }
 
 func getModel(llmConfig commonTypes.LlmConfig) string {
@@ -53,12 +62,11 @@ func getModel(llmConfig commonTypes.LlmConfig) string {
 	return ""
 }
 
-func getChatCompletionRequest(
+func (o *OpenaiGpt4) getChatCompletionRequest(
 	messages []*backendTypes.LlmMessage,
-	llmConfig commonTypes.LlmConfig,
 ) openai.ChatCompletionRequest {
 	return openai.ChatCompletionRequest{
-		Model:        getModel(llmConfig),
+		Model:        o.model,
 		Messages:     getMessages(messages),
 		Temperature:  math.SmallestNonzeroFloat32,
 		Functions:    getFunctions(),

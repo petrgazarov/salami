@@ -5,26 +5,29 @@ import (
 	"salami/common/types"
 )
 
-type GenerateCodeFunc func(*types.ChangeSet, *symbol_table.SymbolTable, *Llm) []error
-type GetFilesFromObjectsFunc func([]*types.Object) []*types.TargetFile
-
-type Target struct {
-	GenerateCode        GenerateCodeFunc
-	GetFilesFromObjects GetFilesFromObjectsFunc
+type Target interface {
+	GenerateCode(*types.ChangeSet, *symbol_table.SymbolTable, Llm) []error
+	GetFilesFromObjects([]*types.Object) []*types.TargetFile
 }
 
-type CreateCompletionFunc func(
-	messages []*LlmMessage,
-	llmConfig types.LlmConfig,
-) (string, error)
+type NewTargetFunc func() Target
 
-type Llm struct {
-	CreateCompletion CreateCompletionFunc
+type Llm interface {
+	GetSlug() string
+	CreateCompletion(messages []*LlmMessage) (string, error)
 }
+
+type NewLlmFunc func(types.LlmConfig) Llm
 
 type LlmMessageRole string
 
 type LlmMessage struct {
 	Role    LlmMessageRole
 	Content string
+}
+
+type GetTargetLlmMessagesFunc func(*types.ChangeSetDiff, *symbol_table.SymbolTable) []*LlmMessage
+
+type TargetLlmMessages struct {
+	GetMessages GetTargetLlmMessagesFunc
 }

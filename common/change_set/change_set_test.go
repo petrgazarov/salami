@@ -21,7 +21,7 @@ func TestNewChangeSet(t *testing.T) {
 		symbolTable, err := symbol_table.NewSymbolTable(newResources, newVariables)
 		require.NoError(t, err)
 		changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
-		require.Equal(t, changeSet, &types.ChangeSet{Diffs: []types.ChangeSetDiff{}})
+		require.Equal(t, changeSet, &types.ChangeSet{Diffs: []*types.ChangeSetDiff{}})
 	})
 
 	t.Run("should return a change set with additions, deletions, and changes when they exist", func(t *testing.T) {
@@ -55,7 +55,7 @@ func getObjects(filePaths string) []*types.Object {
 	return objects
 }
 
-func getChangeSetDiffs(filePath string) []types.ChangeSetDiff {
+func getChangeSetDiffs(filePath string) []*types.ChangeSetDiff {
 	jsonFile, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -64,12 +64,12 @@ func getChangeSetDiffs(filePath string) []types.ChangeSetDiff {
 
 	byteValue, _ := io.ReadAll(jsonFile)
 
-	var changeSetDiffs []types.ChangeSetDiff
+	var changeSetDiffs []*types.ChangeSetDiff
 	json.Unmarshal(byteValue, &changeSetDiffs)
 	return changeSetDiffs
 }
 
-func sortChangeSetDiffs(diffs []types.ChangeSetDiff) []types.ChangeSetDiff {
+func sortChangeSetDiffs(diffs []*types.ChangeSetDiff) []*types.ChangeSetDiff {
 	getNameAndType := func(obj *types.Object) (string, bool) {
 		if obj == nil {
 			return "", false

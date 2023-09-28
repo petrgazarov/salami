@@ -6,16 +6,14 @@ import (
 	commonTypes "salami/common/types"
 )
 
-var llmFuncsMap = map[string]backendTypes.Llm{
-	"openai_gpt4": {
-		CreateCompletion: openaiGpt4.CreateCompletion,
-	},
+var llmFuncsMap = map[string]backendTypes.NewLlmFunc{
+	commonTypes.LlmOpenaiGpt4: openaiGpt4.NewLlm,
 }
 
 func ResolveLlm(llmConfig commonTypes.LlmConfig) backendTypes.Llm {
 	var llm backendTypes.Llm
 	if llmConfig.Provider == commonTypes.LlmOpenaiProvider && llmConfig.Model == commonTypes.LlmGpt4Model {
-		llm = llmFuncsMap["openai_gpt4"]
+		llm = llmFuncsMap[commonTypes.LlmOpenaiGpt4](llmConfig)
 	}
 	return llm
 }
