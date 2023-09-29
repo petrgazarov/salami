@@ -3,7 +3,7 @@ resource "aws_ecs_cluster" "EcsCluster" {
 }
 
 resource "aws_servicediscovery_private_dns_namespace" "EcsPrivateDnsNamespace" {
-  name = var.local_dns_namespace_name
+  name        = var.local_dns_namespace_name
   description = "Private namespace for ECS cluster"
   vpc = aws_vpc.MainVpc.id
 }

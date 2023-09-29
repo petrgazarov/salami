@@ -6,7 +6,7 @@ resource "aws_s3_bucket" "AssumedRolesBucket" {
 }
 
 resource "aws_s3_bucket_public_access_block" "AssetsPublicAccessBlock" {
-  bucket = aws_s3_bucket.AssumedRolesBucket.id
+  bucket = aws_s3_bucket.AssumedRolesBucket.bucket
 
   block_public_acls       = true
   block_public_policy     = false

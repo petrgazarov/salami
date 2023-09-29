@@ -63,9 +63,9 @@ resource "aws_iam_role_policy_attachment" "ServerTaskRolePolicyAttachment" {
 
 resource "aws_ecs_task_definition" "ServerTaskDefinition" {
   family                = "server"
+  network_mode          = "awsvpc"
   cpu                   = "256"
   memory                = "512"
-  network_mode          = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   task_role_arn         = aws_iam_role.ServerTaskRole.arn
   execution_role_arn    = aws_iam_role.ServerEcsExecutionRole.arn
