@@ -1,25 +1,25 @@
-@resource(aws.ecs.Cluster, CumuliEcsCluster)
-Name: cumuli-cluster
+@resource(aws.ecs.Cluster, EcsCluster)
+Name: cluster
 
-@resource(aws.servicediscovery.PrivateDnsNamespace, CumuliEcsPrivateDnsNamespace)
-Vpc: $CumuliVpc
-Description: Private namespace for Cumuli ECS cluster
+@resource(aws.servicediscovery.PrivateDnsNamespace, EcsPrivateDnsNamespace)
+Vpc: $MainVpc
+Description: Private namespace for ECS cluster
 Name: {local_dns_namespace_name}
 
-@resource(aws.ecs.Service, CumuliServerEcsService)
-In $CumuliEcsCluster, has $CumuliServerTaskDefinition
+@resource(aws.ecs.Service, ServerEcsService)
+In $EcsCluster, has $ServerTaskDefinition
 Resource type: aws.ecs.Service
-Logical name: CumuliServerEcsService
-Name: cumuli-server
+Logical name: ServerEcsService
+Name: server
 Desired count: 1
 Launch type: FARGATE
 ---
 Network configuration:
   Assigned public IP.
   Subnets: $PublicSubnetA and $PublicSubnetB
-  Security group: $CumuliServerEcsSecurityGroup
+  Security group: $ServerEcsSecurityGroup
 Load balancers:
-  Target group: $CumuliServerTargetGroup
+  Target group: $ServerTargetGroup
   Container name: {server_container_name}
   Port: {container_port}
 Deployment:
@@ -36,20 +36,20 @@ Attached to $PythonExecEcsExecutionRole
 Policy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
 
 @resource(aws.servicediscovery.Service, PythonExecEcsServiceDiscovery)
-Using $CumuliEcsPrivateDnsNamespace
+Using $EcsPrivateDnsNamespace
 Name: {python_exec_local_service_name}
 Dns config: Record of type A with ttl set to 10
 
-@resource(aws.ec2.SecurityGroup, CumuliServerEcsSecurityGroup)
-In $CumuliVpc
-Name: cumuli-server-ecs-security-group
-Description: Security group for Cumuli server ECS service
+@resource(aws.ec2.SecurityGroup, ServerEcsSecurityGroup)
+In $MainVpc
+Name: server-ecs-security-group
+Description: Security group for Server ECS service
 Egress: all traffic allowed
 Ingress: Allow access on "tcp" protocol and {container_port} port, and limited to $ALBSecurityGroup security group
 
 @resource(aws.ecs.Service, PythonExecEcsService)
-In $CumuliEcsCluster, using $PythonExecTaskDefinition
-Name: cumuli-server
+In $EcsCluster, using $PythonExecTaskDefinition
+Name: server
 Desired_count: 1
 Launch type: FARGATE
 Network configuration:
@@ -60,8 +60,8 @@ Enabled deployment circuit breaker with rollback
 Wait for steady state: True
 
 @resource(aws.ec2.SecurityGroup, PythonExecEcsSecurityGroup)
-In $CumuliVpc
+In $MainVpc
 Name: python-exec-ecs-security-group
 Description: Security group for python exec ECS service
 Egress: allow all tcp traffic on port 443
-Ingress: allow access on "tcp" protocol, {container_port} port, and limited to $CumuliServerEcsSecurityGroup security group
+Ingress: allow access on "tcp" protocol, {container_port} port, and limited to $ServerEcsSecurityGroup security group

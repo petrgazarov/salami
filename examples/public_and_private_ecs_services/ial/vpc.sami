@@ -1,26 +1,26 @@
-@resource(aws.ec2.Vpc, CumuliVpc)
-Name: cumuli-vpc
+@resource(aws.ec2.Vpc, MainVpc)
+Name: main-vpc
 Cidr block: 10.0.0.0/16
 Enable DNS support: True
 Enable DNS hostnames: True
 
 @resource(aws.ec2.Subnet, PrivateSubnetA)
-In $CumuliVpc
+In $MainVpc
 Name private-subnet-a
 Cidr block: 10.0.1.0/24
 Availability zone: us-west-1a
 Map public IP on launch: False
 
 @resource(aws.ec2.Subnet, PrivateSubnetB)
-In $CumuliVpc
+In $MainVpc
 Name: private-subnet-b
 Cidr block: 10.0.2.0/24
 Availability zone: us-west-1c
 Map public IP on launch: False
 
 @resource(aws.ec2.RouteTable, PrivateRouteTable)
-In $CumuliVpc
-Name: cumuli-private-route-table
+In $MainVpc
+Name: private-route-table
 
 @resource(aws.ec2.RouteTableAssociation, PrivateSubnetARouteTableAssociation)
 Associated with $PrivateSubnetA and $PrivateRouteTable
@@ -29,27 +29,27 @@ Associated with $PrivateSubnetA and $PrivateRouteTable
 Associated with $PrivateSubnetB and $PrivateRouteTable
 
 @resource(aws.ec2.Subnet, PublicSubnetA)
-In $CumuliVpc
+In $MainVpc
 Name: public-subnet-a
 Cidr block: 10.0.3.0/24
 Availability zone: us-west-1a
 Map public IP on launch: True
 
 @resource(aws.ec2.Subnet, PublicSubnetB)
-In $CumuliVpc
+In $MainVpc
 Name: public-subnet-b
 Cidr block: 10.0.4.0/24
 Availability zone: us-west-1c
 Map public IP on launch: True
 
-@resource(aws.ec2.InternetGateway, CumuliInternetGateway)
-In $CumuliVpc
-Name: cumuli-internet-gateway
+@resource(aws.ec2.InternetGateway, InternetGateway)
+In $MainVpc
+Name: internet-gateway
 
 @resource(aws.ec2.RouteTable, PublicRouteTable)
-In $CumuliVpc, associated with $CumuliInternetGateway
-Name: cumuli-public-route-table
-Routes: A route with a CIDR block of "0.0.0.0/0" and CumuliInternetGateway internet gateway
+In $MainVpc, associated with $InternetGateway
+Name: public-route-table
+Routes: A route with a CIDR block of "0.0.0.0/0" and InternetGateway internet gateway
 
 @resource(aws.ec2.RouteTableAssociation, PublicSubnetARouteTableAssociation)
 Associated with $PublicSubnetA and $PublicRouteTable

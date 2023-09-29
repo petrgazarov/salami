@@ -1,12 +1,12 @@
 @variable(local_dns_namespace_name, string, local)
 
-@variable(domain_name, string, cumuli.ai)
+@variable(domain_name, string, mydomain.ai)
 
 @variable(aws_account_id, string, 123456789012)
 
 @variable(aws_region, string, us-west-1)
 
-@variable(server_container_name, string, cumuli-server-container)
+@variable(server_container_name, string, server-container)
 Description: Server container name
 
 @variable(python_exec_container_name, string, python-exec-container)

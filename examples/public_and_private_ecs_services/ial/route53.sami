@@ -1,22 +1,22 @@
-@resource(aws.route53.Zone, CumuliHostedZone)
+@resource(aws.route53.Zone, HostedZone)
 Name {domain_name}
 
 @resource(aws.route53.Record, FramerARecords)
-Zone $CumuliHostedZone
+Zone $HostedZone
 Name {domain_name}
 Type A
 Records ["52.223.52.2", "35.71.142.77"]
 Ttl 1800
 
 @resource(aws.route53.Record, FramerCNAMERecord)
-Zone $CumuliHostedZone
+Zone $HostedZone
 Name www.{domain_name}
 Type CNAME
 Records ["sites.framer.app."]
 Ttl 1800
 
 @resource(aws.route53.Record, GoogleTXTRecord)
-Zone $CumuliHostedZone
+Zone $HostedZone
 Name {domain_name}
 Type TXT
 Records ["google-site-verification=UzsIO5GYrHN8MrT_xe_PgmbydavWUcgC1cUfwJHpWB4"]

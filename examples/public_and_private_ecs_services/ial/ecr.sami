@@ -1,18 +1,18 @@
-@resource(aws.ecr.Repository, CumuliServerRepository)
-Name: cumuli-server
+@resource(aws.ecr.Repository, ServerRepository)
+Name: server
 Has mutable image tags.
 
-@resource(aws.ecr.LifecyclePolicy, CumuliServerRepoLifecyclePolicy)
-For $CumuliServerRepository
+@resource(aws.ecr.LifecyclePolicy, ServerRepoLifecyclePolicy)
+For $ServerRepository
 Policy retains only the last 10 untagged images in the repository. Images beyond this count will expire.
 
-@resource(aws.iam.Role, CumuliEcsExecutionRole)
-Name: cumuli-server-ecs-execution-role
+@resource(aws.iam.Role, ServerEcsExecutionRole)
+Name: server-ecs-execution-role
 Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume the role
 
-@resource(aws.ecr.RepositoryPolicy, CumuliServerRepositoryPolicy)
-For $CumuliServerRepository
-Policy allows $CumuliEcsExecutionRole to perform three actions on the ECR repository:
+@resource(aws.ecr.RepositoryPolicy, ServerRepositoryPolicy)
+For $ServerRepository
+Policy allows $ServerEcsExecutionRole to perform three actions on the ECR repository:
   1. "ecr:GetDownloadUrlForLayer"
   2. "ecr:BatchGetImage"
   3. "ecr:BatchCheckLayerAvailability"

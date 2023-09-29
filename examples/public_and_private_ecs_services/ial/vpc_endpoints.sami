@@ -1,10 +1,10 @@
 @resource(aws.ec2.VpcEndpoint, EcrDkrVpcEndpoint)
-In $CumuliVpc, $PrivateSubnetA and $PrivateSubnetB
+In $MainVpc, $PrivateSubnetA and $PrivateSubnetB
 VPC endpoint type: Interface
 Service name: com.amazonaws.{aws_region}.ecr.dkr
 Private DNS enabled: True
 Security group: $EcrVpcEndpointSG
-Policy allows two AWS principals - $CumuliEcsExecutionRole and $PythonExecEcsExecutionRole - to perform three actions on ECR resources:
+Policy allows two AWS principals - $ServerEcsExecutionRole and $PythonExecEcsExecutionRole - to perform three actions on ECR resources:
   1. "ecr:BatchCheckLayerAvailability"
   2. "ecr:GetDownloadUrlForLayer"
   3. "ecr:BatchGetImage"
@@ -12,32 +12,32 @@ The resources on which these actions can be performed are defined by the ARN pat
 which includes all repositories in the specified AWS region and account.
 
 @resource(aws.ec2.VpcEndpoint, EcrApiVpcEndpoint)
-In $CumuliVpc, $PrivateSubnetA and $PrivateSubnetB
+In $MainVpc, $PrivateSubnetA and $PrivateSubnetB
 VPC endpoint type: Interface
 Service name: com.amazonaws.{aws_region}.ecr.api
 Private DNS enabled: True
 Security group: $EcrVpcEndpointSG
-Policy that allows two AWS principals - $CumuliEcsExecutionRole and $PythonExecEcsExecutionRole - to perform four actions on all ECR resources:
+Policy that allows two AWS principals - $ServerEcsExecutionRole and $PythonExecEcsExecutionRole - to perform four actions on all ECR resources:
   1. "ecr:GetAuthorizationToken"
   2. "ecr:BatchCheckLayerAvailability"
   3. "ecr:GetDownloadUrlForLayer"
   4. "ecr:BatchGetImage"
 
 @resource(aws.ec2.VpcEndpoint, S3VpcEndpoint)
-In $CumuliVpc, associated with $PrivateRouteTable
+In $MainVpc, associated with $PrivateRouteTable
 VPC endpoint type: Gateway
 Service name: com.amazonaws.{aws_region}.s3
 Policy allows all principals to perform all actions on resources defined by the ARN pattern "arn:aws:s3:::prod-{aws_region}-starport-layer-bucket/*"
 
 @resource(aws.ec2.SecurityGroup, CloudWatchLogsVpcEndpointSG)
-In $CumuliVpc
+In $MainVpc
 name: cloudwatch-logs-vpc-endpoint-sg
 description: Security Group for CloudWatch Logs VPC Endpoint
 egress: []
 ingress: Allow all TCP traffic on port 443 from any IP address (0.0.0.0/0)
 
 @resource(aws.ec2.VpcEndpoint, CloudWatchLogsVpcEndpoint)
-In $CumuliVpc, $PrivateSubnetA and $PrivateSubnetB
+In $MainVpc, $PrivateSubnetA and $PrivateSubnetB
 VPC endpoint type: Interface
 Service name: com.amazonaws.{aws_region}.logs
 Private DNS enabled: True

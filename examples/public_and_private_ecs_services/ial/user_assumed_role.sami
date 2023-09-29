@@ -1,14 +1,14 @@
-@resource(aws.s3.Bucket, CumuliAssumedRolesBucket)
-Bucket: cumuli-assumed-roles
+@resource(aws.s3.Bucket, AssumedRolesBucket)
+Bucket: assumed-roles-hg12a
 Versioning enabled
 
-@resource(aws.s3.BucketPublicAccessBlock, CumuliAssetsPublicAccessBlock)
-For $CumuliAssumedRolesBucket
+@resource(aws.s3.BucketPublicAccessBlock, AssetsPublicAccessBlock)
+For $AssumedRolesBucket
 Block public ACLs: True
 Block public policy: False
 Ignore public ACLs: True
 Restrict public buckets: False
 
-@resource(aws.s3.BucketPolicy, CumuliAssumedRolesBucketPolicy)
-For $CumuliAssumedRolesBucket
+@resource(aws.s3.BucketPolicy, AssumedRolesBucketPolicy)
+For $AssumedRolesBucket
 Policy allows all principals to perform the "s3:GetObject" action on all objects in the bucket.

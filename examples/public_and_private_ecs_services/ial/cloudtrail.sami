@@ -1,15 +1,15 @@
-@resource(aws.s3.Bucket, CumuliCloudtrailLogsBucket)
-Bucket name: cumuli-cloudtrail-logs
+@resource(aws.s3.Bucket, SalamiCloudtrailLogsBucket)
+Bucket name: salami-cloudtrail-logs
 
-@resource(aws.s3.BucketPolicy, CumuliCloudtrailLogsBucketPolicy)
-For $CumuliCloudtrailLogsBucket
+@resource(aws.s3.BucketPolicy, SalamiCloudtrailLogsBucketPolicy)
+For $SalamiCloudtrailLogsBucket
 Policy with two statements:
   1. Allow the "cloudtrail.amazonaws.com" service to put objects into the bucket, with the condition that the bucket owner has full control.
   2. Allow the same service to get the bucket's ACL.
 
-@resource(aws.cloudtrail.Trail, CumuliCloudtrail)
-For $CumuliCloudtrailLogsBucket
-Name: cumuli-cloudtrail
+@resource(aws.cloudtrail.Trail, Cloudtrail)
+For $SalamiCloudtrailLogsBucket
+Name: cloudtrail
 Global service events: True
 Multi-region: True
 Logging enabled: True
