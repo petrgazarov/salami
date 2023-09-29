@@ -1,7 +1,6 @@
 package terraform
 
 import (
-	"fmt"
 	"salami/backend/target/terraform/llm_messages/openai_gpt4"
 	backendTypes "salami/backend/types"
 	"salami/common/constants"
@@ -44,7 +43,6 @@ func (t *Terraform) GenerateCode(
 				return err
 			}
 			diff.NewObject.SetTargetCode(completion)
-			fmt.Println("\n\n------------------\n", completion)
 			return nil
 		})
 	}
