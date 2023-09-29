@@ -26,7 +26,7 @@ type LlmMessage struct {
 	Content string
 }
 
-type GetTargetLlmMessagesFunc func(*types.ChangeSetDiff, *symbol_table.SymbolTable) []*LlmMessage
+type GetTargetLlmMessagesFunc func(*types.ChangeSetDiff, *symbol_table.SymbolTable) ([]*LlmMessage, error)
 
 type TargetLlmMessages struct {
 	GetMessages GetTargetLlmMessagesFunc

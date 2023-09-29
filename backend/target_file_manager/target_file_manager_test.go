@@ -19,7 +19,7 @@ func TestVerifyChecksums(t *testing.T) {
 			"When checksums match",
 			[]types.TargetFileMeta{
 				{FilePath: "testdata/target_file_1.tf", Checksum: "415d4b5a48f2a887fffc285382fc4db1"},
-				{FilePath: "testdata/target_file_2.tf", Checksum: "495dc9de1171473d53208e221f64f6b1"}},
+				{FilePath: "testdata/target_file_2.tf", Checksum: "6700c5970a3183c2ecdc06900f7b30d4"}},
 			false,
 			"",
 		},

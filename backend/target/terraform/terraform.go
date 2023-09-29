@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"fmt"
 	"salami/backend/target/terraform/llm_messages/openai_gpt4"
 	backendTypes "salami/backend/types"
 	"salami/common/constants"
@@ -23,6 +24,7 @@ func (t *Terraform) GenerateCode(
 	llm backendTypes.Llm,
 ) []error {
 	var g errgroup.Group
+	semaphoreChannel := make(chan struct{}, 10)
 
 	for _, diff := range changeSet.Diffs {
 		if !diff.ShouldGenerateCode() {
@@ -30,11 +32,19 @@ func (t *Terraform) GenerateCode(
 		}
 		diff := diff
 		g.Go(func() error {
-			completion, err := llm.CreateCompletion(t.getMessages(diff, symbolTable, llm))
+			semaphoreChannel <- struct{}{}
+			defer func() { <-semaphoreChannel }()
+
+			messages, err := t.getMessages(diff, symbolTable, llm)
+			if err != nil {
+				return err
+			}
+			completion, err := llm.CreateCompletion(messages)
 			if err != nil {
 				return err
 			}
 			diff.NewObject.SetTargetCode(completion)
+			fmt.Println("\n\n------------------\n", completion)
 			return nil
 		})
 	}
@@ -71,12 +81,16 @@ func (t *Terraform) getMessages(
 	diff *commonTypes.ChangeSetDiff,
 	symbolTable *symbol_table.SymbolTable,
 	llm backendTypes.Llm,
-) []*backendTypes.LlmMessage {
+) ([]*backendTypes.LlmMessage, error) {
 	switch llm.GetSlug() {
 	case commonTypes.LlmOpenaiGpt4:
-		return openai_gpt4.GetMessages(diff, symbolTable)
+		messages, err := openai_gpt4.GetMessages(diff, symbolTable)
+		if err != nil {
+			return nil, err
+		}
+		return messages, nil
 	}
-	return nil
+	return nil, nil
 }
 
 func getTargetFilePath(sourceFilePath string) string {

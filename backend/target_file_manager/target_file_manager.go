@@ -66,8 +66,8 @@ func DeleteTargetFiles(filePaths []string, targetDir string) []error {
 	var errs []error
 
 	for _, filePath := range filePaths {
-		fullPath := filepath.Join(targetDir, filePath)
-		err := os.Remove(fullPath)
+		fullRelativePath := filepath.Join(targetDir, filePath)
+		err := os.Remove(fullRelativePath)
 		if err != nil {
 			if !os.IsNotExist(err) {
 				errs = append(errs, err)

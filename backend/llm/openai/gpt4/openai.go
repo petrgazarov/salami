@@ -90,7 +90,15 @@ func getFunctions() []openai.FunctionDefinition {
 		{
 			Name:        "save_code",
 			Description: "Save the provided code",
-			Parameters:  []byte(`{"type": "object", "properties": {"code": {"type": "string", "description": "Valid and runnable code"}}}`),
+			Parameters: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"code": map[string]interface{}{
+						"type":        "string",
+						"description": "Valid and runnable code",
+					},
+				},
+			},
 		},
 	}
 }

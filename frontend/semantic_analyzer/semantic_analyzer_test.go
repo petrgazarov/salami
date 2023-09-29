@@ -13,8 +13,8 @@ func TestResourceRequiredFields(t *testing.T) {
 	resources := []*types.ParsedResource{
 		{
 			ResourceType:        "",
-			LogicalName:         "CumuliServerLogGroup",
-			NaturalLanguage:     "Name: cumuli-server-log-group",
+			LogicalName:         "ServerLogGroup",
+			NaturalLanguage:     "Name: server-log-group",
 			ReferencedResources: []types.LogicalName{},
 			ReferencedVariables: []string{},
 			SourceFilePath:      "dummy/file/path",
@@ -38,7 +38,7 @@ func TestResourceRequiredFields(t *testing.T) {
 	resources = []*types.ParsedResource{
 		{
 			ResourceType:        "cloudwatch.LogGroup",
-			NaturalLanguage:     "Name: cumuli-server-log-group",
+			NaturalLanguage:     "Name: server-log-group",
 			ReferencedResources: []types.LogicalName{},
 			ReferencedVariables: []string{},
 			SourceFilePath:      "dummy/file/path",
@@ -89,18 +89,18 @@ func TestReferencedVariablesAreDefined(t *testing.T) {
 	resources := []*types.ParsedResource{
 		{
 			ResourceType: "aws.ecs.Service",
-			LogicalName:  "CumuliServerEcsService",
+			LogicalName:  "ServerEcsService",
 			NaturalLanguage: `In $EcsCluster, using $ServerTaskDefinition
-Name: cumuli-server
+Name: server
 Desired count: 1
 Launch type: FARGATE
 ---
 Network configuration:
 	Assigned public IP
 	Subnets: $PublicSubnetA and $PublicSubnetB
-	Security group: $CumuliServerEcsSecurityGroup
+	Security group: $ServerEcsSecurityGroup
 Load balancers:
-	Target group: $CumuliServerTargetGroup
+	Target group: $ServerTargetGroup
 	Container name: {server_container_name}
 	Port: {container_port}
 Deployment:
@@ -108,12 +108,12 @@ Deployment:
 	Deployment circuit breaker: enabled with rollback
 	Wait for steady state: True`,
 			ReferencedResources: []types.LogicalName{
-				"CumuliEcsCluster",
-				"CumuliServerTaskDefinition",
+				"EcsCluster",
+				"ServerTaskDefinition",
 				"PublicSubnetA",
 				"PublicSubnetB",
-				"CumuliServerEcsSecurityGroup",
-				"CumuliServerTargetGroup",
+				"ServerEcsSecurityGroup",
+				"ServerTargetGroup",
 			},
 			ReferencedVariables: []string{"server_container_name", "container_port"},
 			SourceFilePath:      "dummy/file/path",
@@ -123,7 +123,7 @@ Deployment:
 		{
 			Name:            "server_container_name",
 			NaturalLanguage: "Name of the container that runs the server",
-			Default:         "cumuli-server",
+			Default:         "server",
 			SourceFilePath:  "dummy/file/path",
 		},
 	}
@@ -145,9 +145,9 @@ func TestUsedResourcesExist(t *testing.T) {
 	resources := []*types.ParsedResource{
 		{
 			ResourceType:        "ecr.LifecyclePolicy",
-			LogicalName:         "CumuliServerRepoLifecyclePolicy",
+			LogicalName:         "ServerRepoLifecyclePolicy",
 			NaturalLanguage:     "Policy retains only the last 10 untagged images in the repository. Images beyond this count will expire.",
-			ReferencedResources: []types.LogicalName{"CumuliServerRepository"},
+			ReferencedResources: []types.LogicalName{"ServerRepository"},
 			ReferencedVariables: []string{},
 			SourceFilePath:      "dummy/file/path",
 		},
@@ -155,7 +155,7 @@ func TestUsedResourcesExist(t *testing.T) {
 	semanticAnalyzer := createSemanticAnalyzer(t, resources, []*types.ParsedVariable{})
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
-		expectedErrorMessage := "\ndummy/file/path\n  semantic error: Referenced resource 'CumuliServerRepository' is not defined"
+		expectedErrorMessage := "\ndummy/file/path\n  semantic error: Referenced resource 'ServerRepository' is not defined"
 		require.Equal(
 			t,
 			expectedErrorMessage,
