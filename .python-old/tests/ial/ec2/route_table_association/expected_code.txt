@@ -1,5 +1,0 @@
-ec2.RouteTableAssociation(
-    "PrivateSubnetARouteTableAssociation",
-    subnet_id=private_subnet_a.id,
-    route_table_id=private_route_table.id,
-)

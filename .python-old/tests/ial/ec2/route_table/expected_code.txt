@@ -1,8 +1,0 @@
-ec2.RouteTable(
-    "PublicRouteTable",
-    vpc_id=cumuli_vpc.id,
-    routes=[
-        {"cidr_block": "0.0.0.0/0", "gateway_id": cumuli_internet_gateway.id},
-    ],
-    tags={"Name": "cumuli-public-route-table"},
-)

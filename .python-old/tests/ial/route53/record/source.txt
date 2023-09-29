@@ -1,5 +1,0 @@
-@uses(CumuliHostedZone, CumuliServerCertificate)
-Resource type: route53.Record
-Logical name: CumuliValidationRecord
-@property(The name, type and records are derived from the CumuliServerCertificate's domain validation option. E.g. domain_validation_options[0]["resource_record_name"])
-Ttl: 300

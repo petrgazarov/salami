@@ -1,8 +1,0 @@
-s3.BucketPublicAccessBlock(
-    "CumuliAssetsPublicAccessBlock",
-    bucket=cumuli_assumed_roles_bucket.id,
-    block_public_acls=True,
-    block_public_policy=False,
-    ignore_public_acls=True,
-    restrict_public_buckets=False,
-)

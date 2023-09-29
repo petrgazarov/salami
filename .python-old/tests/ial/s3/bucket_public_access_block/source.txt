@@ -1,7 +1,0 @@
-@uses(CumuliAssumedRolesBucket)
-Resource type: s3.BucketPublicAccessBlock
-Logical name: CumuliAssetsPublicAccessBlock
-Block public ACLs: True
-Block public policy: False
-Ignore public ACLs: True
-Restrict public buckets: False
