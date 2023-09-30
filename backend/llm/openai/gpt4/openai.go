@@ -29,6 +29,10 @@ func (o *OpenaiGpt4) GetSlug() string {
 	return o.slug
 }
 
+func (o *OpenaiGpt4) GetMaxConcurrentExecutions() int {
+	return 15
+}
+
 func (o *OpenaiGpt4) CreateCompletion(messages []*backendTypes.LlmMessage) (string, error) {
 	response, err := o.client.CreateChatCompletion(context.Background(), o.getChatCompletionRequest(messages))
 	if err != nil {

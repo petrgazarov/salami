@@ -23,7 +23,7 @@ func (t *Terraform) GenerateCode(
 	llm backendTypes.Llm,
 ) []error {
 	var g errgroup.Group
-	semaphoreChannel := make(chan struct{}, 10)
+	semaphoreChannel := make(chan struct{}, llm.GetMaxConcurrentExecutions())
 
 	for _, diff := range changeSet.Diffs {
 		if !diff.ShouldGenerateCode() {
