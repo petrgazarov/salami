@@ -1,10 +1,10 @@
 package target_file_manager
 
 import (
-	"io"
 	"os"
 	"path/filepath"
 	"salami/common/types"
+	"salami/common/utils/file_utils"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -49,24 +49,8 @@ func writeTargetFile(targetFile *types.TargetFile, targetDir string) error {
 		}
 	}
 
-	file, err := os.OpenFile(fullRelativeFilePath, os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
+	if err := file_utils.WriteFileIfChanged(fullRelativeFilePath, targetFile.Content); err != nil {
 		return err
-	}
-	defer file.Close()
-
-	oldContent, err := io.ReadAll(file)
-	if err != nil {
-		return err
-	}
-
-	if string(oldContent) != targetFile.Content {
-		file.Truncate(0)
-		file.Seek(0, 0)
-		_, err = file.WriteString(targetFile.Content)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

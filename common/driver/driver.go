@@ -35,7 +35,7 @@ func Run() []error {
 	if err := lock_file_manager.UpdateLockFile(newTargetFileMetas, newObjects); err != nil {
 		return []error{err}
 	}
-	
+
 	return nil
 }
 

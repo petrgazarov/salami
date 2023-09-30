@@ -42,13 +42,13 @@ func (p *Parser) extractAndSetReferencedVariables(text string) error {
 		if strings.Contains(variable, "{") || strings.Contains(variable, "}") {
 			return p.parseError(
 				p.currentToken(),
-				"Nested curly braces in referenced variables are not allowed",
+				"nested curly braces in referenced variables are not allowed",
 			)
 		}
 		if !isAlphanumeric.MatchString(variable) {
 			return p.parseError(
 				p.currentToken(),
-				"Variable inside curly braces must be alphanumeric",
+				"variable inside curly braces must be alphanumeric. Underscores are allowed.",
 			)
 		}
 		isUnique := true

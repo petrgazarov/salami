@@ -1,9 +1,11 @@
 package lock_file_manager
 
 import (
+	"bytes"
 	"log"
-	"os"
 	"salami/common/types"
+	"salami/common/constants"
+	"salami/common/utils/file_utils"
 
 	"github.com/BurntSushi/toml"
 )
@@ -36,9 +38,9 @@ func GetObjects() []*types.Object {
 		var parsedResource *types.ParsedResource
 		var parsedVariable *types.ParsedVariable
 		if currentObject.IsResource() {
-			parsedResource = getCommonParsedResource(currentObject)
+			parsedResource = lockFileToCommonResource(currentObject)
 		} else if currentObject.IsVariable() {
-			parsedVariable = getCommonParsedVariable(currentObject)
+			parsedVariable = lockFileToCommonVariable(currentObject)
 		}
 
 		result[i] = &types.Object{
@@ -51,46 +53,34 @@ func GetObjects() []*types.Object {
 }
 
 func UpdateLockFile(targetFileMetas []types.TargetFileMeta, objects []*types.Object) error {
-	// Merge changeSet into lockFile
-	writeLockFile()
-	return nil
-}
-
-func getCommonParsedResource(lockFileObject Object) *types.ParsedResource {
-	referencedResources := make([]types.LogicalName, len(lockFileObject.ParsedResource.ReferencedResources))
-	for j, use := range lockFileObject.ParsedResource.ReferencedResources {
-		referencedResources[j] = types.LogicalName(use)
+	lockFile := getLockFile()
+	lockFile.Version = constants.SalamiVersion
+	lockFile.TargetFileMetas = make([]TargetFileMeta, len(targetFileMetas))
+	lockFile.Objects = make([]Object, len(objects))
+	for i := range targetFileMetas {
+		lockFile.TargetFileMetas[i] = TargetFileMeta{
+			FilePath: targetFileMetas[i].FilePath,
+			Checksum: targetFileMetas[i].Checksum,
+		}
 	}
-	return &types.ParsedResource{
-		ResourceType:        types.ResourceType(lockFileObject.ParsedResource.ResourceType),
-		LogicalName:         types.LogicalName(lockFileObject.ParsedResource.LogicalName),
-		NaturalLanguage:     lockFileObject.ParsedResource.NaturalLanguage,
-		ReferencedResources: referencedResources,
-		ReferencedVariables: lockFileObject.ParsedResource.ReferencedVariables,
-		SourceFilePath:      lockFileObject.ParsedResource.SourceFilePath,
-		SourceFileLine:      lockFileObject.ParsedResource.SourceFileLine,
-	}
-}
+	for i := range objects {
+		currentObject := objects[i]
 
-func getCommonParsedVariable(lockFileObject Object) *types.ParsedVariable {
-	return &types.ParsedVariable{
-		Name:            lockFileObject.ParsedVariable.Name,
-		NaturalLanguage: lockFileObject.ParsedVariable.NaturalLanguage,
-		Default:         lockFileObject.ParsedVariable.Default,
-		Type:            types.VariableType(lockFileObject.ParsedVariable.VariableType),
-		SourceFilePath:  lockFileObject.ParsedVariable.SourceFilePath,
-		SourceFileLine:  lockFileObject.ParsedVariable.SourceFileLine,
+		lockFile.Objects[i] = Object{
+			ParsedResource: commonToLockFileResource(currentObject.ParsedResource),
+			ParsedVariable: commonToLockFileVariable(currentObject.ParsedVariable),
+			TargetCode:     currentObject.TargetCode,
+		}
 	}
-}
 
-func writeLockFile() error {
-	file, err := os.OpenFile(lockFilePath, os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
+	buf := new(bytes.Buffer)
+	encoder := toml.NewEncoder(buf)
+	if err := encoder.Encode(lockFile); err != nil {
 		return err
 	}
-	defer file.Close()
-	encoder := toml.NewEncoder(file)
-	if err := encoder.Encode(getLockFile()); err != nil {
+	tomlString := buf.String()
+
+	if err := file_utils.WriteFileIfChanged(lockFilePath, tomlString); err != nil {
 		return err
 	}
 	return nil

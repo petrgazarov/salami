@@ -14,6 +14,7 @@ type NewTargetFunc func() Target
 
 type Llm interface {
 	GetSlug() string
+	GetMaxConcurrentExecutions() int
 	CreateCompletion(messages []*LlmMessage) (string, error)
 }
 
