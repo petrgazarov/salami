@@ -1,0 +1,26 @@
+version = "0.0.1"
+
+[[target_files_meta]]
+  file_path = "vpc.tf"
+  checksum = "eaf18b94011c439e959bbe438f5f0aff"
+
+[[objects]]
+  target_code = "variable \"test_bucket_name\" {\n  description = \"The name of the S3 bucket\"\n  type        = string\n}\n\nresource \"aws_s3_bucket\" \"TestBucket\" {\n  bucket = var.test_bucket_name\n  acl    = \"private\"\n\n  tags = {\n    Name = var.test_bucket_name\n  }\n}"
+  [objects.parsed_resource]
+    resource_type = "aws.s3.Bucket"
+    logical_name = "TestBucket"
+    natural_language = "Name: ${test_bucket_name}"
+    referenced_resources = []
+    referenced_variables = ["test_bucket_name"]
+    source_file_path = "vpc.sami"
+    source_file_line = 1
+
+[[objects]]
+  target_code = "variable \"test_bucket_name\" {\n  type = string\n  default = \"test-bucket-br31m9\"\n}"
+  [objects.parsed_variable]
+    name = "test_bucket_name"
+    natural_language = ""
+    type = "string"
+    default = "test-bucket-br31m9"
+    source_file_path = "vpc.sami"
+    source_file_line = 4
