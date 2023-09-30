@@ -11,13 +11,14 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func VerifyChecksums(targetFileMetas []types.TargetFileMeta) error {
+func VerifyChecksums(targetFileMetas []types.TargetFileMeta, targetDir string) error {
 	var g errgroup.Group
 
 	for _, meta := range targetFileMetas {
 		meta := meta
 		g.Go(func() error {
-			data, err := os.ReadFile(meta.FilePath)
+			fullRelativePath := filepath.Join(targetDir, meta.FilePath)
+			data, err := os.ReadFile(fullRelativePath)
 			if err != nil {
 				return err
 			}

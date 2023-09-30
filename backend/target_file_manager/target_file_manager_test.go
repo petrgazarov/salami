@@ -18,23 +18,23 @@ func TestVerifyChecksums(t *testing.T) {
 		{
 			"When checksums match",
 			[]types.TargetFileMeta{
-				{FilePath: "testdata/target_file_1.tf", Checksum: "415d4b5a48f2a887fffc285382fc4db1"},
-				{FilePath: "testdata/target_file_2.tf", Checksum: "6700c5970a3183c2ecdc06900f7b30d4"}},
+				{FilePath: "target_file_1.tf", Checksum: "415d4b5a48f2a887fffc285382fc4db1"},
+				{FilePath: "target_file_2.tf", Checksum: "6700c5970a3183c2ecdc06900f7b30d4"}},
 			false,
 			"",
 		},
 		{
 			"When one of the checksums doesn't match",
 			[]types.TargetFileMeta{
-				{FilePath: "testdata/target_file_1.tf", Checksum: "415d4b5a48f2a887fffc285382fc4db1"},
-				{FilePath: "testdata/target_file_2.tf", Checksum: "invalid_checksum"}},
+				{FilePath: "target_file_1.tf", Checksum: "415d4b5a48f2a887fffc285382fc4db1"},
+				{FilePath: "target_file_2.tf", Checksum: "invalid_checksum"}},
 			true,
-			"target file error: checksum mismatch for file testdata/target_file_2.tf",
+			"target file error: checksum mismatch for file target_file_2.tf",
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := target_file_manager.VerifyChecksums(tc.filesAndChecksums)
+			err := target_file_manager.VerifyChecksums(tc.filesAndChecksums, "testdata")
 			require.Equal(t, err != nil, tc.wantErr, "unexpected error status: got error = %v, wantErr %v", err, tc.wantErr)
 			if err != nil {
 				require.Equal(

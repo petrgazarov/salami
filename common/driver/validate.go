@@ -14,7 +14,8 @@ func runValidations() error {
 		return err
 	}
 	targetFileMetas := lock_file_manager.GetTargetFileMetas()
-	if err := target_file_manager.VerifyChecksums(targetFileMetas); err != nil {
+	targetDir := config.GetTargetDir()
+	if err := target_file_manager.VerifyChecksums(targetFileMetas, targetDir); err != nil {
 		return err
 	}
 	return nil
