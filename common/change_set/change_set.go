@@ -80,17 +80,23 @@ func recordVariableChangesOrAdditions(
 				DiffType:  types.DiffTypeAdd,
 			})
 		} else if !reflect.DeepEqual(previousVariables[name].ParsedVariable, object.ParsedVariable) {
-			var diffType string
-			if shouldUpdateObject(previousVariables[name], object) {
-				diffType = types.DiffTypeUpdate
+			previousVariable := previousVariables[name]
+
+			if shouldUpdateObject(previousVariable, object) {
+				changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
+					OldObject: previousVariable,
+					NewObject: object,
+					DiffType:  types.DiffTypeUpdate,
+				})
 			} else {
-				diffType = types.DiffTypeMove
+				object.TargetCode = previousVariable.TargetCode
+
+				changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
+					OldObject: previousVariable,
+					NewObject: object,
+					DiffType:  types.DiffTypeMove,
+				})
 			}
-			changeSet.Diffs = append(changeSet.Diffs, &types.ChangeSetDiff{
-				OldObject: previousVariables[name],
-				NewObject: object,
-				DiffType:  diffType,
-			})
 		}
 		seenVariables[name] = true
 	}
