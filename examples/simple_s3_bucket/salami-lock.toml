@@ -2,7 +2,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "bucket.tf"
-  checksum = "cb238a149a2c1f0d4920ba7ccf607e8e"
+  checksum = "44a6b022c57c8c21dc33be3dba8d7040"
 
 [[objects]]
   target_code = "resource \"aws_s3_bucket\" \"TestBucket\" {\n  bucket = var.test_bucket_name\n}"
@@ -16,11 +16,11 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "variable \"test_bucket_name\" {\n  type = string\n  default = \"test-bucket-br31m9\"\n}"
+  target_code = "variable \"test_bucket_name\" {\n  type = string\n  default = \"test-bucket-br31m10\"\n}"
   [objects.parsed_variable]
     name = "test_bucket_name"
     natural_language = ""
     type = "string"
-    default = "test-bucket-br31m9"
+    default = "test-bucket-br31m10"
     source_file_path = "bucket.sami"
     source_file_line = 4
