@@ -133,7 +133,7 @@ resource "aws_ecr_repository_policy" "PythonExecRepositoryPolicy" {
         "ecr:BatchGetImage",
         "ecr:BatchCheckLayerAvailability"
       ],
-      "Resource": "*"
+      "Resource": "${aws_ecr_repository.PythonExecRepository.arn}"
     }
   ]
 }

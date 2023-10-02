@@ -2,11 +2,8 @@ resource "aws_vpc_endpoint" "EcrDkrVpcEndpoint" {
   vpc_id            = aws_vpc.MainVpc.id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.dkr"
   vpc_endpoint_type = "Interface"
+  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
   private_dns_enabled = true
-  subnet_ids = [
-    aws_subnet.PrivateSubnetA.id,
-    aws_subnet.PrivateSubnetB.id
-  ]
   security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]
 
   policy = <<POLICY
@@ -16,10 +13,7 @@ resource "aws_vpc_endpoint" "EcrDkrVpcEndpoint" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": [
-          "${aws_iam_role.ServerEcsExecutionRole.arn}",
-          "${aws_iam_role.PythonExecEcsExecutionRole.arn}"
-        ]
+        "AWS": ["${aws_iam_role.ServerEcsExecutionRole.arn}", "${aws_iam_role.PythonExecEcsExecutionRole.arn}"]
       },
       "Action": [
         "ecr:BatchCheckLayerAvailability",
@@ -66,8 +60,8 @@ POLICY
 resource "aws_vpc_endpoint" "S3VpcEndpoint" {
   vpc_id              = aws_vpc.MainVpc.id
   service_name        = "com.amazonaws.${var.aws_region}.s3"
-  vpc_endpoint_type   = "Gateway"
   route_table_ids     = [aws_route_table.PrivateRouteTable.id]
+  vpc_endpoint_type   = "Gateway"
 
   policy = <<POLICY
 {

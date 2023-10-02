@@ -37,7 +37,6 @@ resource "aws_s3_bucket_policy" "SalamiCloudtrailLogsBucketPolicy" {
 POLICY
 }
 
-
 resource "aws_cloudtrail" "Cloudtrail" {
   name                          = "cloudtrail"
   s3_bucket_name                = aws_s3_bucket.SalamiCloudtrailLogsBucket.bucket

@@ -5,7 +5,7 @@ resource "aws_ecs_cluster" "EcsCluster" {
 resource "aws_servicediscovery_private_dns_namespace" "EcsPrivateDnsNamespace" {
   name        = var.local_dns_namespace_name
   description = "Private namespace for ECS cluster"
-  vpc = aws_vpc.MainVpc.id
+  vpc         = aws_ec2_vpc.MainVpc.id
 }
 
 resource "aws_ecs_service" "ServerEcsService" {
@@ -88,14 +88,14 @@ resource "aws_ecs_service" "PythonExecEcsService" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
+  deployment_controller {
+    type = "ECS"
+  }
+
   network_configuration {
     assign_public_ip = false
     subnets          = [aws_ec2_subnet.PrivateSubnetA.id, aws_ec2_subnet.PrivateSubnetB.id]
     security_groups  = [aws_ec2_security_group.PythonExecEcsSecurityGroup.id]
-  }
-
-  deployment_controller {
-    type = "ECS"
   }
 
   deployment_circuit_breaker {
