@@ -15,19 +15,12 @@ type NewTargetFunc func() Target
 type Llm interface {
 	GetSlug() string
 	GetMaxConcurrentExecutions() int
-	CreateCompletion(messages []*LlmMessage) (string, error)
+	CreateCompletion(messages []interface{}) (string, error)
 }
 
 type NewLlmFunc func(types.LlmConfig) Llm
 
-type LlmMessageRole string
-
-type LlmMessage struct {
-	Role    LlmMessageRole
-	Content string
-}
-
-type GetTargetLlmMessagesFunc func(*types.ChangeSetDiff, *symbol_table.SymbolTable) ([]*LlmMessage, error)
+type GetTargetLlmMessagesFunc func(*types.ChangeSetDiff, *symbol_table.SymbolTable) ([]interface{}, error)
 
 type TargetLlmMessages struct {
 	GetMessages GetTargetLlmMessagesFunc

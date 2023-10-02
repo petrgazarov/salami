@@ -11,17 +11,48 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
+const functionCallName = "save_code"
+
 type OpenaiGpt4 struct {
 	slug   string
 	model  string
 	client *openai.Client
 }
 
+type LlmMessageRole string
+
+type LlmMessage struct {
+	Role         LlmMessageRole
+	Content      string
+	Name         string
+	FunctionCall *openai.FunctionCall
+}
+
 func NewLlm(llmConfig commonTypes.LlmConfig) backendTypes.Llm {
 	return &OpenaiGpt4{
 		client: getClient(llmConfig),
-		model:  getModel(llmConfig),
+		model:  openai.GPT4,
 		slug:   commonTypes.LlmOpenaiGpt4,
+	}
+}
+
+func GetAssistantMessage(code string) (*LlmMessage, error) {
+	codeBytes, err := json.Marshal(code)
+	if err != nil {
+		return nil, err
+	}
+	codeJson := string(codeBytes)
+	return &LlmMessage{
+		Role:         LlmMessageRole("assistant"),
+		FunctionCall: &openai.FunctionCall{Name: functionCallName, Arguments: `{"code": ` + codeJson + `}`},
+	}, nil
+}
+
+func GetFunctionMessage() *LlmMessage {
+	return &LlmMessage{
+		Role:    LlmMessageRole("function"),
+		Name:    functionCallName,
+		Content: "true",
 	}
 }
 
@@ -33,8 +64,16 @@ func (o *OpenaiGpt4) GetMaxConcurrentExecutions() int {
 	return 15
 }
 
-func (o *OpenaiGpt4) CreateCompletion(messages []*backendTypes.LlmMessage) (string, error) {
-	response, err := o.client.CreateChatCompletion(context.Background(), o.getChatCompletionRequest(messages))
+func (o *OpenaiGpt4) CreateCompletion(messages []interface{}) (string, error) {
+	llmMessages := make([]*LlmMessage, len(messages))
+	for i, message := range messages {
+		llmMessage := message.(*LlmMessage)
+		llmMessages[i] = llmMessage
+	}
+	response, err := o.client.CreateChatCompletion(
+		context.Background(),
+		o.getChatCompletionRequest(llmMessages),
+	)
 	if err != nil {
 		return "", err
 	}
@@ -58,32 +97,26 @@ func getClient(llmConfig commonTypes.LlmConfig) *openai.Client {
 	return openai.NewClient(llmConfig.ApiKey)
 }
 
-func getModel(llmConfig commonTypes.LlmConfig) string {
-	switch llmConfig.Model {
-	case commonTypes.LlmGpt4Model:
-		return openai.GPT4
-	}
-	return ""
-}
-
 func (o *OpenaiGpt4) getChatCompletionRequest(
-	messages []*backendTypes.LlmMessage,
+	messages []*LlmMessage,
 ) openai.ChatCompletionRequest {
 	return openai.ChatCompletionRequest{
 		Model:        o.model,
 		Messages:     getMessages(messages),
 		Temperature:  math.SmallestNonzeroFloat32,
 		Functions:    getFunctions(),
-		FunctionCall: map[string]string{"name": "save_code"},
+		FunctionCall: map[string]string{"name": functionCallName},
 	}
 }
 
-func getMessages(messages []*backendTypes.LlmMessage) []openai.ChatCompletionMessage {
+func getMessages(messages []*LlmMessage) []openai.ChatCompletionMessage {
 	var openaiMessages []openai.ChatCompletionMessage
 	for _, message := range messages {
 		openaiMessages = append(openaiMessages, openai.ChatCompletionMessage{
-			Role:    string(message.Role),
-			Content: message.Content,
+			Role:         string(message.Role),
+			Name:         message.Name,
+			FunctionCall: message.FunctionCall,
+			Content:      message.Content,
 		})
 	}
 	return openaiMessages
@@ -92,7 +125,7 @@ func getMessages(messages []*backendTypes.LlmMessage) []openai.ChatCompletionMes
 func getFunctions() []openai.FunctionDefinition {
 	return []openai.FunctionDefinition{
 		{
-			Name:        "save_code",
+			Name:        functionCallName,
 			Description: "Save the provided code",
 			Parameters: map[string]interface{}{
 				"type": "object",

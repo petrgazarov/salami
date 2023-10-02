@@ -26,7 +26,7 @@ func (t *Terraform) GenerateCode(
 	semaphoreChannel := make(chan struct{}, llm.GetMaxConcurrentExecutions())
 
 	for _, diff := range changeSet.Diffs {
-		if !diff.ShouldGenerateCode() {
+		if !(diff.IsUpdate() || diff.IsAdd()) {
 			continue
 		}
 		diff := diff
@@ -79,16 +79,21 @@ func (t *Terraform) getMessages(
 	diff *commonTypes.ChangeSetDiff,
 	symbolTable *symbol_table.SymbolTable,
 	llm backendTypes.Llm,
-) ([]*backendTypes.LlmMessage, error) {
+) ([]interface{}, error) {
+	var messages []interface{}
+
 	switch llm.GetSlug() {
 	case commonTypes.LlmOpenaiGpt4:
-		messages, err := openai_gpt4.GetMessages(diff, symbolTable)
+		llmMessages, err := openai_gpt4.GetMessages(diff, symbolTable)
 		if err != nil {
 			return nil, err
 		}
-		return messages, nil
+
+		for _, v := range llmMessages {
+			messages = append(messages, v)
+		}
 	}
-	return nil, nil
+	return messages, nil
 }
 
 func getTargetFilePath(sourceFilePath string) string {

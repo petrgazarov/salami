@@ -49,8 +49,12 @@ type ChangeSetDiff struct {
 	DiffType  string
 }
 
-func (ch *ChangeSetDiff) ShouldGenerateCode() bool {
-	return ch.DiffType == DiffTypeAdd || ch.DiffType == DiffTypeUpdate
+func (ch *ChangeSetDiff) IsUpdate() bool {
+	return ch.DiffType == DiffTypeUpdate
+}
+
+func (ch *ChangeSetDiff) IsAdd() bool {
+	return ch.DiffType == DiffTypeAdd
 }
 
 type ChangeSet struct {

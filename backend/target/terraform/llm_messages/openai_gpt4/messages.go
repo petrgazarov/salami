@@ -1,201 +1,99 @@
 package openai_gpt4
 
 import (
-	"bytes"
-	"embed"
-	"io/fs"
-	"path/filepath"
-	backendTypes "salami/backend/types"
+	"salami/backend/llm/openai/gpt4"
 	"salami/common/symbol_table"
 	commonTypes "salami/common/types"
-	"strings"
-	"text/template"
 )
 
 func GetMessages(
 	changeSetDiff *commonTypes.ChangeSetDiff,
 	symbolTable *symbol_table.SymbolTable,
-) ([]*backendTypes.LlmMessage, error) {
-	templatesDirectory := getTemplatesDirectory(changeSetDiff)
+) ([]*gpt4.LlmMessage, error) {
+	var messages []*gpt4.LlmMessage
 
-	systemMessageContent, err := readTemplateFile(templatesDirectory, "system.txt")
-	if err != nil {
-		return nil, err
-	}
-	var userMessageContent string
-	if changeSetDiff.NewObject.IsResource() {
-		userMessageContent, err = populateResourceTemplate(templatesDirectory, changeSetDiff, symbolTable)
-	} else if changeSetDiff.NewObject.IsVariable() {
-		userMessageContent, err = populateVariableTemplate(templatesDirectory, changeSetDiff)
-	}
+	systemMessage, err := getSystemMessage()
 	if err != nil {
 		return nil, err
 	}
 
-	return []*backendTypes.LlmMessage{
-		{
-			Role:    backendTypes.LlmMessageRole("system"),
-			Content: systemMessageContent,
-		},
-		{
-			Role:    backendTypes.LlmMessageRole("user"),
-			Content: userMessageContent,
-		},
+	var newMessage *gpt4.LlmMessage
+	if changeSetDiff.IsAdd() {
+		newMessage, err = getNewMessage(changeSetDiff.NewObject, symbolTable)
+	} else if changeSetDiff.IsUpdate() {
+		newMessage, err = getNewMessage(changeSetDiff.OldObject, symbolTable)
+	}
+	if err != nil {
+		return nil, err
+	}
+	messages = append(messages, systemMessage, newMessage)
+
+	if changeSetDiff.IsUpdate() {
+		assistantMessage, err := gpt4.GetAssistantMessage(changeSetDiff.OldObject.TargetCode)
+		if err != nil {
+			return nil, err
+		}
+		functionMessage := gpt4.GetFunctionMessage()
+		updateMessage, err := getUpdateMessage(changeSetDiff.NewObject, symbolTable)
+		if err != nil {
+			return nil, err
+		}
+		messages = append(messages, assistantMessage, functionMessage, updateMessage)
+	}
+
+	return messages, nil
+}
+
+func getSystemMessage() (*gpt4.LlmMessage, error) {
+	systemMessageContent, err := readTemplateFile("templates/system.txt")
+	if err != nil {
+		return nil, err
+	}
+
+	return &gpt4.LlmMessage{
+		Role:    gpt4.LlmMessageRole("system"),
+		Content: systemMessageContent,
 	}, nil
 }
 
-func getTemplatesDirectory(changeSetDiff *commonTypes.ChangeSetDiff) string {
-	if changeSetDiff.DiffType == commonTypes.DiffTypeAdd {
-		return "new"
-	}
-
-	newObject := changeSetDiff.NewObject
-	oldObject := changeSetDiff.OldObject
-	if newObject.IsResource() {
-		shouldGenerateNewObject := oldObject.ParsedResource.ResourceType != newObject.ParsedResource.ResourceType
-
-		if shouldGenerateNewObject {
-			return "new"
-		}
-	}
-
-	return "update"
-}
-
-func populateResourceTemplate(
-	templatesDirectory string,
-	changeSetDiff *commonTypes.ChangeSetDiff,
+func getNewMessage(
+	object *commonTypes.Object,
 	symbolTable *symbol_table.SymbolTable,
-) (string, error) {
-	templateString, err := readTemplateFile(templatesDirectory, "resource.txt")
+) (*gpt4.LlmMessage, error) {
+	var userMessageContent string
+	var err error
+	if object.IsResource() {
+		userMessageContent, err = populateResourceTemplate("templates/new/resource.txt", object, symbolTable)
+	} else if object.IsVariable() {
+		userMessageContent, err = populateVariableTemplate("templates/new/variable.txt", object)
+	}
 	if err != nil {
-		return "", err
-	}
-	newObject := changeSetDiff.NewObject
-
-	data := struct {
-		ResourceType             string
-		LogicalName              string
-		NaturalLanguage          string
-		ReferencedObjectsSection string
-	}{
-		ResourceType:             string(newObject.ParsedResource.ResourceType),
-		LogicalName:              string(newObject.ParsedResource.LogicalName),
-		NaturalLanguage:          newObject.ParsedResource.NaturalLanguage,
-		ReferencedObjectsSection: getReferencedObjectsSection(changeSetDiff, symbolTable),
+		return nil, err
 	}
 
-	result, err := populateTemplate(templateString, data)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(result), nil
+	return &gpt4.LlmMessage{
+		Role:    gpt4.LlmMessageRole("user"),
+		Content: userMessageContent,
+	}, nil
 }
 
-func populateVariableTemplate(
-	templateDirectory string,
-	changeSetDiff *commonTypes.ChangeSetDiff,
-) (string, error) {
-	templateString, err := readTemplateFile(templateDirectory, "variable.txt")
-	if err != nil {
-		return "", err
-	}
-	newObject := changeSetDiff.NewObject
-
-	data := struct {
-		Name                   string
-		VariableType           string
-		VariableDetailsSection string
-	}{
-		Name:                   string(newObject.ParsedVariable.Name),
-		VariableType:           string(newObject.ParsedVariable.Type),
-		VariableDetailsSection: getVariableDetailsSection(changeSetDiff),
-	}
-
-	result, err := populateTemplate(templateString, data)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.TrimSpace(result), nil
-}
-
-func populateTemplate(templateString string, dataStruct interface{}) (string, error) {
-	tmpl, err := template.New("template").Parse(templateString)
-	if err != nil {
-		return "", err
-	}
-
-	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, dataStruct)
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-func getReferencedObjectsSection(
-	changeSetDiff *commonTypes.ChangeSetDiff,
+func getUpdateMessage(
+	object *commonTypes.Object,
 	symbolTable *symbol_table.SymbolTable,
-) string {
-	referencedResourcesString := ""
-	referencedResources := changeSetDiff.NewObject.ParsedResource.ReferencedResources
-	if len(referencedResources) > 0 {
-		referencedResourcesString = "The following resources are referenced:\n"
-		for _, referencedLogicalName := range referencedResources {
-			referencedResource, _ := symbolTable.LookupResource(referencedLogicalName)
-			referencedResourcesString += string(referencedLogicalName) + ": "
-			referencedResourcesString += string(referencedResource.ResourceType) + "\n"
-		}
+) (*gpt4.LlmMessage, error) {
+	var messageContent string
+	var err error
+	if object.IsResource() {
+		messageContent, err = populateResourceTemplate("templates/update/resource.txt", object, symbolTable)
+	} else if object.IsVariable() {
+		messageContent, err = populateVariableTemplate("templates/update/variable.txt", object)
 	}
-
-	referencedVariablesString := ""
-	referencedVariables := changeSetDiff.NewObject.ParsedResource.ReferencedVariables
-	if len(referencedVariables) > 0 {
-		if referencedResourcesString != "" {
-			referencedVariablesString += "\n"
-		}
-		referencedVariablesString += "The following variables are referenced:\n"
-		for _, referencedVariableName := range referencedVariables {
-			referencedVariable, _ := symbolTable.LookupVariable(referencedVariableName)
-			referencedVariablesString += string(referencedVariableName) + ": "
-			referencedVariablesString += string(referencedVariable.Type) + "\n"
-		}
-	}
-
-	return referencedResourcesString + referencedVariablesString
-}
-
-func getVariableDetailsSection(
-	changeSetDiff *commonTypes.ChangeSetDiff,
-) string {
-	variableDetailsString := ""
-	variable := changeSetDiff.NewObject.ParsedVariable
-	if variable.Default != "" {
-		variableDetailsString += "Default value: " + variable.Default + "\n"
-	}
-	if variable.NaturalLanguage != "" {
-		variableDetailsString += variable.NaturalLanguage
-	}
-
-	return variableDetailsString
-}
-
-//go:embed new update
-var templatesFS embed.FS
-
-func readTemplateFile(templatesDirectory string, fileName string) (string, error) {
-	templateFilePath := filepath.Join(
-		templatesDirectory,
-		fileName,
-	)
-
-	data, err := fs.ReadFile(templatesFS, templateFilePath)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(data), nil
+	return &gpt4.LlmMessage{
+		Role:    gpt4.LlmMessageRole("user"),
+		Content: messageContent,
+	}, nil
 }
