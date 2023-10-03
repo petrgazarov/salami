@@ -6,6 +6,9 @@ run:
 
 build_and_run: build run
 
+init:
+	cd iac && terraform init
+
 plan:
 	cd iac && AWS_PROFILE=salami terraform plan
 
@@ -14,3 +17,6 @@ apply:
 
 destroy:
 	cd iac && AWS_PROFILE=salami terraform destroy
+
+validate:
+	cd iac && terraform validate

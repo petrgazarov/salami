@@ -34,7 +34,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
-  checksum = "b93c09445732eb10f31215f25b06080c"
+  checksum = "84e15015c74210fc15f20cbd766d032b"
 
 [[target_files_meta]]
   file_path = "user_assumed_role.tf"
@@ -42,7 +42,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "variables.tf"
-  checksum = "f66dfd2da0f64d52617c6d33db416017"
+  checksum = "99c332d626fa6a3ab9a88f655efd3148"
 
 [[target_files_meta]]
   file_path = "vpc.tf"
@@ -471,13 +471,13 @@ version = "0.0.1"
     source_file_line = 10
 
 [[objects]]
-  target_code = "resource \"aws_ecs_task_definition\" \"ServerTaskDefinition\" {\n  family                = \"server\"\n  network_mode          = \"awsvpc\"\n  cpu                   = \"256\"\n  memory                = \"512\"\n  requires_compatibilities = [\"FARGATE\"]\n  task_role_arn         = aws_iam_role.ServerTaskRole.arn\n  execution_role_arn    = aws_iam_role.ServerEcsExecutionRole.arn\n\n  container_definitions = <<DEFINITION\n  [\n    {\n      \"name\": \"${var.server_container_name}\",\n      \"image\": \"${aws_ecr_repository.ServerRepository.repository_url}:latest\",\n      \"cpu\": 256,\n      \"memory\": 512,\n      \"essential\": true,\n      \"portMappings\": [\n        {\n          \"containerPort\": ${var.container_port},\n          \"protocol\": \"tcp\"\n        }\n      ],\n      \"environment\": [\n        {\n          \"name\": \"OPENAI_API_KEY\",\n          \"valueFrom\": \"${aws_secretsmanager_secret.OPENAI_API_KEY.arn}\"\n        },\n        {\n          \"name\": \"ASSUMED_ROLE_SECRET_TOKEN\",\n          \"valueFrom\": \"${aws_secretsmanager_secret.ASSUMED_ROLE_SECRET_TOKEN.arn}\"\n        },\n        {\n          \"name\": \"PYTHON_EXEC_URL\",\n          \"value\": \"${var.python_exec_local_service_name}.${var.local_dns_namespace_name}:${var.container_port}\"\n        }\n      ],\n      \"logConfiguration\": {\n        \"logDriver\": \"awslogs\",\n        \"options\": {\n          \"awslogs-group\": \"${aws_cloudwatch_log_group.ServerLogGroup.name}\",\n          \"awslogs-region\": \"${var.aws_region}\",\n          \"awslogs-stream-prefix\": \"ecs\"\n        }\n      }\n    }\n  ]\n  DEFINITION\n}"
+  target_code = "resource \"aws_ecs_task_definition\" \"ServerTaskDefinition\" {\n  family                = \"server\"\n  network_mode          = \"awsvpc\"\n  cpu                   = \"256\"\n  memory                = \"512\"\n  requires_compatibilities = [\"FARGATE\"]\n  task_role_arn         = aws_iam_role.ServerTaskRole.arn\n  execution_role_arn    = aws_iam_role.ServerEcsExecutionRole.arn\n\n  container_definitions = <<DEFINITION\n  [\n    {\n      \"name\": \"${var.server_container_name}\",\n      \"image\": \"${aws_ecr_repository.ServerRepository.repository_url}:latest\",\n      \"cpu\": 256,\n      \"memory\": 512,\n      \"essential\": true,\n      \"portMappings\": [\n        {\n          \"containerPort\": ${var.container_port},\n          \"protocol\": \"tcp\"\n        }\n      ],\n      \"environment\": [\n        {\n          \"name\": \"OPENAI_API_KEY\",\n          \"value\": \"${var.openai_api_key}\"\n        },\n        {\n          \"name\": \"ASSUMED_ROLE_SECRET_TOKEN\",\n          \"value\": \"${var.assumed_role_secret_token}\"\n        },\n        {\n          \"name\": \"PYTHON_EXEC_URL\",\n          \"value\": \"${var.python_exec_local_service_name}.${var.local_dns_namespace_name}:${var.container_port}\"\n        }\n      ],\n      \"logConfiguration\": {\n        \"logDriver\": \"awslogs\",\n        \"options\": {\n          \"awslogs-group\": \"${aws_cloudwatch_log_group.ServerLogGroup.name}\",\n          \"awslogs-region\": \"${var.aws_region}\",\n          \"awslogs-stream-prefix\": \"ecs\"\n        }\n      }\n    }\n  ]\n  DEFINITION\n}"
   [objects.parsed_resource]
     resource_type = "aws.ecs.TaskDefinition"
     logical_name = "ServerTaskDefinition"
-    natural_language = "Name: server-task-definition\nFamily: server\nCpu: 256, Memory: 512\nNetwork mode: awsvpc\nTask role: $ServerTaskRole\nRequires FARGATE compatibility\nExecution role: $ServerEcsExecutionRole\nContainer definition:\n  Name: {server_container_name}\n  Image: $ServerRepository url with the 'latest' tag\n  Memory: 512\n  Cpu: 256\n  Essential: True\n  Port mappings: Container port is {container_port}. Protocol is TCP. No host port is set.\n  Environment:\n    OPENAI_API_KEY: taken from environment\n    ASSUMED_ROLE_SECRET_TOKEN: taken from environment\n    PYTHON_EXEC_URL: {python_exec_local_service_name}.{local_dns_namespace_name}:{container_port}.\n  Log configuration: awslogs log driver, $ServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to ecs."
+    natural_language = "Name: server-task-definition\nFamily: server\nCpu: 256, Memory: 512\nNetwork mode: awsvpc\nTask role: $ServerTaskRole\nRequires FARGATE compatibility\nExecution role: $ServerEcsExecutionRole\nContainer definition:\n  Name: {server_container_name}\n  Image: $ServerRepository url with the 'latest' tag\n  Memory: 512\n  Cpu: 256\n  Essential: True\n  Port mappings: Container port is {container_port}. Protocol is TCP. No host port is set.\n  Environment:\n    OPENAI_API_KEY: ${openai_api_key}\n    ASSUMED_ROLE_SECRET_TOKEN: ${assumed_role_secret_token}\n    PYTHON_EXEC_URL: {python_exec_local_service_name}.{local_dns_namespace_name}:{container_port}.\n  Log configuration: awslogs log driver, $ServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to ecs."
     referenced_resources = ["ServerTaskRole", "ServerEcsExecutionRole", "ServerRepository", "ServerLogGroup"]
-    referenced_variables = ["server_container_name", "container_port", "python_exec_local_service_name", "local_dns_namespace_name", "aws_region"]
+    referenced_variables = ["server_container_name", "container_port", "openai_api_key", "assumed_role_secret_token", "python_exec_local_service_name", "local_dns_namespace_name", "aws_region"]
     source_file_path = "task_definitions.sami"
     source_file_line = 13
 
@@ -556,12 +556,12 @@ version = "0.0.1"
     source_file_line = 5
 
 [[objects]]
-  target_code = "variable \"aws_region\" {\n  type = string\n  default = \"us-west-1\"\n}"
+  target_code = "variable \"aws_region\" {\n  type = string\n  default = \"us-west-2\"\n}"
   [objects.parsed_variable]
     name = "aws_region"
     natural_language = ""
     type = "string"
-    default = "us-west-1"
+    default = "us-west-2"
     source_file_path = "variables.sami"
     source_file_line = 7
 
@@ -604,6 +604,26 @@ version = "0.0.1"
     default = "python-exec"
     source_file_path = "variables.sami"
     source_file_line = 16
+
+[[objects]]
+  target_code = "variable \"openai_api_key\" {\n  type = string\n}"
+  [objects.parsed_variable]
+    name = "openai_api_key"
+    natural_language = ""
+    type = "string"
+    default = ""
+    source_file_path = "variables.sami"
+    source_file_line = 18
+
+[[objects]]
+  target_code = "variable \"assumed_role_secret_token\" {\n  type = string\n}"
+  [objects.parsed_variable]
+    name = "assumed_role_secret_token"
+    natural_language = ""
+    type = "string"
+    default = ""
+    source_file_path = "variables.sami"
+    source_file_line = 20
 
 [[objects]]
   target_code = "resource \"aws_vpc\" \"MainVpc\" {\n  cidr_block       = \"10.0.0.0/16\"\n  enable_dns_support = true\n  enable_dns_hostnames = true\n\n  tags = {\n    Name = \"main-vpc\"\n  }\n}"

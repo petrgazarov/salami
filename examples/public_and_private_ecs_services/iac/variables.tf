@@ -15,7 +15,7 @@ variable "aws_account_id" {
 
 variable "aws_region" {
   type = string
-  default = "us-west-1"
+  default = "us-west-2"
 }
 
 variable "server_container_name" {
@@ -37,4 +37,12 @@ variable "container_port" {
 variable "python_exec_local_service_name" {
   type = string
   default = "python-exec"
+}
+
+variable "openai_api_key" {
+  type = string
+}
+
+variable "assumed_role_secret_token" {
+  type = string
 }

@@ -26,8 +26,8 @@ Container definition:
   Essential: True
   Port mappings: Container port is {container_port}. Protocol is TCP. No host port is set.
   Environment:
-    OPENAI_API_KEY: taken from environment
-    ASSUMED_ROLE_SECRET_TOKEN: taken from environment
+    OPENAI_API_KEY: ${openai_api_key}
+    ASSUMED_ROLE_SECRET_TOKEN: ${assumed_role_secret_token}
     PYTHON_EXEC_URL: {python_exec_local_service_name}.{local_dns_namespace_name}:{container_port}.
   Log configuration: awslogs log driver, $ServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to ecs.
 

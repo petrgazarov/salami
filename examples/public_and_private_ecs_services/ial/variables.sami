@@ -4,7 +4,7 @@
 
 @variable(aws_account_id, string, 123456789012)
 
-@variable(aws_region, string, us-west-1)
+@variable(aws_region, string, us-west-2)
 
 @variable(server_container_name, string, server-container)
 Description: Server container name
@@ -14,3 +14,7 @@ Description: Server container name
 @variable(container_port, number, 8000)
 
 @variable(python_exec_local_service_name, string, python-exec)
+
+@variable(openai_api_key, string)
+
+@variable(assumed_role_secret_token, string)

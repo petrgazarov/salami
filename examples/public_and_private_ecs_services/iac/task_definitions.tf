@@ -87,11 +87,11 @@ resource "aws_ecs_task_definition" "ServerTaskDefinition" {
       "environment": [
         {
           "name": "OPENAI_API_KEY",
-          "valueFrom": "${aws_secretsmanager_secret.OPENAI_API_KEY.arn}"
+          "value": "${var.openai_api_key}"
         },
         {
           "name": "ASSUMED_ROLE_SECRET_TOKEN",
-          "valueFrom": "${aws_secretsmanager_secret.ASSUMED_ROLE_SECRET_TOKEN.arn}"
+          "value": "${var.assumed_role_secret_token}"
         },
         {
           "name": "PYTHON_EXEC_URL",
