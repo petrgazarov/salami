@@ -34,7 +34,7 @@ func (t *Terraform) GenerateCode(
 			semaphoreChannel <- struct{}{}
 			defer func() { <-semaphoreChannel }()
 
-			messages, err := t.getMessages(diff, symbolTable, llm)
+			messages, err := t.getLlmMessages(diff, symbolTable, llm)
 			if err != nil {
 				return err
 			}
@@ -75,7 +75,7 @@ func (t *Terraform) GetFilesFromObjects(objects []*commonTypes.Object) []*common
 	return targetFiles
 }
 
-func (t *Terraform) getMessages(
+func (t *Terraform) getLlmMessages(
 	diff *commonTypes.ChangeSetDiff,
 	symbolTable *symbol_table.SymbolTable,
 	llm backendTypes.Llm,
