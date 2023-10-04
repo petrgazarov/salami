@@ -1,0 +1,17 @@
+Resource type: {{.ResourceType}}
+Logical name: {{.LogicalName}}
+{{.NaturalLanguage}}
+
+{{with .ReferencedResources}}
+The following resources are referenced:
+{{range .}}
+{{.LogicalName}}: {{.ResourceType}}
+{{end}}
+
+{{end}}
+{{with .ReferencedVariables}}
+The following resources are referenced:
+{{range .}}
+{{.LogicalName}}: {{.ResourceType}}
+{{end}}
+{{end}}

@@ -39,10 +39,10 @@ func TestVerifyChecksums(t *testing.T) {
 			if err != nil {
 				require.Equal(
 					t,
-					err.Error(),
+					err[0].Error(),
 					tc.expectedErrorMessage,
 					"unexpected error message: got = %v, want = %v",
-					err.Error(),
+					err[0].Error(),
 					tc.expectedErrorMessage,
 				)
 			}
@@ -59,23 +59,9 @@ func TestGenerateTargetFileMetas(t *testing.T) {
 		{FilePath: "testdata/target_file_1.tf", Checksum: "7fb90ebc6a8f51aedc1568b9f709ddf0"},
 		{FilePath: "testdata/target_file_2.tf", Checksum: "d673f200b33c4c5f92bd7d1a1ca3b27f"},
 	}
-	wantErr := false
-	expectedErrorMessage := ""
 
 	t.Run("should compute checksums and return TargetFileMetas", func(t *testing.T) {
-		fileMetas, err := target_file_manager.GenerateTargetFileMetas(targetFiles)
-		require.Equal(t, err != nil, wantErr, "unexpected error status: got error = %v, wantErr %v", err, wantErr)
-		if err != nil {
-			require.Equal(
-				t,
-				err.Error(),
-				expectedErrorMessage,
-				"unexpected error message: got = %v, want = %v",
-				err.Error(),
-				expectedErrorMessage,
-			)
-		} else {
-			require.Equal(t, expectedFileMetas, fileMetas, "unexpected file metas: got = %v, want = %v", fileMetas, expectedFileMetas)
-		}
+		fileMetas := target_file_manager.GenerateTargetFileMetas(targetFiles)
+		require.Equal(t, expectedFileMetas, fileMetas, "unexpected file metas: got = %v, want = %v", fileMetas, expectedFileMetas)
 	})
 }

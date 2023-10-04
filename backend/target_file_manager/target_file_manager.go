@@ -5,45 +5,58 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"salami/common/types"
-
-	"golang.org/x/sync/errgroup"
 )
 
-func VerifyChecksums(targetFileMetas []types.TargetFileMeta, targetDir string) error {
-	var g errgroup.Group
+func VerifyChecksums(targetFileMetas []types.TargetFileMeta, targetDir string) []error {
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(targetFileMetas))
 
 	for _, meta := range targetFileMetas {
 		meta := meta
-		g.Go(func() error {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			fullRelativePath := filepath.Join(targetDir, meta.FilePath)
 			data, err := os.ReadFile(fullRelativePath)
 			if err != nil {
-				return err
+				errChan <- err
+				return
 			}
 
 			md5Checksum := fmt.Sprintf("%x", md5.Sum(data))
 			if md5Checksum != meta.Checksum {
-				return &TargetFileError{
+				errChan <- &TargetFileError{
 					Message: fmt.Sprintf("checksum mismatch for file %s", meta.FilePath),
 				}
 			}
-
-			return nil
-		})
+		}()
 	}
 
-	return g.Wait()
+	go func() {
+		wg.Wait()
+		close(errChan)
+	}()
+
+	var errs []error
+	for err := range errChan {
+		errs = append(errs, err)
+	}
+
+	return errs
 }
 
-func GenerateTargetFileMetas(targetFiles []*types.TargetFile) ([]types.TargetFileMeta, error) {
-	var g errgroup.Group
+func GenerateTargetFileMetas(targetFiles []*types.TargetFile) []types.TargetFileMeta {
+	var wg sync.WaitGroup
 	targetFileMetas := make([]types.TargetFileMeta, len(targetFiles))
 
 	for i, targetFile := range targetFiles {
 		i, targetFile := i, targetFile
-		g.Go(func() error {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			data := []byte(targetFile.Content)
 
 			md5Checksum := fmt.Sprintf("%x", md5.Sum(data))
@@ -51,16 +64,12 @@ func GenerateTargetFileMetas(targetFiles []*types.TargetFile) ([]types.TargetFil
 				FilePath: targetFile.FilePath,
 				Checksum: md5Checksum,
 			}
-
-			return nil
-		})
+		}()
 	}
 
-	if err := g.Wait(); err != nil {
-		return nil, err
-	}
+	wg.Wait()
 
-	return targetFileMetas, nil
+	return targetFileMetas
 }
 
 func DeleteTargetFiles(filePaths []string, targetDir string) []error {

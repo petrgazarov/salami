@@ -1,16 +1,17 @@
 package types
 
 import (
+	"salami/common/change_set"
 	"salami/common/symbol_table"
 	"salami/common/types"
 )
 
 type Target interface {
-	GenerateCode(*types.ChangeSet, *symbol_table.SymbolTable, Llm) []error
+	VerifyPeerDependencies() error
+	GenerateCode(*symbol_table.SymbolTable, *change_set.ChangeSetRepository, Llm) []error
 	GetFilesFromObjects([]*types.Object) []*types.TargetFile
+	ValidateCode([]*types.Object, *symbol_table.SymbolTable, *change_set.ChangeSetRepository, Llm) []error
 }
-
-type NewTargetFunc func() Target
 
 type Llm interface {
 	GetSlug() string
@@ -18,10 +19,8 @@ type Llm interface {
 	CreateCompletion(messages []interface{}) (string, error)
 }
 
-type NewLlmFunc func(types.LlmConfig) Llm
-
-type GetTargetLlmMessagesFunc func(*types.ChangeSetDiff, *symbol_table.SymbolTable) ([]interface{}, error)
-
-type TargetLlmMessages struct {
-	GetMessages GetTargetLlmMessagesFunc
+type CodeValidationResult struct {
+	ValidatedObject   *types.Object
+	ErrorMessage      string
+	ReferencedObjects []*types.Object
 }

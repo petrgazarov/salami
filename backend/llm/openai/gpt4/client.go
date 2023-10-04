@@ -7,9 +7,15 @@ import (
 	backendTypes "salami/backend/types"
 	"salami/common/errors"
 	commonTypes "salami/common/types"
+	"strings"
 
 	"github.com/sashabaranov/go-openai"
 )
+
+const LlmMessageUserRole = "user"
+const LlmMessageFunctionRole = "function"
+const LlmMessageSystemRole = "system"
+const LlmMessageAssistantRole = "assistant"
 
 const functionCallName = "save_code"
 
@@ -19,10 +25,8 @@ type OpenaiGpt4 struct {
 	client *openai.Client
 }
 
-type LlmMessageRole string
-
 type LlmMessage struct {
-	Role         LlmMessageRole
+	Role         string
 	Content      string
 	Name         string
 	FunctionCall *openai.FunctionCall
@@ -43,14 +47,14 @@ func GetAssistantMessage(code string) (*LlmMessage, error) {
 	}
 	codeJson := string(codeBytes)
 	return &LlmMessage{
-		Role:         LlmMessageRole("assistant"),
+		Role:         LlmMessageAssistantRole,
 		FunctionCall: &openai.FunctionCall{Name: functionCallName, Arguments: `{"code": ` + codeJson + `}`},
 	}, nil
 }
 
 func GetFunctionMessage() *LlmMessage {
 	return &LlmMessage{
-		Role:    LlmMessageRole("function"),
+		Role:    LlmMessageFunctionRole,
 		Name:    functionCallName,
 		Content: "true",
 	}
@@ -90,7 +94,7 @@ func (o *OpenaiGpt4) CreateCompletion(messages []interface{}) (string, error) {
 	if !ok {
 		return "", &errors.LlmError{Message: "Code is not a string"}
 	}
-	return code, nil
+	return strings.TrimSpace(code), nil
 }
 
 func getClient(llmConfig commonTypes.LlmConfig) *openai.Client {

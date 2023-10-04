@@ -5,12 +5,11 @@ import (
 	"path/filepath"
 	"salami/common/types"
 	"salami/common/utils/file_utils"
-
-	"golang.org/x/sync/errgroup"
+	"sync"
 )
 
 func WriteTargetFiles(targetFiles []*types.TargetFile, targetDir string) []error {
-	var g errgroup.Group
+	var wg sync.WaitGroup
 
 	if _, err := os.Stat(targetDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(targetDir, 0755); err != nil {
@@ -18,23 +17,30 @@ func WriteTargetFiles(targetFiles []*types.TargetFile, targetDir string) []error
 		}
 	}
 
-	errs := make([]error, 0, len(targetFiles))
+	errorChannel := make(chan error, len(targetFiles))
 	for _, targetFile := range targetFiles {
 		targetFile := targetFile
-		g.Go(func() error {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			if err := writeTargetFile(targetFile, targetDir); err != nil {
-				errs = append(errs, err)
+				errorChannel <- err
 			}
-			return nil
-		})
+		}()
 	}
 
-	if err := g.Wait(); err != nil {
-		errs = append(errs, err)
+	go func() {
+		wg.Wait()
+		close(errorChannel)
+	}()
+
+	errors := make([]error, 0, len(targetFiles))
+	for err := range errorChannel {
+		errors = append(errors, err)
 	}
 
-	if len(errs) > 0 {
-		return errs
+	if len(errors) > 0 {
+		return errors
 	}
 
 	return nil

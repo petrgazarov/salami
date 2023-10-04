@@ -18,8 +18,8 @@ import (
 )
 
 func Run() []error {
-	if err := runValidations(); err != nil {
-		return []error{err}
+	if errors := runValidations(); len(errors) > 0 {
+		return errors
 	}
 
 	symbolTable, errors := runFrontend()
@@ -66,23 +66,20 @@ func runFrontend() (*symbol_table.SymbolTable, []error) {
 func runBackend(
 	symbolTable *symbol_table.SymbolTable,
 ) ([]commonTypes.TargetFileMeta, []*commonTypes.Object, []error) {
-	previousObjects := lock_file_manager.GetObjects()
-	targetDir := config.GetTargetDir()
-	newTargetFiles, newObjects, errors := generateCode(previousObjects, symbolTable)
+	newObjects, newTargetFiles, errors := generateCode(symbolTable)
 	if len(errors) > 0 {
 		return nil, nil, errors
 	}
+
+	targetDir := config.GetTargetDir()
 	if errors := target_file_manager.WriteTargetFiles(newTargetFiles, targetDir); len(errors) > 0 {
 		return nil, nil, errors
 	}
 
-	newTargetFileMetas, err := target_file_manager.GenerateTargetFileMetas(newTargetFiles)
-	if err != nil {
-		return nil, nil, []error{err}
-	}
-
-	oldFilePaths := getOldFilePaths(newTargetFileMetas)
-	if errors := target_file_manager.DeleteTargetFiles(oldFilePaths, targetDir); len(errors) > 0 {
+	oldTargetFileMetas := lock_file_manager.GetTargetFileMetas()
+	newTargetFileMetas := target_file_manager.GenerateTargetFileMetas(newTargetFiles)
+	filePathsToRemove := getFilePathsToRemove(oldTargetFileMetas, newTargetFileMetas)
+	if errors := target_file_manager.DeleteTargetFiles(filePathsToRemove, targetDir); len(errors) > 0 {
 		return nil, nil, errors
 	}
 
@@ -90,21 +87,26 @@ func runBackend(
 }
 
 func generateCode(
-	previousObjects []*commonTypes.Object,
 	symbolTable *symbol_table.SymbolTable,
-) ([]*commonTypes.TargetFile, []*commonTypes.Object, []error) {
+) ([]*commonTypes.Object, []*commonTypes.TargetFile, []error) {
+	previousObjects := lock_file_manager.GetObjects()
 	changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
+	changeSetRepository := change_set.NewChangeSetRepository(changeSet)
+
 	llm := llm.ResolveLlm(config.GetLlmConfig())
 	target := target.ResolveTarget(config.GetTargetConfig())
 
-	if errors := target.GenerateCode(changeSet, symbolTable, llm); len(errors) > 0 {
+	if errors := target.GenerateCode(symbolTable, changeSetRepository, llm); len(errors) > 0 {
 		return nil, nil, errors
 	}
 
-	newObjects := computeNewObjects(previousObjects, changeSet)
+	newObjects := computeNewObjects(previousObjects, changeSetRepository)
+	if errors := target.ValidateCode(newObjects, symbolTable, changeSetRepository, llm); len(errors) > 0 {
+		return nil, nil, errors
+	}
 	targetFiles := target.GetFilesFromObjects(newObjects)
 
-	return targetFiles, newObjects, nil
+	return newObjects, targetFiles, nil
 }
 
 func getSourceFilePaths() ([]string, error) {
@@ -128,17 +130,15 @@ func getSourceFilePaths() ([]string, error) {
 
 func computeNewObjects(
 	previousObjects []*commonTypes.Object,
-	changeSet *commonTypes.ChangeSet,
+	changeSetRepository *change_set.ChangeSetRepository,
 ) []*commonTypes.Object {
-	changeSetRepository := change_set.NewChangeSetRepository(changeSet)
-
 	objects := make([]*commonTypes.Object, 0)
 	for _, object := range previousObjects {
-		if changeSetRepository.WasChanged(object) {
-			objects = append(objects, changeSetRepository.GetChanged(object))
+		if changeSetRepository.WasObjectChanged(object) {
+			objects = append(objects, changeSetRepository.GetChangedObject(object))
 			continue
 		}
-		if !changeSetRepository.WasDeleted(object) {
+		if !changeSetRepository.WasObjectDeleted(object) {
 			objects = append(objects, object)
 		}
 	}
@@ -158,8 +158,10 @@ func computeNewObjects(
 	return objects
 }
 
-func getOldFilePaths(newTargetFileMetas []commonTypes.TargetFileMeta) []string {
-	oldTargetFileMetas := lock_file_manager.GetTargetFileMetas()
+func getFilePathsToRemove(
+	oldTargetFileMetas []commonTypes.TargetFileMeta,
+	newTargetFileMetas []commonTypes.TargetFileMeta,
+) []string {
 	newMetaMap := make(map[string]bool)
 	for _, meta := range newTargetFileMetas {
 		newMetaMap[meta.FilePath] = true

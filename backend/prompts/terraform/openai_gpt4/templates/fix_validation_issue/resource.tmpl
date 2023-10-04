@@ -1,0 +1,16 @@
+I'm getting the following error when I run `terraform validate`:
+
+{{.ErrorMessage}}
+
+{{with .ReferencedObjects}}
+Here are referenced resources/variables:
+
+```terraform
+{{range .}}
+{{.TargetCode}}
+
+{{end}}
+```
+{{end}}
+
+Please respond with the corrected code snippet for the {{.LogicalName}} resource only. No need to include the entire file.

@@ -1,3 +1,0 @@
-Variable Name: {{.Name}}
-Type: {{.VariableType}}
-{{.VariableDetailsSection}}
