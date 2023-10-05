@@ -85,7 +85,7 @@ func (p *Parser) currentObjectTypeIs(objectType ObjectType) bool {
 	return p.currentObjectType == objectType
 }
 
-func (p *Parser) currentObject() commonTypes.ParsedObject {
+func (p *Parser) currentObject() frontendTypes.ParsedObject {
 	switch p.currentObjectType {
 	case Resource:
 		return p.currentResource()

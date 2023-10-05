@@ -10,8 +10,8 @@ The following resources are referenced:
 
 {{end}}
 {{with .ReferencedVariables}}
-The following resources are referenced:
+The following variables are referenced:
 {{range .}}
-{{.LogicalName}}: {{.ResourceType}}
+{{.Name}}: {{.Type}}
 {{end}}
 {{end}}

@@ -20,6 +20,9 @@ func (t *Terraform) ValidateCode(
 	if len(errors) > 0 {
 		return errors
 	}
+	if len(validationResults) == 0 {
+		return nil
+	}
 
 	var g errgroup.Group
 	semaphoreChannel := make(chan struct{}, llm.GetMaxConcurrentExecutions())

@@ -30,3 +30,7 @@ type Token struct {
 	Line   int
 	Column int
 }
+
+type ParsedObject interface {
+	AddNaturalLanguage(string)
+}

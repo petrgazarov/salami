@@ -3,6 +3,6 @@ resource "aws_s3_bucket" "TestBucket" {
 }
 
 variable "test_bucket_name" {
-  type = string
+  type    = string
   default = "test-bucket-br31m11"
 }

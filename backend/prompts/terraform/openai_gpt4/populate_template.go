@@ -17,7 +17,7 @@ type CreateUpdateResourceDataStruct struct {
 
 type CreateUpdateVariableDataStruct struct {
 	Name            string
-	VariableType    string
+	Type            string
 	Default         string
 	NaturalLanguage string
 }
@@ -53,7 +53,7 @@ func populateCreateUpdateTemplate(
 	case templates.CreateVariableTemplatePath, templates.UpdateVariableTemplatePath:
 		dataStruct = CreateUpdateVariableDataStruct{
 			Name:            string(object.ParsedVariable.Name),
-			VariableType:    string(object.ParsedVariable.Type),
+			Type:            string(object.ParsedVariable.Type),
 			Default:         object.ParsedVariable.Default,
 			NaturalLanguage: object.ParsedVariable.NaturalLanguage,
 		}
@@ -106,14 +106,14 @@ func getCreateUpdateTemplateReferencedObjects(
 	referencedResources := make([]*commonTypes.ParsedResource, len(object.ParsedResource.ReferencedResources))
 	referencedVariables := make([]*commonTypes.ParsedVariable, len(object.ParsedResource.ReferencedVariables))
 
-	for _, logicalName := range object.ParsedResource.ReferencedResources {
+	for i, logicalName := range object.ParsedResource.ReferencedResources {
 		referencedResource, _ := symbolTable.LookupResource(logicalName)
-		referencedResources = append(referencedResources, referencedResource)
+		referencedResources[i] = referencedResource
 	}
 
-	for _, variableName := range object.ParsedResource.ReferencedVariables {
+	for i, variableName := range object.ParsedResource.ReferencedVariables {
 		referencedVariable, _ := symbolTable.LookupVariable(variableName)
-		referencedVariables = append(referencedVariables, referencedVariable)
+		referencedVariables[i] = referencedVariable
 	}
 
 	return referencedResources, referencedVariables
