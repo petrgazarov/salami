@@ -38,8 +38,8 @@ resource "aws_iam_role" "ServerAssumeRolePolicy" {
 EOF
 }
 
-resource "aws_iam_role_policy" "ServerAssumeRolePolicyPolicy" {
-  name   = "server-assume-role-policy-policy"
+resource "aws_iam_role_policy" "ServerAssumeRolePolicy" {
+  name   = "server-assume-role-policy"
   role   = aws_iam_role.ServerAssumeRolePolicy.id
 
   policy = <<EOF

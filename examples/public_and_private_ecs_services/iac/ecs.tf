@@ -53,7 +53,7 @@ resource "aws_service_discovery_service" "PythonExecEcsServiceDiscovery" {
   name = var.python_exec_local_service_name
 
   dns_config {
-    namespace_id = aws_servicediscovery_private_dns_namespace.EcsPrivateDnsNamespace.id
+    namespace_id = aws_service_discovery_private_dns_namespace.EcsPrivateDnsNamespace.id
     dns_records {
       ttl  = 10
       type = "A"
@@ -88,14 +88,14 @@ resource "aws_ecs_service" "PythonExecEcsService" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
-  deployment_controller {
-    type = "ECS"
-  }
-
   network_configuration {
     assign_public_ip = false
     subnets          = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
     security_groups  = [aws_security_group.PythonExecEcsSecurityGroup.id]
+  }
+
+  deployment_controller {
+    type = "ECS"
   }
 
   deployment_circuit_breaker {

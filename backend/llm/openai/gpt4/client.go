@@ -6,6 +6,7 @@ import (
 	"math"
 	backendTypes "salami/backend/types"
 	"salami/common/errors"
+	"salami/common/logger"
 	commonTypes "salami/common/types"
 	"strings"
 
@@ -65,7 +66,7 @@ func (o *OpenaiGpt4) GetSlug() string {
 }
 
 func (o *OpenaiGpt4) GetMaxConcurrentExecutions() int {
-	return 15
+	return 5
 }
 
 func (o *OpenaiGpt4) CreateCompletion(messages []interface{}) (string, error) {
@@ -74,6 +75,9 @@ func (o *OpenaiGpt4) CreateCompletion(messages []interface{}) (string, error) {
 		llmMessage := message.(*LlmMessage)
 		llmMessages[i] = llmMessage
 	}
+
+	logMessages(llmMessages)
+
 	response, err := o.client.CreateChatCompletion(
 		context.Background(),
 		o.getChatCompletionRequest(llmMessages),
@@ -142,4 +146,17 @@ func getFunctions() []openai.FunctionDefinition {
 			},
 		},
 	}
+}
+
+func logMessages(llmMessages []*LlmMessage) {
+	str := "\n"
+
+	for _, llmMessage := range llmMessages {
+		if llmMessage.Content == "" {
+			str += llmMessage.FunctionCall.Arguments + "\n\n"
+		} else {
+			str += llmMessage.Content + "\n\n"
+		}
+	}
+	logger.Log(str)
 }

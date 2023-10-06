@@ -10,7 +10,7 @@ type Target interface {
 	VerifyPeerDependencies() error
 	GenerateCode(*symbol_table.SymbolTable, *change_set.ChangeSetRepository, Llm) []error
 	GetFilesFromObjects([]*types.Object) []*types.TargetFile
-	ValidateCode([]*types.Object, *symbol_table.SymbolTable, *change_set.ChangeSetRepository, Llm) []error
+	ValidateCode([]*types.Object, *symbol_table.SymbolTable, *change_set.ChangeSetRepository, Llm, int) error
 }
 
 type Llm interface {

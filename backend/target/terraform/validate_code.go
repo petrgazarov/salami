@@ -9,6 +9,8 @@ import (
 	"salami/backend/prompts/terraform/openai_gpt4"
 	backendTypes "salami/backend/types"
 	"salami/common/change_set"
+	"salami/common/constants"
+	"salami/common/logger"
 	"salami/common/symbol_table"
 	commonTypes "salami/common/types"
 	"sort"
@@ -40,18 +42,73 @@ func (t *Terraform) ValidateCode(
 	symbolTable *symbol_table.SymbolTable,
 	changeSetRepository *change_set.ChangeSetRepository,
 	llm backendTypes.Llm,
-) []error {
+	retryCount int,
+) error {
+	if retryCount > constants.MaxFixValidationErrorRetries {
+		return nil
+	}
 	if len(changeSetRepository.Diffs) == 0 {
 		return nil
 	}
 	validationResults, err := generateValidationResults(newObjects)
 	if err != nil {
-		return []error{err}
+		return err
 	}
 	if len(validationResults) == 0 {
 		return nil
 	}
 
+	if err := processValidationResults(validationResults, symbolTable, changeSetRepository, llm); err != nil {
+		return err
+	}
+
+	if err := t.ValidateCode(newObjects, symbolTable, changeSetRepository, llm, retryCount+1); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func generateValidationResults(
+	newObjects []*commonTypes.Object,
+) ([]*backendTypes.CodeValidationResult, error) {
+	var targetCodeBlocks []string
+	var endLineNumbers []int
+
+	for _, obj := range newObjects {
+		numLines := strings.Count(obj.TargetCode, "\n")
+		targetCodeBlocks = append(targetCodeBlocks, obj.TargetCode)
+
+		if len(endLineNumbers) == 0 {
+			endLineNumbers = append(endLineNumbers, numLines+1)
+		} else {
+			lastLineNumber := endLineNumbers[len(endLineNumbers)-1]
+			endLineNumbers = append(endLineNumbers, lastLineNumber+2+numLines)
+		}
+	}
+
+	targetCode := strings.Join(targetCodeBlocks, "\n\n")
+	terraformValidateOutput, err := runTerraformValidate(targetCode)
+	if err != nil {
+		return nil, err
+	}
+
+	var validationResults []*backendTypes.CodeValidationResult
+	if err := parseTerraformValidateOutput(terraformValidateOutput, newObjects, endLineNumbers, &validationResults); err != nil {
+		return nil, err
+	}
+
+	populateValidationResultsReferencedObjects(newObjects, &validationResults)
+
+	return validationResults, nil
+}
+
+func processValidationResults(
+	validationResults []*backendTypes.CodeValidationResult,
+	symbolTable *symbol_table.SymbolTable,
+	changeSetRepository *change_set.ChangeSetRepository,
+	llm backendTypes.Llm,
+) error {
 	var g errgroup.Group
 	semaphoreChannel := make(chan struct{}, llm.GetMaxConcurrentExecutions())
 
@@ -83,46 +140,10 @@ func (t *Terraform) ValidateCode(
 	}
 
 	if err := g.Wait(); err != nil {
-		return []error{err}
+		return err
 	}
 
 	return nil
-}
-
-func generateValidationResults(
-	newObjects []*commonTypes.Object,
-) ([]*backendTypes.CodeValidationResult, error) {
-	var targetCodeBlocks []string
-	var endLineNumbers []int
-
-	for _, obj := range newObjects {
-		numLines := strings.Count(obj.TargetCode, "\n")
-		targetCodeBlocks = append(targetCodeBlocks, obj.TargetCode)
-
-		if len(endLineNumbers) == 0 {
-			endLineNumbers = append(endLineNumbers, numLines+1)
-		} else {
-			lastLineNumber := endLineNumbers[len(endLineNumbers)-1]
-			endLineNumbers = append(endLineNumbers, lastLineNumber+2+numLines)
-		}
-	}
-
-	fmt.Println("endLineNumbers", endLineNumbers)
-
-	targetCode := strings.Join(targetCodeBlocks, "\n\n")
-	terraformValidateOutput, err := runTerraformValidate(targetCode)
-	if err != nil {
-		return nil, err
-	}
-
-	var validationResults []*backendTypes.CodeValidationResult
-	if err := parseTerraformValidateOutput(terraformValidateOutput, newObjects, endLineNumbers, &validationResults); err != nil {
-		return nil, err
-	}
-
-	populateValidationResultsReferencedObjects(newObjects, &validationResults)
-
-	return validationResults, nil
 }
 
 func runTerraformValidate(targetCode string) ([]byte, error) {
@@ -173,7 +194,7 @@ func parseTerraformValidateOutput(
 		return tfErrors[i].Range.Start.Line < tfErrors[j].Range.Start.Line
 	})
 
-	fmt.Println("tfErrors", tfErrors)
+	logger.Log("tfErrors: " + fmt.Sprint(tfErrors))
 
 	j := 0
 	for _, tfError := range tfErrors {

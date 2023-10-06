@@ -2,7 +2,7 @@ I'm getting the following {{ if eq (len .ErrorMessages) 1 }}error{{else}}errors{
 {{range .ErrorMessages}}
 {{.}}
 {{end}}
-{{with .ReferencedObjects -}}
+{{- with .ReferencedObjects}}
 Here is the code I'm using for the referenced resources/variables:
 
 ```terraform
@@ -12,5 +12,4 @@ Here is the code I'm using for the referenced resources/variables:
 {{end -}}
 ```
 {{- end}}
-
 Please respond with the corrected code snippet for the {{.LogicalName}} resource only. No need to include the entire file.

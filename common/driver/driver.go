@@ -101,8 +101,8 @@ func generateCode(
 	}
 
 	newObjects := computeNewObjects(previousObjects, changeSetRepository)
-	if errors := target.ValidateCode(newObjects, symbolTable, changeSetRepository, llm); len(errors) > 0 {
-		return nil, nil, errors
+	if err := target.ValidateCode(newObjects, symbolTable, changeSetRepository, llm, 0); err != nil {
+		return nil, nil, []error{err}
 	}
 	targetFiles := target.GetFilesFromObjects(newObjects)
 

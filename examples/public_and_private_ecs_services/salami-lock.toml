@@ -2,11 +2,11 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "alb.tf"
-  checksum = "0ead4a82cbf262886b5ed9ea5f88004e"
+  checksum = "6a879463ae28858044f070cb93b1d265"
 
 [[target_files_meta]]
   file_path = "certificate.tf"
-  checksum = "bea277717afb8a58333b7ee28401d2ab"
+  checksum = "c48471fe29aa1643b45ce1bc1f3f199a"
 
 [[target_files_meta]]
   file_path = "cloudtrail.tf"
@@ -26,7 +26,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "ecs.tf"
-  checksum = "1db9206b9acc20d70f3ec404197865ce"
+  checksum = "16db47b23ceba3b2d7042d6188f48e5b"
 
 [[target_files_meta]]
   file_path = "route53.tf"
@@ -34,7 +34,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
-  checksum = "84e15015c74210fc15f20cbd766d032b"
+  checksum = "8973922d8a22fad49e7877dde6768aec"
 
 [[target_files_meta]]
   file_path = "user_assumed_role.tf"
@@ -42,15 +42,15 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "variables.tf"
-  checksum = "5550a14f8b40b3413f9e2399751bf0f2"
+  checksum = "eb3b8873d630fca98fb48b7c751948f8"
 
 [[target_files_meta]]
   file_path = "vpc.tf"
-  checksum = "354497b558a34edf3881d8a75ab8f47f"
+  checksum = "f7d6e800f2fe8800db1ab30e096c4d08"
 
 [[target_files_meta]]
   file_path = "vpc_endpoints.tf"
-  checksum = "8f13382cea7237b680d91d7e483d11d5"
+  checksum = "a1d5d1bdb14d8c0789da4a9b1c4d536c"
 
 [[objects]]
   target_code = "resource \"aws_security_group\" \"ALBSecurityGroup\" {\n  name        = \"alb-security-group\"\n  description = \"Security group for ALB\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
@@ -64,7 +64,7 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_lb\" \"ServerAlb\" {\n  name               = \"server-alb\"\n  internal           = false\n  load_balancer_type = \"application\"\n  security_groups    = [aws_security_group.ALBSecurityGroup.id]\n  subnets            = [aws_subnet.PublicSubnetA.id, aws_subnet.PublicSubnetB.id]\n  enable_deletion_protection = true\n  idle_timeout = 3600\n}"
+  target_code = "resource \"aws_lb\" \"ServerAlb\" {\n  name               = \"server-alb\"\n  internal           = false\n  load_balancer_type = \"application\"\n  security_groups    = [aws_security_group.ALBSecurityGroup.id]\n  subnets            = [aws_subnet.PublicSubnetA.id, aws_subnet.PublicSubnetB.id]\n\n  enable_deletion_protection = true\n\n  idle_timeout = 3600\n\n  tags = {\n    Name = \"server-alb\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.lb.LoadBalancer"
     logical_name = "ServerAlb"
@@ -86,7 +86,7 @@ version = "0.0.1"
     source_file_line = 16
 
 [[objects]]
-  target_code = "resource \"aws_lb_listener\" \"ServerListener\" {\n  load_balancer_arn = aws_lb.LoadBalancer.ServerAlb.arn\n  port     = 443\n  protocol = \"HTTPS\"\n  ssl_policy = \"ELBSecurityPolicy-TLS13-1-2-2021-06\"\n  certificate_arn = aws_acm_Certificate.ServerCertificate.arn\n\n  default_action {\n    type             = \"forward\"\n    target_group_arn = aws_lb_target_group.ServerTargetGroup.arn\n  }\n}"
+  target_code = "resource \"aws_lb_listener\" \"ServerListener\" {\n  load_balancer_arn = aws_lb.ServerAlb.arn\n  port     = 443\n  protocol = \"HTTPS\"\n  ssl_policy = \"ELBSecurityPolicy-TLS13-1-2-2021-06\"\n  certificate_arn = aws_acm_certificate.ServerCertificate.arn\n\n  default_action {\n    type             = \"forward\"\n    target_group_arn = aws_lb_target_group.ServerTargetGroup.arn\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.lb.Listener"
     logical_name = "ServerListener"
@@ -119,7 +119,7 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_route53_record\" \"ValidationRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_name\n  type    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_type\n  records = [tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_value]\n  ttl     = 300\n}"
+  target_code = "resource \"aws_route53_record\" \"ValidationRecord\" {\n  for_each = aws_acm_certificate.ServerCertificate.domain_validation_options\n  zone_id  = aws_route53_zone.HostedZone.zone_id\n  name     = each.value.resource_record_name\n  type     = each.value.resource_record_type\n  records  = [each.value.resource_record_value]\n  ttl      = 300\n}"
   [objects.parsed_resource]
     resource_type = "aws.route53.Record"
     logical_name = "ValidationRecord"
@@ -130,7 +130,7 @@ version = "0.0.1"
     source_file_line = 6
 
 [[objects]]
-  target_code = "resource \"aws_acm_certificate_validation\" \"CertificateValidation\" {\n  certificate_arn         = aws_acm_certificate.ServerCertificate.arn\n  validation_record_fqdns = [aws_route53_record.ValidationRecord.fqdn]\n}"
+  target_code = "resource \"aws_acm_certificate_validation\" \"CertificateValidation\" {\n  certificate_arn         = aws_acm_certificate.ServerCertificate.arn\n  validation_record_fqdns = [for r in aws_route53_record.ValidationRecord : r.fqdn]\n}"
   [objects.parsed_resource]
     resource_type = "aws.acm.CertificateValidation"
     logical_name = "CertificateValidation"
@@ -350,7 +350,7 @@ version = "0.0.1"
     source_file_line = 34
 
 [[objects]]
-  target_code = "resource \"aws_service_discovery_service\" \"PythonExecEcsServiceDiscovery\" {\n  name = var.python_exec_local_service_name\n\n  dns_config {\n    namespace_id = aws_servicediscovery_private_dns_namespace.EcsPrivateDnsNamespace.id\n    dns_records {\n      ttl  = 10\n      type = \"A\"\n    }\n  }\n}"
+  target_code = "resource \"aws_service_discovery_service\" \"PythonExecEcsServiceDiscovery\" {\n  name = var.python_exec_local_service_name\n\n  dns_config {\n    namespace_id = aws_service_discovery_private_dns_namespace.EcsPrivateDnsNamespace.id\n    dns_records {\n      ttl  = 10\n      type = \"A\"\n    }\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.servicediscovery.Service"
     logical_name = "PythonExecEcsServiceDiscovery"
@@ -372,7 +372,7 @@ version = "0.0.1"
     source_file_line = 43
 
 [[objects]]
-  target_code = "resource \"aws_ecs_service\" \"PythonExecEcsService\" {\n  name            = \"server\"\n  cluster         = aws_ecs_cluster.EcsCluster.id\n  task_definition = aws_ecs_task_definition.PythonExecTaskDefinition.arn\n  desired_count   = 1\n  launch_type     = \"FARGATE\"\n\n  deployment_controller {\n    type = \"ECS\"\n  }\n\n  network_configuration {\n    assign_public_ip = false\n    subnets          = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n    security_groups  = [aws_security_group.PythonExecEcsSecurityGroup.id]\n  }\n\n  deployment_circuit_breaker {\n    enable   = true\n    rollback = true\n  }\n\n  wait_for_steady_state = true\n}"
+  target_code = "resource \"aws_ecs_service\" \"PythonExecEcsService\" {\n  name            = \"server\"\n  cluster         = aws_ecs_cluster.EcsCluster.id\n  task_definition = aws_ecs_task_definition.PythonExecTaskDefinition.arn\n  desired_count   = 1\n  launch_type     = \"FARGATE\"\n\n  network_configuration {\n    assign_public_ip = false\n    subnets          = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n    security_groups  = [aws_security_group.PythonExecEcsSecurityGroup.id]\n  }\n\n  deployment_controller {\n    type = \"ECS\"\n  }\n\n  deployment_circuit_breaker {\n    enable   = true\n    rollback = true\n  }\n\n  wait_for_steady_state = true\n}"
   [objects.parsed_resource]
     resource_type = "aws.ecs.Service"
     logical_name = "PythonExecEcsService"
@@ -449,7 +449,7 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_iam_role\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows a user to assume a role in users' accounts\"\n\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ec2.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Sid\": \"\"\n    }\n  ]\n}\nEOF\n}\n\nresource \"aws_iam_role_policy\" \"ServerAssumeRolePolicyPolicy\" {\n  name   = \"server-assume-role-policy-policy\"\n  role   = aws_iam_role.ServerAssumeRolePolicy.id\n\n  policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"sts:AssumeRole\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"\n    }\n  ]\n}\nEOF\n}"
+  target_code = "resource \"aws_iam_role\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows a user to assume a role in users' accounts\"\n\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ec2.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Sid\": \"\"\n    }\n  ]\n}\nEOF\n}\n\nresource \"aws_iam_role_policy\" \"ServerAssumeRolePolicy\" {\n  name   = \"server-assume-role-policy\"\n  role   = aws_iam_role.ServerAssumeRolePolicy.id\n\n  policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"sts:AssumeRole\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"\n    }\n  ]\n}\nEOF\n}"
   [objects.parsed_resource]
     resource_type = "aws.iam.Role"
     logical_name = "ServerAssumeRolePolicy"
@@ -566,7 +566,7 @@ version = "0.0.1"
     source_file_line = 7
 
 [[objects]]
-  target_code = "variable \"server_container_name\" {\n  description = \"Server container name\"\n  type        = string\n  default     = \"server-container\"\n}"
+  target_code = "variable \"server_container_name\" {\n  type = string\n  default = \"server-container\"\n\n  description = \"Server container name\"\n}"
   [objects.parsed_variable]
     name = "server_container_name"
     natural_language = "Description: Server container name"
@@ -648,7 +648,7 @@ version = "0.0.1"
     source_file_line = 7
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PrivateSubnetB\" {\n  vpc_id                  = aws_vpc.MainVpc.id\n  cidr_block              = \"10.0.2.0/24\"\n  availability_zone       = \"us-west-1c\"\n  map_public_ip_on_launch = false\n  tags = {\n    Name = \"private-subnet-b\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PrivateSubnetB\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.2.0/24\"\n  availability_zone          = \"us-west-1c\"\n  map_public_ip_on_launch    = false\n  tags = {\n    Name = \"private-subnet-b\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PrivateSubnetB"
@@ -703,7 +703,7 @@ version = "0.0.1"
     source_file_line = 31
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PublicSubnetB\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.4.0/24\"\n  availability_zone          = \"us-west-1c\"\n  map_public_ip_on_launch    = true\n  tags = {\n    Name = \"public-subnet-b\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PublicSubnetB\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.4.0/24\"\n  availability_zone          = \"us-west-1c\"\n  map_public_ip_on_launch    = true\n\n  tags = {\n    Name = \"public-subnet-b\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PublicSubnetB"
@@ -758,7 +758,7 @@ version = "0.0.1"
     source_file_line = 57
 
 [[objects]]
-  target_code = "resource \"aws_vpc_endpoint\" \"EcrDkrVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.dkr\"\n  vpc_endpoint_type = \"Interface\"\n  private_dns_enabled = true\n  subnet_ids = [\n    aws_subnet.PrivateSubnetA.id,\n    aws_subnet.PrivateSubnetB.id\n  ]\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<POLICY\n  {\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n      {\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n          \"AWS\": [\n            \"${aws_iam_role.ServerEcsExecutionRole.arn}\",\n            \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"\n          ]\n        },\n        \"Action\": [\n          \"ecr:BatchCheckLayerAvailability\",\n          \"ecr:GetDownloadUrlForLayer\",\n          \"ecr:BatchGetImage\"\n        ],\n        \"Resource\": \"arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/*\"\n      }\n    ]\n  }\n  POLICY\n}"
+  target_code = "resource \"aws_vpc_endpoint\" \"EcrDkrVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.dkr\"\n  vpc_endpoint_type = \"Interface\"\n  private_dns_enabled = true\n  subnet_ids = [\n    aws_subnet.PrivateSubnetA.id,\n    aws_subnet.PrivateSubnetB.id\n  ]\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": [\n          \"${aws_iam_role.ServerEcsExecutionRole.arn}\",\n          \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"\n        ]\n      },\n      \"Action\": [\n        \"ecr:BatchCheckLayerAvailability\",\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\"\n      ],\n      \"Resource\": \"arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/*\"\n    }\n  ]\n}\nPOLICY\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.VpcEndpoint"
     logical_name = "EcrDkrVpcEndpoint"
@@ -769,7 +769,7 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_vpc_endpoint\" \"EcrApiVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.api\"\n  vpc_endpoint_type = \"Interface\"\n  private_dns_enabled = true\n  subnet_ids = [\n    aws_subnet.PrivateSubnetA.id,\n    aws_subnet.PrivateSubnetB.id\n  ]\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<EOF\n  {\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n      {\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n          \"AWS\": [\n            \"${aws_iam_role.ServerEcsExecutionRole.arn}\",\n            \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"\n          ]\n        },\n        \"Action\": [\n          \"ecr:GetAuthorizationToken\",\n          \"ecr:BatchCheckLayerAvailability\",\n          \"ecr:GetDownloadUrlForLayer\",\n          \"ecr:BatchGetImage\"\n        ],\n        \"Resource\": \"*\"\n      }\n    ]\n  }\n  EOF\n}"
+  target_code = "resource \"aws_vpc_endpoint\" \"EcrApiVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.api\"\n  vpc_endpoint_type = \"Interface\"\n  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n  private_dns_enabled = true\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": [\"${aws_iam_role.ServerEcsExecutionRole.arn}\", \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"]\n      },\n      \"Action\": [\n        \"ecr:GetAuthorizationToken\",\n        \"ecr:BatchCheckLayerAvailability\",\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}\nPOLICY\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.VpcEndpoint"
     logical_name = "EcrApiVpcEndpoint"
@@ -802,7 +802,7 @@ version = "0.0.1"
     source_file_line = 32
 
 [[objects]]
-  target_code = "resource \"aws_vpc_endpoint\" \"CloudWatchLogsVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.logs\"\n  vpc_endpoint_type = \"Interface\"\n  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n  private_dns_enabled = true\n  security_group_ids = [aws_security_group.CloudWatchLogsVpcEndpointSG.id]\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\"AWS\": \"*\"},\n      \"Action\": [\n        \"logs:CreateLogGroup\",\n        \"logs:CreateLogStream\",\n        \"logs:PutLogEvents\",\n        \"logs:DescribeLogStreams\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}\nPOLICY\n}"
+  target_code = "resource \"aws_vpc_endpoint\" \"CloudWatchLogsVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.logs\"\n  vpc_endpoint_type = \"Interface\"\n  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n  security_group_ids = [aws_security_group.CloudWatchLogsVpcEndpointSG.id]\n  private_dns_enabled = true\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\"AWS\": \"*\"},\n      \"Action\": [\n        \"logs:CreateLogGroup\",\n        \"logs:CreateLogStream\",\n        \"logs:PutLogEvents\",\n        \"logs:DescribeLogStreams\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}\nPOLICY\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.VpcEndpoint"
     logical_name = "CloudWatchLogsVpcEndpoint"

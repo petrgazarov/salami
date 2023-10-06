@@ -8,14 +8,15 @@ resource "aws_acm_certificate" "ServerCertificate" {
 }
 
 resource "aws_route53_record" "ValidationRecord" {
-  zone_id = aws_route53_zone.HostedZone.zone_id
-  name    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_name
-  type    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_type
-  records = [tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_value]
-  ttl     = 300
+  for_each = aws_acm_certificate.ServerCertificate.domain_validation_options
+  zone_id  = aws_route53_zone.HostedZone.zone_id
+  name     = each.value.resource_record_name
+  type     = each.value.resource_record_type
+  records  = [each.value.resource_record_value]
+  ttl      = 300
 }
 
 resource "aws_acm_certificate_validation" "CertificateValidation" {
   certificate_arn         = aws_acm_certificate.ServerCertificate.arn
-  validation_record_fqdns = [aws_route53_record.ValidationRecord.fqdn]
+  validation_record_fqdns = [for r in aws_route53_record.ValidationRecord : r.fqdn]
 }
