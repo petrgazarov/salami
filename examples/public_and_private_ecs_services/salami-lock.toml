@@ -200,7 +200,7 @@ version = "0.0.1"
   [objects.parsed_resource]
     resource_type = "aws.ecr.Repository"
     logical_name = "ServerRepository"
-    natural_language = "Name: server\nHas mutable image tags."
+    natural_language = "Name: server\nHas mutable image tags"
     referenced_resources = []
     referenced_variables = []
     source_file_path = "ecr.sami"

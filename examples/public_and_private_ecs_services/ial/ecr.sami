@@ -1,6 +1,6 @@
 @resource(aws.ecr.Repository, ServerRepository)
 Name: server
-Has mutable image tags.
+Has mutable image tags
 
 @resource(aws.ecr.LifecyclePolicy, ServerRepoLifecyclePolicy)
 For $ServerRepository
