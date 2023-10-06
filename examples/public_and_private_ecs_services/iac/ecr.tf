@@ -82,7 +82,7 @@ resource "aws_ecr_lifecycle_policy" "PythonExecRepoLifecyclePolicy" {
   "rules": [
     {
       "rulePriority": 1,
-      "description": "Expire images beyond count 10",
+      "description": "Expire images beyond the last 10 untagged images",
       "selection": {
         "tagStatus": "untagged",
         "countType": "imageCountMoreThan",

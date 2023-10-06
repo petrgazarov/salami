@@ -1,5 +1,5 @@
-I'm getting the following error when I run `terraform validate`:
-
-{{.ErrorMessage}}
-
+I'm getting the following {{ if eq (len .ErrorMessages) 1 }}error{{else}}errors{{end}} when I run `terraform validate`:
+{{range .ErrorMessages}}
+{{.}}
+{{end}}
 Please respond with the corrected code snippet.

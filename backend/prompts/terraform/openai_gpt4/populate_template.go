@@ -23,13 +23,13 @@ type CreateUpdateVariableDataStruct struct {
 }
 
 type FixResourceValidationIssueDataStruct struct {
-	ErrorMessage      string
+	ErrorMessages     []string
 	ReferencedObjects []*struct{ TargetCode string }
 	LogicalName       string
 }
 
 type FixVariableValidationIssueDataStruct struct {
-	ErrorMessage string
+	ErrorMessages []string
 }
 
 func populateCreateUpdateTemplate(
@@ -82,13 +82,13 @@ func populateValidationTemplate(
 	switch templatePath {
 	case templates.FixResourceValidationIssueTemplatePath:
 		dataStruct = FixResourceValidationIssueDataStruct{
-			ErrorMessage:      validationResult.ErrorMessage,
+			ErrorMessages:     validationResult.ErrorMessages,
 			ReferencedObjects: referencedObjects,
 			LogicalName:       string(validationResult.ValidatedObject.ParsedResource.LogicalName),
 		}
 	case templates.FixVariableValidationIssueTemplatePath:
 		dataStruct = FixVariableValidationIssueDataStruct{
-			ErrorMessage: validationResult.ErrorMessage,
+			ErrorMessages: validationResult.ErrorMessages,
 		}
 	}
 

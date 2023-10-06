@@ -2,10 +2,10 @@ resource "aws_ecs_cluster" "EcsCluster" {
   name = "cluster"
 }
 
-resource "aws_servicediscovery_private_dns_namespace" "EcsPrivateDnsNamespace" {
-  name        = var.local_dns_namespace_name
+resource "aws_service_discovery_private_dns_namespace" "EcsPrivateDnsNamespace" {
+  name = var.local_dns_namespace_name
   description = "Private namespace for ECS cluster"
-  vpc         = aws_ec2_vpc.MainVpc.id
+  vpc = aws_vpc.MainVpc.id
 }
 
 resource "aws_ecs_service" "ServerEcsService" {
@@ -49,7 +49,7 @@ resource "aws_iam_role_policy_attachment" "PythonExecEcsExecutionRolePolicyAttac
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-resource "aws_servicediscovery_service" "PythonExecEcsServiceDiscovery" {
+resource "aws_service_discovery_service" "PythonExecEcsServiceDiscovery" {
   name = var.python_exec_local_service_name
 
   dns_config {
@@ -94,8 +94,8 @@ resource "aws_ecs_service" "PythonExecEcsService" {
 
   network_configuration {
     assign_public_ip = false
-    subnets          = [aws_ec2_subnet.PrivateSubnetA.id, aws_ec2_subnet.PrivateSubnetB.id]
-    security_groups  = [aws_ec2_security_group.PythonExecEcsSecurityGroup.id]
+    subnets          = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
+    security_groups  = [aws_security_group.PythonExecEcsSecurityGroup.id]
   }
 
   deployment_circuit_breaker {

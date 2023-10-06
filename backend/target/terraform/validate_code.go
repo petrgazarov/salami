@@ -181,16 +181,22 @@ func parseTerraformValidateOutput(
 			j++
 		}
 		validatedObject := newObjects[j]
+		errorMessage := fmt.Sprintf(
+			"Summary: %s\nDetail: %s\nCode line: %s",
+			tfError.Summary,
+			tfError.Detail,
+			tfError.Snippet.Code,
+		)
 
-		*validationResults = append(*validationResults, &backendTypes.CodeValidationResult{
-			ValidatedObject: validatedObject,
-			ErrorMessage: fmt.Sprintf(
-				"Summary: %s\nDetail: %s\nCode line: %s",
-				tfError.Summary,
-				tfError.Detail,
-				tfError.Snippet.Code,
-			),
-		})
+		if len(*validationResults) > 0 && (*validationResults)[len(*validationResults)-1].ValidatedObject == validatedObject {
+			errorMessages := (*validationResults)[len(*validationResults)-1].ErrorMessages
+			(*validationResults)[len(*validationResults)-1].ErrorMessages = append(errorMessages, errorMessage)
+		} else {
+			*validationResults = append(*validationResults, &backendTypes.CodeValidationResult{
+				ValidatedObject: validatedObject,
+				ErrorMessages:   []string{errorMessage},
+			})
+		}
 	}
 
 	return nil

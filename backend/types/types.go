@@ -21,6 +21,6 @@ type Llm interface {
 
 type CodeValidationResult struct {
 	ValidatedObject   *types.Object
-	ErrorMessage      string
+	ErrorMessages     []string
 	ReferencedObjects []*types.Object
 }

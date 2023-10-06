@@ -32,7 +32,7 @@ resource "aws_lb_target_group" "ServerTargetGroup" {
   name     = "server-target-group"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = aws_ec2_vpc.MainVpc.id
+  vpc_id   = aws_vpc.MainVpc.id
   target_type = "ip"
 
   health_check {
@@ -44,6 +44,7 @@ resource "aws_lb_target_group" "ServerTargetGroup" {
   stickiness {
     type            = "lb_cookie"
     cookie_duration = 86400
+    enabled         = true
   }
 }
 
@@ -51,13 +52,12 @@ resource "aws_lb_listener" "ServerListener" {
   load_balancer_arn = aws_lb.LoadBalancer.ServerAlb.arn
   port     = 443
   protocol = "HTTPS"
-
-  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn   = aws_acm_Certificate.ServerCertificate.arn
+  ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn = aws_acm_Certificate.ServerCertificate.arn
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_TargetGroup.ServerTargetGroup.arn
+    target_group_arn = aws_lb_target_group.ServerTargetGroup.arn
   }
 }
 
@@ -67,8 +67,8 @@ resource "aws_route53_record" "AppALBRecord" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.LoadBalancer.ServerAlb.dns_name
-    zone_id                = aws_lb.LoadBalancer.ServerAlb.zone_id
+    name                   = aws_lb.ServerAlb.dns_name
+    zone_id                = aws_lb.ServerAlb.zone_id
     evaluate_target_health = true
   }
 }

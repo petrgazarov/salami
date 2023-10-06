@@ -9,12 +9,12 @@ variable "domain_name" {
 }
 
 variable "aws_account_id" {
-  type = string
+  type    = string
   default = "123456789012"
 }
 
 variable "aws_region" {
-  type = string
+  type    = string
   default = "us-west-2"
 }
 

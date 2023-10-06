@@ -2,66 +2,78 @@ resource "aws_vpc_endpoint" "EcrDkrVpcEndpoint" {
   vpc_id            = aws_vpc.MainVpc.id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.dkr"
   vpc_endpoint_type = "Interface"
-  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
   private_dns_enabled = true
+  subnet_ids = [
+    aws_subnet.PrivateSubnetA.id,
+    aws_subnet.PrivateSubnetB.id
+  ]
   security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]
 
   policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": ["${aws_iam_role.ServerEcsExecutionRole.arn}", "${aws_iam_role.PythonExecEcsExecutionRole.arn}"]
-      },
-      "Action": [
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage"
-      ],
-      "Resource": "arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/*"
-    }
-  ]
-}
-POLICY
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "${aws_iam_role.ServerEcsExecutionRole.arn}",
+            "${aws_iam_role.PythonExecEcsExecutionRole.arn}"
+          ]
+        },
+        "Action": [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ],
+        "Resource": "arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/*"
+      }
+    ]
+  }
+  POLICY
 }
 
 resource "aws_vpc_endpoint" "EcrApiVpcEndpoint" {
   vpc_id            = aws_vpc.MainVpc.id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.api"
   vpc_endpoint_type = "Interface"
-  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
   private_dns_enabled = true
+  subnet_ids = [
+    aws_subnet.PrivateSubnetA.id,
+    aws_subnet.PrivateSubnetB.id
+  ]
   security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]
 
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": ["${aws_iam_role.ServerEcsExecutionRole.arn}", "${aws_iam_role.PythonExecEcsExecutionRole.arn}"]
-      },
-      "Action": [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-POLICY
+  policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": [
+            "${aws_iam_role.ServerEcsExecutionRole.arn}",
+            "${aws_iam_role.PythonExecEcsExecutionRole.arn}"
+          ]
+        },
+        "Action": [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
+  EOF
 }
 
 resource "aws_vpc_endpoint" "S3VpcEndpoint" {
   vpc_id              = aws_vpc.MainVpc.id
   service_name        = "com.amazonaws.${var.aws_region}.s3"
-  route_table_ids     = [aws_route_table.PrivateRouteTable.id]
   vpc_endpoint_type   = "Gateway"
+  route_table_ids     = [aws_route_table.PrivateRouteTable.id]
 
   policy = <<POLICY
 {
