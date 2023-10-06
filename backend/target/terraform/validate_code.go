@@ -71,13 +71,13 @@ func (t *Terraform) ValidateCode(
 			if err != nil {
 				return err
 			}
-			completion, err := llm.CreateCompletion(messages)
 
-			fmt.Println("completion", completion)
+			completion, err := llm.CreateCompletion(messages)
 			if err != nil {
 				return err
 			}
 			diff.NewObject.SetTargetCode(completion)
+
 			return nil
 		})
 	}
