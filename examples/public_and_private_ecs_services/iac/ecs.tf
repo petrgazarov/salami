@@ -88,14 +88,14 @@ resource "aws_ecs_service" "PythonExecEcsService" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
+  deployment_controller {
+    type = "ECS"
+  }
+
   network_configuration {
     assign_public_ip = false
     subnets          = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
     security_groups  = [aws_security_group.PythonExecEcsSecurityGroup.id]
-  }
-
-  deployment_controller {
-    type = "ECS"
   }
 
   deployment_circuit_breaker {

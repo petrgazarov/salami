@@ -62,7 +62,7 @@ resource "aws_ecr_repository_policy" "ServerRepositoryPolicy" {
         "ecr:BatchGetImage",
         "ecr:BatchCheckLayerAvailability"
       ],
-      "Resource": "${aws_ecr_repository.ServerRepository.arn}"
+      "Resource": "*"
     }
   ]
 }
@@ -82,7 +82,7 @@ resource "aws_ecr_lifecycle_policy" "PythonExecRepoLifecyclePolicy" {
   "rules": [
     {
       "rulePriority": 1,
-      "description": "Expire images beyond the last 10 untagged images",
+      "description": "Expire images beyond count 10",
       "selection": {
         "tagStatus": "untagged",
         "countType": "imageCountMoreThan",

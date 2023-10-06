@@ -19,10 +19,9 @@ variable "aws_region" {
 }
 
 variable "server_container_name" {
-  type = string
-  default = "server-container"
-
   description = "Server container name"
+  type        = string
+  default     = "server-container"
 }
 
 variable "python_exec_container_name" {
