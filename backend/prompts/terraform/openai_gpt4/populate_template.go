@@ -75,6 +75,7 @@ func populateValidationTemplate(
 
 	referencedObjects := make([]*struct{ TargetCode string }, len(validationResult.ReferencedObjects))
 	for i, referencedObject := range validationResult.ReferencedObjects {
+		referencedObjects[i] = &struct{ TargetCode string }{}
 		referencedObjects[i].TargetCode = referencedObject.TargetCode
 	}
 

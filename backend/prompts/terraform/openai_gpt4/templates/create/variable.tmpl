@@ -1,8 +1,8 @@
 Variable Name: {{.Name}}
 Type: {{.Type}}
-{{with .Default}}
+{{with .Default -}}
 Default: {{.}}
 {{end}}
-{{with .NaturalLanguage}}
+{{with .NaturalLanguage -}}
 {{.}}
-{{end}}
+{{- end -}}

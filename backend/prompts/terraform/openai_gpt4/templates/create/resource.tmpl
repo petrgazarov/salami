@@ -1,17 +1,14 @@
 Resource type: {{.ResourceType}}
 Logical name: {{.LogicalName}}
-{{.NaturalLanguage}}
-
-{{with .ReferencedResources}}
+{{with .NaturalLanguage -}}
+{{.}}
+{{end}}
+{{- with .ReferencedResources}}
 The following resources are referenced:
 {{range .}}
-{{.LogicalName}}: {{.ResourceType}}
-{{end}}
-
-{{end}}
-{{with .ReferencedVariables}}
+{{- .LogicalName}}: {{.ResourceType}}
+{{end}}{{end -}}
+{{- with .ReferencedVariables}}
 The following variables are referenced:
-{{range .}}
-{{.Name}}: {{.Type}}
-{{end}}
-{{end}}
+{{range .}}{{.Name}}: {{.Type}}
+{{end -}}{{end -}}

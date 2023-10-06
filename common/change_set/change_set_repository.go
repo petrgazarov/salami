@@ -1,6 +1,8 @@
 package change_set
 
-import "salami/common/types"
+import (
+	"salami/common/types"
+)
 
 type ChangeSetRepository struct {
 	Diffs            []*types.ChangeSetDiff
@@ -86,6 +88,8 @@ func NewChangeSetRepository(changeSet *types.ChangeSet) *ChangeSetRepository {
 		deletedVariables: deletedVariables,
 		changedResources: changedResources,
 		changedVariables: changedVariables,
+		resourceDiffs:    resourceDiffs,
+		variableDiffs:    variableDiffs,
 	}
 }
 

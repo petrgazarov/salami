@@ -5,21 +5,27 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"salami/backend/prompts/terraform/openai_gpt4"
 	backendTypes "salami/backend/types"
 	"salami/common/change_set"
 	"salami/common/symbol_table"
 	commonTypes "salami/common/types"
+	"sort"
 	"strings"
 
 	"golang.org/x/sync/errgroup"
 )
 
+type TerraformValidateOutput struct {
+	Diagnostics []TerraformValidationError `json:"diagnostics"`
+}
+
 type TerraformValidationError struct {
 	Severity string `json:"severity"`
 	Summary  string `json:"summary"`
 	Detail   string `json:"detail"`
-	Range    struct {
+	Range    *struct {
 		Start struct {
 			Line int `json:"line"`
 		} `json:"start"`
@@ -35,6 +41,9 @@ func (t *Terraform) ValidateCode(
 	changeSetRepository *change_set.ChangeSetRepository,
 	llm backendTypes.Llm,
 ) []error {
+	if len(changeSetRepository.Diffs) == 0 {
+		return nil
+	}
 	validationResults, err := generateValidationResults(newObjects)
 	if err != nil {
 		return []error{err}
@@ -50,15 +59,21 @@ func (t *Terraform) ValidateCode(
 		validationResult := validationResult
 
 		g.Go(func() error {
+			diff := changeSetRepository.GetDiffForObject(validationResult.ValidatedObject)
+			if diff == nil {
+				return nil
+			}
+
 			semaphoreChannel <- struct{}{}
 			defer func() { <-semaphoreChannel }()
 
-			diff := changeSetRepository.GetDiffForObject(validationResult.ValidatedObject)
 			messages, err := getValidateCodeLlmMessages(symbolTable, diff, validationResult, llm)
 			if err != nil {
 				return err
 			}
 			completion, err := llm.CreateCompletion(messages)
+
+			fmt.Println("completion", completion)
 			if err != nil {
 				return err
 			}
@@ -77,29 +92,33 @@ func (t *Terraform) ValidateCode(
 func generateValidationResults(
 	newObjects []*commonTypes.Object,
 ) ([]*backendTypes.CodeValidationResult, error) {
-	var targetCodeLines []string
+	var targetCodeBlocks []string
 	var endLineNumbers []int
 
 	for _, obj := range newObjects {
-		lines := strings.Split(obj.TargetCode, "\n")
-		targetCodeLines = append(targetCodeLines, lines...)
+		numLines := strings.Count(obj.TargetCode, "\n")
+		targetCodeBlocks = append(targetCodeBlocks, obj.TargetCode)
 
 		if len(endLineNumbers) == 0 {
-			endLineNumbers = append(endLineNumbers, len(lines))
+			endLineNumbers = append(endLineNumbers, numLines+1)
 		} else {
 			lastLineNumber := endLineNumbers[len(endLineNumbers)-1]
-			endLineNumbers = append(endLineNumbers, lastLineNumber+2+len(lines))
+			endLineNumbers = append(endLineNumbers, lastLineNumber+2+numLines)
 		}
 	}
 
-	targetCode := strings.Join(targetCodeLines, "\n\n")
+	fmt.Println("endLineNumbers", endLineNumbers)
+
+	targetCode := strings.Join(targetCodeBlocks, "\n\n")
 	terraformValidateOutput, err := runTerraformValidate(targetCode)
 	if err != nil {
 		return nil, err
 	}
 
 	var validationResults []*backendTypes.CodeValidationResult
-	parseTerraformValidateOutput(terraformValidateOutput, newObjects, endLineNumbers, &validationResults)
+	if err := parseTerraformValidateOutput(terraformValidateOutput, newObjects, endLineNumbers, &validationResults); err != nil {
+		return nil, err
+	}
 
 	populateValidationResultsReferencedObjects(newObjects, &validationResults)
 
@@ -107,15 +126,27 @@ func generateValidationResults(
 }
 
 func runTerraformValidate(targetCode string) ([]byte, error) {
-	tempFile, err := os.CreateTemp("", "terraform.*.tf")
+	tempDir, err := os.MkdirTemp("", "terraform.*")
 	if err != nil {
 		return nil, err
 	}
-	defer os.Remove(tempFile.Name())
-	os.WriteFile(tempFile.Name(), []byte(targetCode), 0644)
+	defer os.RemoveAll(tempDir)
 
-	cmd := exec.Command("terraform", "validate", "-json", tempFile.Name())
-	output, _ := cmd.CombinedOutput()
+	tempFile := filepath.Join(tempDir, "main.tf")
+	err = os.WriteFile(tempFile, []byte(targetCode), 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	initCmd := exec.Command("terraform", "init", "-backend=false")
+	initCmd.Dir = tempDir
+	if err := initCmd.Run(); err != nil {
+		return nil, fmt.Errorf("failed to run terraform init: %w", err)
+	}
+
+	validateCmd := exec.Command("terraform", "validate", "-json")
+	validateCmd.Dir = tempDir
+	output, _ := validateCmd.CombinedOutput()
 
 	return output, nil
 }
@@ -125,36 +156,44 @@ func parseTerraformValidateOutput(
 	newObjects []*commonTypes.Object,
 	endLineNumbers []int,
 	validationResults *[]*backendTypes.CodeValidationResult,
-) {
+) error {
+	var tfValidateOutput TerraformValidateOutput
+	err := json.Unmarshal(terraformValidateOutput, &tfValidateOutput)
+	if err != nil {
+		return err
+	}
+
 	var tfErrors []TerraformValidationError
-	json.Unmarshal(terraformValidateOutput, &tfErrors)
-
-	for _, tfError := range tfErrors {
-		if tfError.Severity == "error" {
-			var validatedObject *commonTypes.Object
-			for i, endLineNumber := range endLineNumbers {
-				if i > 0 && tfError.Range.Start.Line <= endLineNumber && tfError.Range.Start.Line > endLineNumbers[i-1] {
-					validatedObject = newObjects[i]
-					break
-				} else if i == 0 && tfError.Range.Start.Line <= endLineNumber {
-					validatedObject = newObjects[i]
-					break
-				}
-			}
-
-			if validatedObject != nil {
-				*validationResults = append(*validationResults, &backendTypes.CodeValidationResult{
-					ValidatedObject: validatedObject,
-					ErrorMessage: fmt.Sprintf(
-						"Summary: %s\nDetail: %s\nCode line: %s",
-						tfError.Summary,
-						tfError.Detail,
-						tfError.Snippet.Code,
-					),
-				})
-			}
+	for _, diagnostic := range tfValidateOutput.Diagnostics {
+		if diagnostic.Severity == "error" && diagnostic.Range != nil {
+			tfErrors = append(tfErrors, diagnostic)
 		}
 	}
+	sort.Slice(tfErrors, func(i, j int) bool {
+		return tfErrors[i].Range.Start.Line < tfErrors[j].Range.Start.Line
+	})
+
+	fmt.Println("tfErrors", tfErrors)
+
+	j := 0
+	for _, tfError := range tfErrors {
+		for tfError.Range.Start.Line > endLineNumbers[j] {
+			j++
+		}
+		validatedObject := newObjects[j]
+
+		*validationResults = append(*validationResults, &backendTypes.CodeValidationResult{
+			ValidatedObject: validatedObject,
+			ErrorMessage: fmt.Sprintf(
+				"Summary: %s\nDetail: %s\nCode line: %s",
+				tfError.Summary,
+				tfError.Detail,
+				tfError.Snippet.Code,
+			),
+		})
+	}
+
+	return nil
 }
 
 func populateValidationResultsReferencedObjects(
