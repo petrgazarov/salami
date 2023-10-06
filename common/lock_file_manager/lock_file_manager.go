@@ -3,8 +3,8 @@ package lock_file_manager
 import (
 	"bytes"
 	"log"
-	"salami/common/types"
 	"salami/common/constants"
+	"salami/common/types"
 	"salami/common/utils/file_utils"
 
 	"github.com/BurntSushi/toml"
