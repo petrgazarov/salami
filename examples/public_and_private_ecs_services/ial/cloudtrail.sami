@@ -9,7 +9,7 @@ Policy with two statements:
 
 @resource(aws.cloudtrail.Trail, Cloudtrail)
 For $SalamiCloudtrailLogsBucket
-Name: cloudtrail
+Name: salami-cloudtrail
 Global service events: True
 Multi-region: True
 Logging enabled: True

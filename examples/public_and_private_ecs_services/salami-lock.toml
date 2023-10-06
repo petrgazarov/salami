@@ -10,7 +10,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "cloudtrail.tf"
-  checksum = "a7c88810a8da59b07060f3ba5f888e5a"
+  checksum = "290d0134471fdc3eed86f06b1692d1df"
 
 [[target_files_meta]]
   file_path = "cloudwatch.tf"
@@ -163,11 +163,11 @@ version = "0.0.1"
     source_file_line = 4
 
 [[objects]]
-  target_code = "resource \"aws_cloudtrail\" \"Cloudtrail\" {\n  name                          = \"cloudtrail\"\n  s3_bucket_name                = aws_s3_bucket.SalamiCloudtrailLogsBucket.bucket\n  include_global_service_events = true\n  is_multi_region_trail         = true\n  enable_logging                = true\n}"
+  target_code = "resource \"aws_cloudtrail\" \"Cloudtrail\" {\n  name                          = \"salami-cloudtrail\"\n  s3_bucket_name                = aws_s3_bucket.SalamiCloudtrailLogsBucket.bucket\n  include_global_service_events = true\n  is_multi_region_trail         = true\n  enable_logging                = true\n}"
   [objects.parsed_resource]
     resource_type = "aws.cloudtrail.Trail"
     logical_name = "Cloudtrail"
-    natural_language = "For $SalamiCloudtrailLogsBucket\nName: cloudtrail\nGlobal service events: True\nMulti-region: True\nLogging enabled: True"
+    natural_language = "For $SalamiCloudtrailLogsBucket\nName: salami-cloudtrail\nGlobal service events: True\nMulti-region: True\nLogging enabled: True"
     referenced_resources = ["SalamiCloudtrailLogsBucket"]
     referenced_variables = []
     source_file_path = "cloudtrail.sami"
