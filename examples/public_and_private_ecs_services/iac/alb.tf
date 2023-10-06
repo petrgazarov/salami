@@ -1,4 +1,4 @@
-resource "aws_security_group" "ALBSecurityGroup" {
+resource "aws_security_group" "AlbSecurityGroup" {
   name        = "alb-security-group"
   description = "Security group for ALB"
   vpc_id      = aws_vpc.MainVpc.id
@@ -22,7 +22,7 @@ resource "aws_lb" "ServerAlb" {
   name               = "server-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.ALBSecurityGroup.id]
+  security_groups    = [aws_security_group.AlbSecurityGroup.id]
   subnets            = [aws_subnet.PublicSubnetA.id, aws_subnet.PublicSubnetB.id]
   enable_deletion_protection = true
   idle_timeout = 3600

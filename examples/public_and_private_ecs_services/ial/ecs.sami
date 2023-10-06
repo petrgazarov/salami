@@ -45,7 +45,7 @@ In $MainVpc
 Name: server-ecs-security-group
 Description: Security group for Server ECS service
 Egress: all traffic allowed
-Ingress: Allow access on "tcp" protocol and {container_port} port, and limited to $ALBSecurityGroup security group
+Ingress: Allow access on "tcp" protocol and {container_port} port, and limited to $AlbSecurityGroup security group
 
 @resource(aws.ecs.Service, PythonExecEcsService)
 In $EcsCluster, using $PythonExecTaskDefinition

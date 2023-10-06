@@ -2,7 +2,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "alb.tf"
-  checksum = "a27a2f6cb10ace81d559799b3f2078be"
+  checksum = "da9cd73efa862d8cd86683f39c82965b"
 
 [[target_files_meta]]
   file_path = "certificate.tf"
@@ -26,7 +26,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "ecs.tf"
-  checksum = "47a3ca74f7758aab9100bcd2d0f2c99b"
+  checksum = "6da146e0a2a36385fe56f293b1ad61c2"
 
 [[target_files_meta]]
   file_path = "route53.tf"
@@ -53,10 +53,10 @@ version = "0.0.1"
   checksum = "98e76b974190dafef11e8ed4ac728f59"
 
 [[objects]]
-  target_code = "resource \"aws_security_group\" \"ALBSecurityGroup\" {\n  name        = \"alb-security-group\"\n  description = \"Security group for ALB\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
+  target_code = "resource \"aws_security_group\" \"AlbSecurityGroup\" {\n  name        = \"alb-security-group\"\n  description = \"Security group for ALB\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.SecurityGroup"
-    logical_name = "ALBSecurityGroup"
+    logical_name = "AlbSecurityGroup"
     natural_language = "In $MainVpc\nName: alb-security-group\nDescription: Security group for ALB\nAllows all egress traffic\nAllows ingress traffic on port 443 from anywhere"
     referenced_resources = ["MainVpc"]
     referenced_variables = []
@@ -64,12 +64,12 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_lb\" \"ServerAlb\" {\n  name               = \"server-alb\"\n  internal           = false\n  load_balancer_type = \"application\"\n  security_groups    = [aws_security_group.ALBSecurityGroup.id]\n  subnets            = [aws_subnet.PublicSubnetA.id, aws_subnet.PublicSubnetB.id]\n  enable_deletion_protection = true\n  idle_timeout = 3600\n}"
+  target_code = "resource \"aws_lb\" \"ServerAlb\" {\n  name               = \"server-alb\"\n  internal           = false\n  load_balancer_type = \"application\"\n  security_groups    = [aws_security_group.AlbSecurityGroup.id]\n  subnets            = [aws_subnet.PublicSubnetA.id, aws_subnet.PublicSubnetB.id]\n  enable_deletion_protection = true\n  idle_timeout = 3600\n}"
   [objects.parsed_resource]
     resource_type = "aws.lb.LoadBalancer"
     logical_name = "ServerAlb"
-    natural_language = "In $PublicSubnetA and $PublicSubnetB\nName: server-alb\nInternal: False\nSecurity group: ALBSecurityGroup\nDeletion protection enabled.\nIdle timeout: 3600"
-    referenced_resources = ["PublicSubnetA", "PublicSubnetB"]
+    natural_language = "In $PublicSubnetA and $PublicSubnetB\nName: server-alb\nInternal: False\nSecurity group: $AlbSecurityGroup\nDeletion protection enabled\nIdle timeout: 3600"
+    referenced_resources = ["PublicSubnetA", "PublicSubnetB", "AlbSecurityGroup"]
     referenced_variables = []
     source_file_path = "alb.sami"
     source_file_line = 8
@@ -361,12 +361,12 @@ version = "0.0.1"
     source_file_line = 38
 
 [[objects]]
-  target_code = "resource \"aws_security_group\" \"ServerEcsSecurityGroup\" {\n  name        = \"server-ecs-security-group\"\n  description = \"Security group for Server ECS service\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port       = var.container_port\n    to_port         = var.container_port\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.ALBSecurityGroup.id]\n  }\n}"
+  target_code = "resource \"aws_security_group\" \"ServerEcsSecurityGroup\" {\n  name        = \"server-ecs-security-group\"\n  description = \"Security group for Server ECS service\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port       = var.container_port\n    to_port         = var.container_port\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.AlbSecurityGroup.id]\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.SecurityGroup"
     logical_name = "ServerEcsSecurityGroup"
-    natural_language = "In $MainVpc\nName: server-ecs-security-group\nDescription: Security group for Server ECS service\nEgress: all traffic allowed\nIngress: Allow access on \"tcp\" protocol and {container_port} port, and limited to $ALBSecurityGroup security group"
-    referenced_resources = ["MainVpc", "ALBSecurityGroup"]
+    natural_language = "In $MainVpc\nName: server-ecs-security-group\nDescription: Security group for Server ECS service\nEgress: all traffic allowed\nIngress: Allow access on \"tcp\" protocol and {container_port} port, and limited to $AlbSecurityGroup security group"
+    referenced_resources = ["MainVpc", "AlbSecurityGroup"]
     referenced_variables = ["container_port"]
     source_file_path = "ecs.sami"
     source_file_line = 43

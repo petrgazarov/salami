@@ -77,7 +77,7 @@ resource "aws_security_group" "ServerEcsSecurityGroup" {
     from_port       = var.container_port
     to_port         = var.container_port
     protocol        = "tcp"
-    security_groups = [aws_security_group.ALBSecurityGroup.id]
+    security_groups = [aws_security_group.AlbSecurityGroup.id]
   }
 }
 

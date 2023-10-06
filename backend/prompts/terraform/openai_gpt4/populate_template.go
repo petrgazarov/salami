@@ -104,17 +104,23 @@ func getCreateUpdateTemplateReferencedObjects(
 	object *commonTypes.Object,
 	symbolTable *symbol_table.SymbolTable,
 ) ([]*commonTypes.ParsedResource, []*commonTypes.ParsedVariable) {
-	referencedResources := make([]*commonTypes.ParsedResource, len(object.ParsedResource.ReferencedResources))
-	referencedVariables := make([]*commonTypes.ParsedVariable, len(object.ParsedResource.ReferencedVariables))
+	referencedResources := make([]*commonTypes.ParsedResource, 0)
+	referencedVariables := make([]*commonTypes.ParsedVariable, 0)
 
-	for i, logicalName := range object.ParsedResource.ReferencedResources {
+	for _, logicalName := range object.ParsedResource.ReferencedResources {
 		referencedResource, _ := symbolTable.LookupResource(logicalName)
-		referencedResources[i] = referencedResource
+
+		if referencedResource != nil {
+			referencedResources = append(referencedResources, referencedResource)
+		}
 	}
 
-	for i, variableName := range object.ParsedResource.ReferencedVariables {
+	for _, variableName := range object.ParsedResource.ReferencedVariables {
 		referencedVariable, _ := symbolTable.LookupVariable(variableName)
-		referencedVariables[i] = referencedVariable
+
+		if referencedVariable != nil {
+			referencedVariables = append(referencedVariables, referencedVariable)
+		}
 	}
 
 	return referencedResources, referencedVariables

@@ -131,7 +131,7 @@ Deployment:
 	semanticAnalyzer := createSemanticAnalyzer(t, resources, variables)
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
-		expectedErrorMessage := "\ndummy/file/path\n  semantic error: Referenced variable 'container_port' is not defined"
+		expectedErrorMessage := "\ndummy/file/path\n  semantic error: referenced variable 'container_port' is not defined"
 		require.Equal(
 			t,
 			expectedErrorMessage,
@@ -155,7 +155,7 @@ func TestUsedResourcesExist(t *testing.T) {
 	semanticAnalyzer := createSemanticAnalyzer(t, resources, []*types.ParsedVariable{})
 	if err := semanticAnalyzer.Analyze(); err != nil {
 		require.NotNil(t, err, "Expected error but got nil")
-		expectedErrorMessage := "\ndummy/file/path\n  semantic error: Referenced resource 'ServerRepository' is not defined"
+		expectedErrorMessage := "\ndummy/file/path\n  semantic error: referenced resource 'ServerRepository' is not defined"
 		require.Equal(
 			t,
 			expectedErrorMessage,

@@ -1,4 +1,4 @@
-@resource(aws.ec2.SecurityGroup, ALBSecurityGroup)
+@resource(aws.ec2.SecurityGroup, AlbSecurityGroup)
 In $MainVpc
 Name: alb-security-group
 Description: Security group for ALB
@@ -9,8 +9,8 @@ Allows ingress traffic on port 443 from anywhere
 In $PublicSubnetA and $PublicSubnetB
 Name: server-alb
 Internal: False
-Security group: ALBSecurityGroup
-Deletion protection enabled.
+Security group: $AlbSecurityGroup
+Deletion protection enabled
 Idle timeout: 3600
 
 @resource(aws.lb.TargetGroup, ServerTargetGroup)
