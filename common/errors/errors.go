@@ -83,3 +83,11 @@ type LlmError struct {
 func (e *LlmError) Error() string {
 	return fmt.Sprintf("llm error: %s", e.Message)
 }
+
+type TargetError struct {
+	Message string
+}
+
+func (e *TargetError) Error() string {
+	return fmt.Sprintf("target error: %s", e.Message)
+}
