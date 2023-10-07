@@ -62,7 +62,7 @@ resource "aws_ecr_repository_policy" "ServerRepositoryPolicy" {
         "ecr:BatchGetImage",
         "ecr:BatchCheckLayerAvailability"
       ],
-      "Resource": "*"
+      "Resource": "${aws_ecr_repository.ServerRepository.arn}"
     }
   ]
 }

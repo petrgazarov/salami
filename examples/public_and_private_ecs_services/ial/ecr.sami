@@ -12,7 +12,7 @@ Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume the ro
 
 @resource(aws.ecr.RepositoryPolicy, ServerRepositoryPolicy)
 For $ServerRepository
-Policy allows $ServerEcsExecutionRole to perform three actions on the ECR repository:
+Policy allows $ServerEcsExecutionRole to perform three actions on $ServerRepository:
   1. "ecr:GetDownloadUrlForLayer"
   2. "ecr:BatchGetImage"
   3. "ecr:BatchCheckLayerAvailability"
@@ -31,7 +31,7 @@ Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume the ro
 
 @resource(aws.ecr.RepositoryPolicy, PythonExecRepositoryPolicy)
 For $PythonExecRepository
-Policy allows $PythonExecEcsExecutionRole to perform three actions on the ECR repository:
+Policy allows $PythonExecEcsExecutionRole to perform three actions on $PythonExecRepository:
   1. "ecr:GetDownloadUrlForLayer"
   2. "ecr:BatchGetImage"
   3. "ecr:BatchCheckLayerAvailability"
