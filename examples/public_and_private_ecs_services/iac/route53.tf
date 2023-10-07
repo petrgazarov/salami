@@ -10,7 +10,7 @@ resource "aws_route53_record" "FramerARecords" {
   records = ["52.223.52.2", "35.71.142.77"]
 }
 
-resource "aws_route53_record" "FramerCNAMERecord" {
+resource "aws_route53_record" "FramerCnameRecord" {
   zone_id = aws_route53_zone.HostedZone.zone_id
   name    = "www.${var.domain_name}"
   type    = "CNAME"

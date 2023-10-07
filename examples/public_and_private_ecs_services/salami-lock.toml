@@ -30,7 +30,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "route53.tf"
-  checksum = "4886d4e918e32b7d3c8c4f53df9d22e5"
+  checksum = "f4dca61b967432b9651ef5c2357f499e"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
@@ -416,10 +416,10 @@ version = "0.0.1"
     source_file_line = 4
 
 [[objects]]
-  target_code = "resource \"aws_route53_record\" \"FramerCNAMERecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = \"www.${var.domain_name}\"\n  type    = \"CNAME\"\n  records = [\"sites.framer.app.\"]\n  ttl     = 1800\n}"
+  target_code = "resource \"aws_route53_record\" \"FramerCnameRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = \"www.${var.domain_name}\"\n  type    = \"CNAME\"\n  records = [\"sites.framer.app.\"]\n  ttl     = 1800\n}"
   [objects.parsed_resource]
     resource_type = "aws.route53.Record"
-    logical_name = "FramerCNAMERecord"
+    logical_name = "FramerCnameRecord"
     natural_language = "Zone $HostedZone\nName www.{domain_name}\nType CNAME\nRecords [\"sites.framer.app.\"]\nTtl 1800"
     referenced_resources = ["HostedZone"]
     referenced_variables = ["domain_name"]

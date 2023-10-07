@@ -8,7 +8,7 @@ Type A
 Records ["52.223.52.2", "35.71.142.77"]
 Ttl 1800
 
-@resource(aws.route53.Record, FramerCNAMERecord)
+@resource(aws.route53.Record, FramerCnameRecord)
 Zone $HostedZone
 Name www.{domain_name}
 Type CNAME
