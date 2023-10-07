@@ -31,24 +31,6 @@ resource "aws_iam_role" "ServerAssumeRolePolicy" {
         "Service": "ec2.amazonaws.com"
       },
       "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "ServerAssumeRolePolicy" {
-  name   = "server-assume-role-policy"
-  role   = aws_iam_role.ServerAssumeRolePolicy.id
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "sts:AssumeRole",
       "Resource": "arn:aws:iam::*:role/salami-assumed-role-v0.1-*"
     }
   ]

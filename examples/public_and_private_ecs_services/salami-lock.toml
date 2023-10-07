@@ -34,7 +34,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
-  checksum = "3a41bcac13b6a087f79c6c2a1808ee57"
+  checksum = "5ca0eaf676aa0954494c60c151cb8e81"
 
 [[target_files_meta]]
   file_path = "user_assumed_role.tf"
@@ -416,7 +416,7 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_iam_role\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows a user to assume a role in users' accounts\"\n\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ec2.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Sid\": \"\"\n    }\n  ]\n}\nEOF\n}\n\nresource \"aws_iam_role_policy\" \"ServerAssumeRolePolicy\" {\n  name   = \"server-assume-role-policy\"\n  role   = aws_iam_role.ServerAssumeRolePolicy.id\n\n  policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"sts:AssumeRole\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"\n    }\n  ]\n}\nEOF\n}"
+  target_code = "resource \"aws_iam_role\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows a user to assume a role in users' accounts\"\n\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ec2.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"\n    }\n  ]\n}\nEOF\n}"
   [objects.parsed_resource]
     resource_type = "aws.iam.Role"
     logical_name = "ServerAssumeRolePolicy"
