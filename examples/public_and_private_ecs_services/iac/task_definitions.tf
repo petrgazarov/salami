@@ -17,22 +17,17 @@ resource "aws_iam_role" "ServerTaskRole" {
 EOF
 }
 
-resource "aws_iam_role" "ServerAssumeRolePolicy" {
+resource "aws_iam_policy" "ServerAssumeRolePolicy" {
   name        = "server-assume-role-policy"
   description = "A policy that allows the ECS task to assume a role in users' accounts"
-
-  assume_role_policy = <<EOF
+  policy      = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
-      },
       "Effect": "Allow",
-      "Resource": "arn:aws:iam::*:role/salami-assumed-role-v0.1-*",
-      "Sid": ""
+      "Resource": "arn:aws:iam::*:role/salami-assumed-role-v0.1-*"
     }
   ]
 }
@@ -41,7 +36,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "ServerTaskRolePolicyAttachment" {
   role       = aws_iam_role.ServerTaskRole.name
-  policy_arn = aws_iam_role.ServerAssumeRolePolicy.arn
+  policy_arn = aws_iam_policy.ServerAssumeRolePolicy.arn
 }
 
 resource "aws_ecs_task_definition" "ServerTaskDefinition" {
@@ -96,9 +91,9 @@ resource "aws_ecs_task_definition" "ServerTaskDefinition" {
 
 resource "aws_ecs_task_definition" "PythonExecTaskDefinition" {
   family                = "python-exec"
-  network_mode          = "awsvpc"
   cpu                   = "256"
   memory                = "512"
+  network_mode          = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   execution_role_arn    = aws_iam_role.PythonExecEcsExecutionRole.arn
 

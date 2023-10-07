@@ -2,7 +2,7 @@
 name: server-task-role
 Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume this role
 
-@resource(aws.iam.Role, ServerAssumeRolePolicy)
+@resource(aws.iam.Policy, ServerAssumeRolePolicy)
 Name: server-assume-role-policy
 Description: A policy that allows the ECS task to assume a role in users' accounts
 Policy allows the "sts:AssumeRole" action on resources matching the pattern "arn:aws:iam::*:role/salami-assumed-role-v0.1-*"

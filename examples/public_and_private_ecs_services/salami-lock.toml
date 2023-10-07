@@ -2,7 +2,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "alb.tf"
-  checksum = "20846e0b5b223317e700341896bbb0fc"
+  checksum = "73d3719e094868c649b41f3cb7b1cc11"
 
 [[target_files_meta]]
   file_path = "certificate.tf"
@@ -34,7 +34,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
-  checksum = "bc87b86dccd1783046d02514cee74222"
+  checksum = "8f8fd73730db60511b21569219cea8ef"
 
 [[target_files_meta]]
   file_path = "user_assumed_role.tf"
@@ -46,11 +46,11 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "vpc.tf"
-  checksum = "c24050cfe5e8036c95881bb15a0b1bb5"
+  checksum = "80e4df38abf64247b408bf0d38e2c064"
 
 [[target_files_meta]]
   file_path = "vpc_endpoints.tf"
-  checksum = "a40d1d8b5fb6f95eaabd5db851917029"
+  checksum = "7883ff1179ab7ae0045cc3cea8ef3480"
 
 [[objects]]
   target_code = "resource \"aws_security_group\" \"AlbSecurityGroup\" {\n  name        = \"alb-security-group\"\n  description = \"Security group for ALB\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
@@ -75,7 +75,7 @@ version = "0.0.1"
     source_file_line = 8
 
 [[objects]]
-  target_code = "resource \"aws_lb_target_group\" \"ServerTargetGroup\" {\n  name     = \"server-target-group\"\n  port     = 80\n  protocol = \"HTTP\"\n  vpc_id   = aws_vpc.MainVpc.id\n  target_type = \"ip\"\n\n  health_check {\n    interval = 30\n    path     = \"/\"\n    protocol = \"HTTP\"\n  }\n\n  stickiness {\n    type            = \"lb_cookie\"\n    cookie_duration = 86400\n  }\n}"
+  target_code = "resource \"aws_lb_target_group\" \"ServerTargetGroup\" {\n  name     = \"server-target-group\"\n  port     = 80\n  protocol = \"HTTP\"\n  vpc_id   = aws_vpc.MainVpc.id\n  target_type = \"ip\"\n\n  health_check {\n    interval = 30\n    path     = \"/\"\n    protocol = \"HTTP\"\n  }\n\n  stickiness {\n    type            = \"lb_cookie\"\n    cookie_duration = 86400\n    enabled         = true\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.lb.TargetGroup"
     logical_name = "ServerTargetGroup"
@@ -416,9 +416,9 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_iam_role\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows the ECS task to assume a role in users' accounts\"\n\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ecs-tasks.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\",\n      \"Sid\": \"\"\n    }\n  ]\n}\nEOF\n}"
+  target_code = "resource \"aws_iam_policy\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows the ECS task to assume a role in users' accounts\"\n  policy      = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Effect\": \"Allow\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"\n    }\n  ]\n}\nEOF\n}"
   [objects.parsed_resource]
-    resource_type = "aws.iam.Role"
+    resource_type = "aws.iam.Policy"
     logical_name = "ServerAssumeRolePolicy"
     natural_language = "Name: server-assume-role-policy\nDescription: A policy that allows the ECS task to assume a role in users' accounts\nPolicy allows the \"sts:AssumeRole\" action on resources matching the pattern \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\""
     referenced_resources = []
@@ -427,7 +427,7 @@ version = "0.0.1"
     source_file_line = 5
 
 [[objects]]
-  target_code = "resource \"aws_iam_role_policy_attachment\" \"ServerTaskRolePolicyAttachment\" {\n  role       = aws_iam_role.ServerTaskRole.name\n  policy_arn = aws_iam_role.ServerAssumeRolePolicy.arn\n}"
+  target_code = "resource \"aws_iam_role_policy_attachment\" \"ServerTaskRolePolicyAttachment\" {\n  role       = aws_iam_role.ServerTaskRole.name\n  policy_arn = aws_iam_policy.ServerAssumeRolePolicy.arn\n}"
   [objects.parsed_resource]
     resource_type = "aws.iam.RolePolicyAttachment"
     logical_name = "ServerTaskRolePolicyAttachment"
@@ -449,7 +449,7 @@ version = "0.0.1"
     source_file_line = 13
 
 [[objects]]
-  target_code = "resource \"aws_ecs_task_definition\" \"PythonExecTaskDefinition\" {\n  family                = \"python-exec\"\n  network_mode          = \"awsvpc\"\n  cpu                   = \"256\"\n  memory                = \"512\"\n  requires_compatibilities = [\"FARGATE\"]\n  execution_role_arn    = aws_iam_role.PythonExecEcsExecutionRole.arn\n\n  container_definitions = <<DEFINITION\n  [\n    {\n      \"name\": \"${var.python_exec_container_name}\",\n      \"image\": \"${aws_ecr_repository.PythonExecRepository.repository_url}:latest\",\n      \"cpu\": 256,\n      \"memory\": 512,\n      \"essential\": true,\n      \"portMappings\": [\n        {\n          \"containerPort\": ${var.container_port},\n          \"protocol\": \"tcp\"\n        }\n      ],\n      \"logConfiguration\": {\n        \"logDriver\": \"awslogs\",\n        \"options\": {\n          \"awslogs-group\": \"${aws_cloudwatch_log_group.PythonExecLogGroup.name}\",\n          \"awslogs-region\": \"${var.aws_region}\",\n          \"awslogs-stream-prefix\": \"ecs\"\n        }\n      }\n    }\n  ]\n  DEFINITION\n}"
+  target_code = "resource \"aws_ecs_task_definition\" \"PythonExecTaskDefinition\" {\n  family                = \"python-exec\"\n  cpu                   = \"256\"\n  memory                = \"512\"\n  network_mode          = \"awsvpc\"\n  requires_compatibilities = [\"FARGATE\"]\n  execution_role_arn    = aws_iam_role.PythonExecEcsExecutionRole.arn\n\n  container_definitions = <<DEFINITION\n  [\n    {\n      \"name\": \"${var.python_exec_container_name}\",\n      \"image\": \"${aws_ecr_repository.PythonExecRepository.repository_url}:latest\",\n      \"cpu\": 256,\n      \"memory\": 512,\n      \"essential\": true,\n      \"portMappings\": [\n        {\n          \"containerPort\": ${var.container_port},\n          \"protocol\": \"tcp\"\n        }\n      ],\n      \"logConfiguration\": {\n        \"logDriver\": \"awslogs\",\n        \"options\": {\n          \"awslogs-group\": \"${aws_cloudwatch_log_group.PythonExecLogGroup.name}\",\n          \"awslogs-region\": \"${var.aws_region}\",\n          \"awslogs-stream-prefix\": \"ecs\"\n        }\n      }\n    }\n  ]\n  DEFINITION\n}"
   [objects.parsed_resource]
     resource_type = "aws.ecs.TaskDefinition"
     logical_name = "PythonExecTaskDefinition"
@@ -659,7 +659,7 @@ version = "0.0.1"
     source_file_line = 28
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PublicSubnetA\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.3.0/24\"\n  availability_zone          = \"us-west-1a\"\n  map_public_ip_on_launch    = true\n\n  tags = {\n    Name = \"public-subnet-a\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PublicSubnetA\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.3.0/24\"\n  availability_zone          = \"us-west-1a\"\n  map_public_ip_on_launch    = true\n  tags = {\n    Name = \"public-subnet-a\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PublicSubnetA"
@@ -670,7 +670,7 @@ version = "0.0.1"
     source_file_line = 31
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PublicSubnetB\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.4.0/24\"\n  availability_zone          = \"us-west-1c\"\n  map_public_ip_on_launch    = true\n\n  tags = {\n    Name = \"public-subnet-b\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PublicSubnetB\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.4.0/24\"\n  availability_zone          = \"us-west-1c\"\n  map_public_ip_on_launch    = true\n  tags = {\n    Name = \"public-subnet-b\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PublicSubnetB"
@@ -725,7 +725,7 @@ version = "0.0.1"
     source_file_line = 57
 
 [[objects]]
-  target_code = "resource \"aws_vpc_endpoint\" \"EcrDkrVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.dkr\"\n  vpc_endpoint_type = \"Interface\"\n  private_dns_enabled = true\n  subnet_ids = [\n    aws_subnet.PrivateSubnetA.id,\n    aws_subnet.PrivateSubnetB.id\n  ]\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": [\n          \"${aws_iam_role.ServerEcsExecutionRole.arn}\",\n          \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"\n        ]\n      },\n      \"Action\": [\n        \"ecr:BatchCheckLayerAvailability\",\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}\nPOLICY\n}"
+  target_code = "data \"aws_caller_identity\" \"current\" {}\n\nresource \"aws_vpc_endpoint\" \"EcrDkrVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.dkr\"\n  vpc_endpoint_type = \"Interface\"\n  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n  private_dns_enabled = true\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": [\"arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.ServerEcsExecutionRole.name}\", \"arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.PythonExecEcsExecutionRole.name}\"]\n      },\n      \"Action\": [\n        \"ecr:BatchCheckLayerAvailability\",\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}\nPOLICY\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.VpcEndpoint"
     logical_name = "EcrDkrVpcEndpoint"

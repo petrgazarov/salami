@@ -51,7 +51,6 @@ resource "aws_subnet" "PublicSubnetA" {
   cidr_block                 = "10.0.3.0/24"
   availability_zone          = "us-west-1a"
   map_public_ip_on_launch    = true
-
   tags = {
     Name = "public-subnet-a"
   }
@@ -62,7 +61,6 @@ resource "aws_subnet" "PublicSubnetB" {
   cidr_block                 = "10.0.4.0/24"
   availability_zone          = "us-west-1c"
   map_public_ip_on_launch    = true
-
   tags = {
     Name = "public-subnet-b"
   }

@@ -50,6 +50,7 @@ resource "aws_lb_target_group" "ServerTargetGroup" {
   stickiness {
     type            = "lb_cookie"
     cookie_duration = 86400
+    enabled         = true
   }
 }
 
