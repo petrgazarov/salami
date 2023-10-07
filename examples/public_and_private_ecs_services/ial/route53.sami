@@ -1,23 +1,13 @@
 @resource(aws.route53.Zone, HostedZone)
 Name {domain_name}
 
-@resource(aws.route53.Record, FramerARecords)
-Zone $HostedZone
-Name {domain_name}
-Type A
-Records ["52.223.52.2", "35.71.142.77"]
-Ttl 1800
+@resource(aws.route53.Record, AppAlbRecord)
+In $HostedZone
+Name: app.{domain_name}
+Type: A
+Alias has "name" and "zone_id" of $ServerAlb, and "evaluate_target_health" set to True
 
-@resource(aws.route53.Record, FramerCnameRecord)
-Zone $HostedZone
-Name www.{domain_name}
-Type CNAME
-Records ["sites.framer.app."]
-Ttl 1800
-
-@resource(aws.route53.Record, GoogleTXTRecord)
-Zone $HostedZone
-Name {domain_name}
-Type TXT
-Records ["google-site-verification=UzsIO5GYrHN8MrT_xe_PgmbydavWUcgC1cUfwJHpWB4"]
-Ttl 1800
+@resource(aws.route53.Record, CertificateValidationRecord)
+In $HostedZone
+The name, type and records are derived from the $ServerCertificate domain validation option.
+Ttl: 300

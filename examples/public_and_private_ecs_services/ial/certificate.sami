@@ -3,10 +3,5 @@ Name: server-acm-certificate
 Domain name: app.{domain_name}
 Validation method: DNS
 
-@resource(aws.route53.Record, ValidationRecord)
-In $HostedZone
-The name, type and records are derived from the $ServerCertificate domain validation option.
-Ttl: 300
-
 @resource(aws.acm.CertificateValidation, CertificateValidation)
-For $ServerCertificate, using $ValidationRecord
+For $ServerCertificate, using $CertificateValidationRecord

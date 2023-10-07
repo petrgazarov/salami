@@ -60,15 +60,3 @@ resource "aws_lb_listener" "ServerListener" {
     target_group_arn = aws_lb_target_group.ServerTargetGroup.arn
   }
 }
-
-resource "aws_route53_record" "AppALBRecord" {
-  zone_id = aws_route53_zone.HostedZone.zone_id
-  name    = "app.${var.domain_name}"
-  type    = "A"
-
-  alias {
-    name                   = aws_lb.ServerAlb.dns_name
-    zone_id                = aws_lb.ServerAlb.zone_id
-    evaluate_target_health = true
-  }
-}

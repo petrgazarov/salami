@@ -2,11 +2,11 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "alb.tf"
-  checksum = "da9cd73efa862d8cd86683f39c82965b"
+  checksum = "0fa8ac996f93b3b0646ae0e11257189c"
 
 [[target_files_meta]]
   file_path = "certificate.tf"
-  checksum = "c48471fe29aa1643b45ce1bc1f3f199a"
+  checksum = "b3d0e4caf3acef8ac9a33656adab94d5"
 
 [[target_files_meta]]
   file_path = "cloudtrail.tf"
@@ -30,7 +30,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "route53.tf"
-  checksum = "f4dca61b967432b9651ef5c2357f499e"
+  checksum = "4b3211064969403d26db1dfadf1fc98b"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
@@ -97,17 +97,6 @@ version = "0.0.1"
     source_file_line = 26
 
 [[objects]]
-  target_code = "resource \"aws_route53_record\" \"AppALBRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = \"app.${var.domain_name}\"\n  type    = \"A\"\n\n  alias {\n    name                   = aws_lb.ServerAlb.dns_name\n    zone_id                = aws_lb.ServerAlb.zone_id\n    evaluate_target_health = true\n  }\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.route53.Record"
-    logical_name = "AppALBRecord"
-    natural_language = "In $HostedZone\nName: app.{domain_name}\nType: A\nAlias has \"name\" and \"zone_id\" of $ServerAlb, and \"evaluate_target_health\" set to True"
-    referenced_resources = ["HostedZone", "ServerAlb"]
-    referenced_variables = ["domain_name"]
-    source_file_path = "alb.sami"
-    source_file_line = 32
-
-[[objects]]
   target_code = "resource \"aws_acm_certificate\" \"ServerCertificate\" {\n  domain_name       = \"app.${var.domain_name}\"\n  validation_method = \"DNS\"\n\n  tags = {\n    Name = \"server-acm-certificate\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.acm.Certificate"
@@ -119,26 +108,15 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_route53_record\" \"ValidationRecord\" {\n  for_each = aws_acm_certificate.ServerCertificate.domain_validation_options\n  zone_id  = aws_route53_zone.HostedZone.zone_id\n  name     = each.value.resource_record_name\n  type     = each.value.resource_record_type\n  records  = [each.value.resource_record_value]\n  ttl      = 300\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.route53.Record"
-    logical_name = "ValidationRecord"
-    natural_language = "In $HostedZone\nThe name, type and records are derived from the $ServerCertificate domain validation option.\nTtl: 300"
-    referenced_resources = ["HostedZone", "ServerCertificate"]
-    referenced_variables = []
-    source_file_path = "certificate.sami"
-    source_file_line = 6
-
-[[objects]]
-  target_code = "resource \"aws_acm_certificate_validation\" \"CertificateValidation\" {\n  certificate_arn         = aws_acm_certificate.ServerCertificate.arn\n  validation_record_fqdns = [for r in aws_route53_record.ValidationRecord : r.fqdn]\n}"
+  target_code = "resource \"aws_acm_certificate_validation\" \"CertificateValidation\" {\n  certificate_arn         = aws_acm_certificate.ServerCertificate.arn\n  validation_record_fqdns = [for r in aws_route53_record.CertificateValidationRecord : r.fqdn]\n}"
   [objects.parsed_resource]
     resource_type = "aws.acm.CertificateValidation"
     logical_name = "CertificateValidation"
-    natural_language = "For $ServerCertificate, using $ValidationRecord"
-    referenced_resources = ["ServerCertificate", "ValidationRecord"]
+    natural_language = "For $ServerCertificate, using $CertificateValidationRecord"
+    referenced_resources = ["ServerCertificate", "CertificateValidationRecord"]
     referenced_variables = []
     source_file_path = "certificate.sami"
-    source_file_line = 11
+    source_file_line = 6
 
 [[objects]]
   target_code = "resource \"aws_s3_bucket\" \"SalamiCloudtrailLogsBucket\" {\n  bucket = \"salami-cloudtrail-logs\"\n}"
@@ -405,37 +383,26 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_route53_record\" \"FramerARecords\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = var.domain_name\n  type    = \"A\"\n  ttl     = 1800\n  records = [\"52.223.52.2\", \"35.71.142.77\"]\n}"
+  target_code = "resource \"aws_route53_record\" \"AppAlbRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = \"app.${var.domain_name}\"\n  type    = \"A\"\n\n  alias {\n    name                   = aws_lb.ServerAlb.dns_name\n    zone_id                = aws_lb.ServerAlb.zone_id\n    evaluate_target_health = true\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.route53.Record"
-    logical_name = "FramerARecords"
-    natural_language = "Zone $HostedZone\nName {domain_name}\nType A\nRecords [\"52.223.52.2\", \"35.71.142.77\"]\nTtl 1800"
-    referenced_resources = ["HostedZone"]
+    logical_name = "AppAlbRecord"
+    natural_language = "In $HostedZone\nName: app.{domain_name}\nType: A\nAlias has \"name\" and \"zone_id\" of $ServerAlb, and \"evaluate_target_health\" set to True"
+    referenced_resources = ["HostedZone", "ServerAlb"]
     referenced_variables = ["domain_name"]
     source_file_path = "route53.sami"
     source_file_line = 4
 
 [[objects]]
-  target_code = "resource \"aws_route53_record\" \"FramerCnameRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = \"www.${var.domain_name}\"\n  type    = \"CNAME\"\n  records = [\"sites.framer.app.\"]\n  ttl     = 1800\n}"
+  target_code = "resource \"aws_route53_record\" \"CertificateValidationRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_name\n  type    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_type\n  records = [tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_value]\n  ttl     = 300\n}"
   [objects.parsed_resource]
     resource_type = "aws.route53.Record"
-    logical_name = "FramerCnameRecord"
-    natural_language = "Zone $HostedZone\nName www.{domain_name}\nType CNAME\nRecords [\"sites.framer.app.\"]\nTtl 1800"
-    referenced_resources = ["HostedZone"]
-    referenced_variables = ["domain_name"]
+    logical_name = "CertificateValidationRecord"
+    natural_language = "In $HostedZone\nThe name, type and records are derived from the $ServerCertificate domain validation option.\nTtl: 300"
+    referenced_resources = ["HostedZone", "ServerCertificate"]
+    referenced_variables = []
     source_file_path = "route53.sami"
-    source_file_line = 11
-
-[[objects]]
-  target_code = "resource \"aws_route53_record\" \"GoogleTXTRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = var.domain_name\n  type    = \"TXT\"\n  ttl     = 1800\n  records = [\"google-site-verification=UzsIO5GYrHN8MrT_xe_PgmbydavWUcgC1cUfwJHpWB4\"]\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.route53.Record"
-    logical_name = "GoogleTXTRecord"
-    natural_language = "Zone $HostedZone\nName {domain_name}\nType TXT\nRecords [\"google-site-verification=UzsIO5GYrHN8MrT_xe_PgmbydavWUcgC1cUfwJHpWB4\"]\nTtl 1800"
-    referenced_resources = ["HostedZone"]
-    referenced_variables = ["domain_name"]
-    source_file_path = "route53.sami"
-    source_file_line = 18
+    source_file_line = 10
 
 [[objects]]
   target_code = "resource \"aws_iam_role\" \"ServerTaskRole\" {\n  name = \"server-task-role\"\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ecs-tasks.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Sid\": \"\"\n    }\n  ]\n}\nEOF\n}"

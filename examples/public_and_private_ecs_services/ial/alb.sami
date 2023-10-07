@@ -28,9 +28,3 @@ For $ServerAlb, using $ServerCertificate
 Port: 443, Protocol: HTTPS
 SSL policy: ELBSecurityPolicy-TLS13-1-2-2021-06
 Default action: forward incoming requests to $ServerTargetGroup
-
-@resource(aws.route53.Record, AppALBRecord)
-In $HostedZone
-Name: app.{domain_name}
-Type: A
-Alias has "name" and "zone_id" of $ServerAlb, and "evaluate_target_health" set to True
