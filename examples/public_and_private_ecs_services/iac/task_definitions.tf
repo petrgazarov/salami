@@ -91,9 +91,9 @@ resource "aws_ecs_task_definition" "ServerTaskDefinition" {
 
 resource "aws_ecs_task_definition" "PythonExecTaskDefinition" {
   family                = "python-exec"
+  network_mode          = "awsvpc"
   cpu                   = "256"
   memory                = "512"
-  network_mode          = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   execution_role_arn    = aws_iam_role.PythonExecEcsExecutionRole.arn
 
