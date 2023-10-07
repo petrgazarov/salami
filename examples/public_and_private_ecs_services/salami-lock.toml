@@ -486,7 +486,7 @@ version = "0.0.1"
   [objects.parsed_resource]
     resource_type = "aws.s3.BucketPolicy"
     logical_name = "AssumedRolesBucketPolicy"
-    natural_language = "For $AssumedRolesBucket\nPolicy allows all principals to perform the \"s3:GetObject\" action on all objects in the bucket."
+    natural_language = "For $AssumedRolesBucket\nPolicy allows all principals to GET all objects in the bucket"
     referenced_resources = ["AssumedRolesBucket"]
     referenced_variables = []
     source_file_path = "user_assumed_role.sami"
