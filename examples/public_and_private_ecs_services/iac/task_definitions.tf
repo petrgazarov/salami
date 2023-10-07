@@ -31,7 +31,8 @@ resource "aws_iam_role" "ServerAssumeRolePolicy" {
         "Service": "ecs-tasks.amazonaws.com"
       },
       "Effect": "Allow",
-      "Resource": "arn:aws:iam::*:role/salami-assumed-role-v0.1-*"
+      "Resource": "arn:aws:iam::*:role/salami-assumed-role-v0.1-*",
+      "Sid": ""
     }
   ]
 }
@@ -45,12 +46,12 @@ resource "aws_iam_role_policy_attachment" "ServerTaskRolePolicyAttachment" {
 
 resource "aws_ecs_task_definition" "ServerTaskDefinition" {
   family                = "server"
-  network_mode          = "awsvpc"
   cpu                   = "256"
   memory                = "512"
+  network_mode          = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
   task_role_arn         = aws_iam_role.ServerTaskRole.arn
   execution_role_arn    = aws_iam_role.ServerEcsExecutionRole.arn
-  requires_compatibilities = ["FARGATE"]
 
   container_definitions = <<DEFINITION
   [

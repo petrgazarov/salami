@@ -24,8 +24,14 @@ resource "aws_lb" "ServerAlb" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.AlbSecurityGroup.id]
   subnets            = [aws_subnet.PublicSubnetA.id, aws_subnet.PublicSubnetB.id]
+
   enable_deletion_protection = true
+
   idle_timeout = 3600
+
+  tags = {
+    Name = "server-alb"
+  }
 }
 
 resource "aws_lb_target_group" "ServerTargetGroup" {
@@ -44,7 +50,6 @@ resource "aws_lb_target_group" "ServerTargetGroup" {
   stickiness {
     type            = "lb_cookie"
     cookie_duration = 86400
-    enabled         = true
   }
 }
 

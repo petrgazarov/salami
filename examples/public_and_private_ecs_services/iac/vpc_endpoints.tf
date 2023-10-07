@@ -2,29 +2,35 @@ resource "aws_vpc_endpoint" "EcrDkrVpcEndpoint" {
   vpc_id            = aws_vpc.MainVpc.id
   service_name      = "com.amazonaws.${var.aws_region}.ecr.dkr"
   vpc_endpoint_type = "Interface"
-  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
   private_dns_enabled = true
+  subnet_ids = [
+    aws_subnet.PrivateSubnetA.id,
+    aws_subnet.PrivateSubnetB.id
+  ]
   security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]
 
   policy = <<POLICY
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": ["${aws_iam_role.ServerEcsExecutionRole.arn}", "${aws_iam_role.PythonExecEcsExecutionRole.arn}"]
-        },
-        "Action": [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
-        ],
-        "Resource": "*"
-      }
-    ]
-  }
-  POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "${aws_iam_role.ServerEcsExecutionRole.arn}",
+          "${aws_iam_role.PythonExecEcsExecutionRole.arn}"
+        ]
+      },
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
 }
 
 resource "aws_vpc_endpoint" "EcrApiVpcEndpoint" {
@@ -33,28 +39,28 @@ resource "aws_vpc_endpoint" "EcrApiVpcEndpoint" {
   vpc_endpoint_type = "Interface"
   subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]
   private_dns_enabled = true
-  security_group_ids  = [aws_security_group.EcrVpcEndpointSG.id]
+  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]
 
   policy = <<POLICY
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "AWS": ["${aws_iam_role.ServerEcsExecutionRole.arn}", "${aws_iam_role.PythonExecEcsExecutionRole.arn}"]
-        },
-        "Action": [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
-        ],
-        "Resource": "*"
-      }
-    ]
-  }
-  POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": ["${aws_iam_role.ServerEcsExecutionRole.arn}", "${aws_iam_role.PythonExecEcsExecutionRole.arn}"]
+      },
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
 }
 
 resource "aws_vpc_endpoint" "S3VpcEndpoint" {
