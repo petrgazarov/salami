@@ -34,7 +34,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
-  checksum = "5ca0eaf676aa0954494c60c151cb8e81"
+  checksum = "b40f88f4c5a646de8a989793a9a6a2c4"
 
 [[target_files_meta]]
   file_path = "user_assumed_role.tf"
@@ -416,11 +416,11 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_iam_role\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows a user to assume a role in users' accounts\"\n\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ec2.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"\n    }\n  ]\n}\nEOF\n}"
+  target_code = "resource \"aws_iam_role\" \"ServerAssumeRolePolicy\" {\n  name        = \"server-assume-role-policy\"\n  description = \"A policy that allows the ECS task to assume a role in users' accounts\"\n\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ecs-tasks.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Resource\": \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"\n    }\n  ]\n}\nEOF\n}"
   [objects.parsed_resource]
     resource_type = "aws.iam.Role"
     logical_name = "ServerAssumeRolePolicy"
-    natural_language = "Name: server-assume-role-policy\nDescription: A policy that allows a user to assume a role in users' accounts\nPolicy allows the \"sts:AssumeRole\" action on resources matching the pattern \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"."
+    natural_language = "Name: server-assume-role-policy\nDescription: A policy that allows the ECS task to assume a role in users' accounts\nPolicy allows the \"sts:AssumeRole\" action on resources matching the pattern \"arn:aws:iam::*:role/salami-assumed-role-v0.1-*\"."
     referenced_resources = []
     referenced_variables = []
     source_file_path = "task_definitions.sami"

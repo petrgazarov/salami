@@ -19,7 +19,7 @@ EOF
 
 resource "aws_iam_role" "ServerAssumeRolePolicy" {
   name        = "server-assume-role-policy"
-  description = "A policy that allows a user to assume a role in users' accounts"
+  description = "A policy that allows the ECS task to assume a role in users' accounts"
 
   assume_role_policy = <<EOF
 {
@@ -28,7 +28,7 @@ resource "aws_iam_role" "ServerAssumeRolePolicy" {
     {
       "Action": "sts:AssumeRole",
       "Principal": {
-        "Service": "ec2.amazonaws.com"
+        "Service": "ecs-tasks.amazonaws.com"
       },
       "Effect": "Allow",
       "Resource": "arn:aws:iam::*:role/salami-assumed-role-v0.1-*"
