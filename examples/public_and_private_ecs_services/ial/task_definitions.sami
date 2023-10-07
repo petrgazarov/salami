@@ -11,7 +11,6 @@ Policy allows the "sts:AssumeRole" action on resources matching the pattern "arn
 Attaches $ServerAssumeRolePolicy to $ServerTaskRole
 
 @resource(aws.ecs.TaskDefinition, ServerTaskDefinition)
-Name: server-task-definition
 Family: server
 Cpu: 256, Memory: 512
 Network mode: awsvpc
@@ -20,19 +19,19 @@ Requires FARGATE compatibility
 Execution role: $ServerEcsExecutionRole
 Container definition:
   Name: {server_container_name}
-  Image: $ServerRepository url with the 'latest' tag
+  Image: $ServerRepository url with the "latest" tag
   Memory: 512
   Cpu: 256
   Essential: True
-  Port mappings: Container port is {container_port}. Protocol is TCP. No host port is set.
+  Port mappings:
+    Container port is {container_port}. Protocol is TCP. No host port is set.
   Environment:
     OPENAI_API_KEY: ${openai_api_key}
     ASSUMED_ROLE_SECRET_TOKEN: ${assumed_role_secret_token}
     PYTHON_EXEC_URL: {python_exec_local_service_name}.{local_dns_namespace_name}:{container_port}.
-  Log configuration: awslogs log driver, $ServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to ecs.
+  Log configuration: awslogs log driver, $ServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to "ecs".
 
 @resource(aws.ecs.TaskDefinition, PythonExecTaskDefinition)
-Name: python-exec-task-definition
 Family: python-exec
 Cpu: 256, Memory: 512
 Network mode: awsvpc
@@ -40,7 +39,7 @@ Requires FARGATE compatibility
 Execution role: $PythonExecEcsExecutionRole
 Container definition:
   Name: {python_exec_container_name}
-  Image: $PythonExecRepository url with the 'latest' tag
+  Image: $PythonExecRepository url with the "latest" tag
   Memory: 512
   Cpu: 256
   Essential: True
