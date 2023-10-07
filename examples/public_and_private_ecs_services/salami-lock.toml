@@ -50,7 +50,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "vpc_endpoints.tf"
-  checksum = "98e76b974190dafef11e8ed4ac728f59"
+  checksum = "e0c8e25d761a37c797db5e23f96392b9"
 
 [[objects]]
   target_code = "resource \"aws_security_group\" \"AlbSecurityGroup\" {\n  name        = \"alb-security-group\"\n  description = \"Security group for ALB\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
@@ -725,13 +725,13 @@ version = "0.0.1"
     source_file_line = 57
 
 [[objects]]
-  target_code = "resource \"aws_vpc_endpoint\" \"EcrDkrVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.dkr\"\n  vpc_endpoint_type = \"Interface\"\n  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n  private_dns_enabled = true\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<POLICY\n  {\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n      {\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n          \"AWS\": [\"${aws_iam_role.ServerEcsExecutionRole.arn}\", \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"]\n        },\n        \"Action\": [\n          \"ecr:BatchCheckLayerAvailability\",\n          \"ecr:GetDownloadUrlForLayer\",\n          \"ecr:BatchGetImage\"\n        ],\n        \"Resource\": \"arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/*\"\n      }\n    ]\n  }\n  POLICY\n}"
+  target_code = "resource \"aws_vpc_endpoint\" \"EcrDkrVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.ecr.dkr\"\n  vpc_endpoint_type = \"Interface\"\n  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n  private_dns_enabled = true\n  security_group_ids = [aws_security_group.EcrVpcEndpointSG.id]\n\n  policy = <<POLICY\n  {\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [\n      {\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n          \"AWS\": [\"${aws_iam_role.ServerEcsExecutionRole.arn}\", \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"]\n        },\n        \"Action\": [\n          \"ecr:BatchCheckLayerAvailability\",\n          \"ecr:GetDownloadUrlForLayer\",\n          \"ecr:BatchGetImage\"\n        ],\n        \"Resource\": \"*\"\n      }\n    ]\n  }\n  POLICY\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.VpcEndpoint"
     logical_name = "EcrDkrVpcEndpoint"
-    natural_language = "In $MainVpc, $PrivateSubnetA and $PrivateSubnetB\nVPC endpoint type: Interface\nService name: com.amazonaws.{aws_region}.ecr.dkr\nPrivate DNS enabled: True\nSecurity group: $EcrVpcEndpointSG\nPolicy allows two AWS principals - $ServerEcsExecutionRole and $PythonExecEcsExecutionRole - to perform three actions on ECR resources:\n  1. \"ecr:BatchCheckLayerAvailability\"\n  2. \"ecr:GetDownloadUrlForLayer\"\n  3. \"ecr:BatchGetImage\"\nThe resources on which these actions can be performed are defined by the ARN pattern \"arn:aws:ecr:{aws_region}:{aws_account_id}:repository/*\",\nwhich includes all repositories in the specified AWS region and account."
+    natural_language = "In $MainVpc, $PrivateSubnetA and $PrivateSubnetB\nVPC endpoint type: Interface\nService name: com.amazonaws.{aws_region}.ecr.dkr\nPrivate DNS enabled: True\nSecurity group: $EcrVpcEndpointSG\nPolicy allows two AWS principals - $ServerEcsExecutionRole and $PythonExecEcsExecutionRole - to perform three actions on all ECR repositories:\n  1. \"ecr:BatchCheckLayerAvailability\"\n  2. \"ecr:GetDownloadUrlForLayer\"\n  3. \"ecr:BatchGetImage\""
     referenced_resources = ["MainVpc", "PrivateSubnetA", "PrivateSubnetB", "EcrVpcEndpointSG", "ServerEcsExecutionRole", "PythonExecEcsExecutionRole"]
-    referenced_variables = ["aws_region", "aws_account_id"]
+    referenced_variables = ["aws_region"]
     source_file_path = "vpc_endpoints.sami"
     source_file_line = 1
 
@@ -744,7 +744,7 @@ version = "0.0.1"
     referenced_resources = ["MainVpc", "PrivateSubnetA", "PrivateSubnetB", "EcrVpcEndpointSG", "ServerEcsExecutionRole", "PythonExecEcsExecutionRole"]
     referenced_variables = ["aws_region"]
     source_file_path = "vpc_endpoints.sami"
-    source_file_line = 14
+    source_file_line = 12
 
 [[objects]]
   target_code = "resource \"aws_vpc_endpoint\" \"S3VpcEndpoint\" {\n  vpc_id              = aws_vpc.MainVpc.id\n  service_name        = \"com.amazonaws.${var.aws_region}.s3\"\n  vpc_endpoint_type   = \"Gateway\"\n  route_table_ids     = [aws_route_table.PrivateRouteTable.id]\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": \"*\",\n      \"Action\": \"*\",\n      \"Resource\": \"arn:aws:s3:::prod-${var.aws_region}-starport-layer-bucket/*\"\n    }\n  ]\n}\nPOLICY\n}"
@@ -755,7 +755,7 @@ version = "0.0.1"
     referenced_resources = ["MainVpc", "PrivateRouteTable"]
     referenced_variables = ["aws_region"]
     source_file_path = "vpc_endpoints.sami"
-    source_file_line = 26
+    source_file_line = 24
 
 [[objects]]
   target_code = "resource \"aws_security_group\" \"CloudWatchLogsVpcEndpointSG\" {\n  name        = \"cloudwatch-logs-vpc-endpoint-sg\"\n  description = \"Security Group for CloudWatch Logs VPC Endpoint\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
@@ -766,7 +766,7 @@ version = "0.0.1"
     referenced_resources = ["MainVpc"]
     referenced_variables = []
     source_file_path = "vpc_endpoints.sami"
-    source_file_line = 32
+    source_file_line = 30
 
 [[objects]]
   target_code = "resource \"aws_vpc_endpoint\" \"CloudWatchLogsVpcEndpoint\" {\n  vpc_id            = aws_vpc.MainVpc.id\n  service_name      = \"com.amazonaws.${var.aws_region}.logs\"\n  vpc_endpoint_type = \"Interface\"\n  subnet_ids        = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n  private_dns_enabled = true\n  security_group_ids = [aws_security_group.CloudWatchLogsVpcEndpointSG.id]\n\n  policy = <<POLICY\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\"AWS\": \"*\"},\n      \"Action\": [\n        \"logs:CreateLogGroup\",\n        \"logs:CreateLogStream\",\n        \"logs:PutLogEvents\",\n        \"logs:DescribeLogStreams\"\n      ],\n      \"Resource\": \"*\"\n    }\n  ]\n}\nPOLICY\n}"
@@ -777,4 +777,4 @@ version = "0.0.1"
     referenced_resources = ["MainVpc", "PrivateSubnetA", "PrivateSubnetB", "CloudWatchLogsVpcEndpointSG"]
     referenced_variables = ["aws_region"]
     source_file_path = "vpc_endpoints.sami"
-    source_file_line = 39
+    source_file_line = 37

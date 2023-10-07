@@ -4,12 +4,10 @@ VPC endpoint type: Interface
 Service name: com.amazonaws.{aws_region}.ecr.dkr
 Private DNS enabled: True
 Security group: $EcrVpcEndpointSG
-Policy allows two AWS principals - $ServerEcsExecutionRole and $PythonExecEcsExecutionRole - to perform three actions on ECR resources:
+Policy allows two AWS principals - $ServerEcsExecutionRole and $PythonExecEcsExecutionRole - to perform three actions on all ECR repositories:
   1. "ecr:BatchCheckLayerAvailability"
   2. "ecr:GetDownloadUrlForLayer"
   3. "ecr:BatchGetImage"
-The resources on which these actions can be performed are defined by the ARN pattern "arn:aws:ecr:{aws_region}:{aws_account_id}:repository/*",
-which includes all repositories in the specified AWS region and account.
 
 @resource(aws.ec2.VpcEndpoint, EcrApiVpcEndpoint)
 In $MainVpc, $PrivateSubnetA and $PrivateSubnetB

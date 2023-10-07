@@ -20,7 +20,7 @@ resource "aws_vpc_endpoint" "EcrDkrVpcEndpoint" {
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage"
         ],
-        "Resource": "arn:aws:ecr:${var.aws_region}:${var.aws_account_id}:repository/*"
+        "Resource": "*"
       }
     ]
   }
