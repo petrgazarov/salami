@@ -15,7 +15,7 @@ Desired count: 1
 Launch type: FARGATE
 ---
 Network configuration:
-  Assigned public IP.
+  Assigned public IP
   Subnets: $PublicSubnetA and $PublicSubnetB
   Security group: $ServerEcsSecurityGroup
 Load balancers:

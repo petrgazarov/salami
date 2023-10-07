@@ -321,7 +321,7 @@ version = "0.0.1"
   [objects.parsed_resource]
     resource_type = "aws.ecs.Service"
     logical_name = "ServerEcsService"
-    natural_language = "In $EcsCluster, has $ServerTaskDefinition\nResource type: aws.ecs.Service\nLogical name: ServerEcsService\nName: server\nDesired count: 1\nLaunch type: FARGATE\n---\nNetwork configuration:\n  Assigned public IP.\n  Subnets: $PublicSubnetA and $PublicSubnetB\n  Security group: $ServerEcsSecurityGroup\nLoad balancers:\n  Target group: $ServerTargetGroup\n  Container name: {server_container_name}\n  Port: {container_port}\nDeployment:\n  ECS type deployment controller\n  Deployment circuit breaker: enabled with rollback\n  Wait for steady state: True"
+    natural_language = "In $EcsCluster, has $ServerTaskDefinition\nResource type: aws.ecs.Service\nLogical name: ServerEcsService\nName: server\nDesired count: 1\nLaunch type: FARGATE\n---\nNetwork configuration:\n  Assigned public IP\n  Subnets: $PublicSubnetA and $PublicSubnetB\n  Security group: $ServerEcsSecurityGroup\nLoad balancers:\n  Target group: $ServerTargetGroup\n  Container name: {server_container_name}\n  Port: {container_port}\nDeployment:\n  ECS type deployment controller\n  Deployment circuit breaker: enabled with rollback\n  Wait for steady state: True"
     referenced_resources = ["EcsCluster", "ServerTaskDefinition", "PublicSubnetA", "PublicSubnetB", "ServerEcsSecurityGroup", "ServerTargetGroup"]
     referenced_variables = ["server_container_name", "container_port"]
     source_file_path = "ecs.sami"
