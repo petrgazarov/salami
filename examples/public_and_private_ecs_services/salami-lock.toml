@@ -42,7 +42,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "variables.tf"
-  checksum = "5550a14f8b40b3413f9e2399751bf0f2"
+  checksum = "b0ab01ea39223c5219b14e876343c081"
 
 [[target_files_meta]]
   file_path = "vpc.tf"
@@ -503,22 +503,22 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "variable \"domain_name\" {\n  type = string\n  default = \"mydomain.ai\"\n}"
+  target_code = "variable \"domain_name\" {\n  type = string\n}"
   [objects.parsed_variable]
     name = "domain_name"
     natural_language = ""
     type = "string"
-    default = "mydomain.ai"
+    default = ""
     source_file_path = "variables.sami"
     source_file_line = 3
 
 [[objects]]
-  target_code = "variable \"aws_account_id\" {\n  type    = string\n  default = \"123456789012\"\n}"
+  target_code = "variable \"aws_account_id\" {\n  type    = string\n}"
   [objects.parsed_variable]
     name = "aws_account_id"
     natural_language = ""
     type = "string"
-    default = "123456789012"
+    default = ""
     source_file_path = "variables.sami"
     source_file_line = 5
 

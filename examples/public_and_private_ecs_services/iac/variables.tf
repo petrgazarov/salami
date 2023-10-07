@@ -5,12 +5,10 @@ variable "local_dns_namespace_name" {
 
 variable "domain_name" {
   type = string
-  default = "mydomain.ai"
 }
 
 variable "aws_account_id" {
   type    = string
-  default = "123456789012"
 }
 
 variable "aws_region" {
