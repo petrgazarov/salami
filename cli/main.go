@@ -60,6 +60,7 @@ func main() {
 	case "help":
 		showCommands()
 	default:
-		color.Red("Invalid command passed. Type", GENERAL_COMMAND, "help'")
+		msg := "Invalid command passed. Type '" + GENERAL_COMMAND + " help'"
+		color.Red(msg)
 	}
 }
