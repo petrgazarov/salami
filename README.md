@@ -16,7 +16,7 @@ Salami programs have several special constructs:
 4. **Resource references** - references to resources that are defined in the program; start with a dollar sign.
 
 <p align="center">
-  <img height="200" src="docs/images/salami-example.png">
+  <img src="docs/images/salami-example.png">
   <br>
   <i>Example Salami code with 3 blocks: VPC resource, Security Group resource and a variable.</i>
 </p>
