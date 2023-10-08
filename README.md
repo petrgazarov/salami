@@ -1,84 +1,22 @@
 # Salami
 
 <p align="center">
-  <img src="salami-icon.svg" alt="Salami Icon" width="100px" height="100px">
+  <img src="docs/images/salami-icon.svg" alt="Salami Icon" width="100px" height="100px">
 </p>
 
-Salami is a tool for managing cloud infrastructure as natural language. Salami provides a minimalist declarative DSL, a compiler, and a CLI utility.
-The compiler is designed to be target and LLM-agnostic. Initially, only Terraform target and GPT-4 LLM are supported.
+Salami is a declarative, domain-specific language for cloud infrastructure that is based on natural language. The compiler uses LLM to convert natural language into structured code. Currently, the supported target is Terraform.
 
 ## DSL Design
 
-Salami programs are _mostly_ natural language, with several special constructs to make source more expressive and concise,
-and provide additional information to the compiler. The special constructs are:
+Salami programs have several special constructs:
 
-1. **Blocks** - multiline blocks of text that each represent either a `Resource` or a `Variable`.
-2. **Decorators** - python-inspired functions that are used to specify special information about the block, such as dependencies and exports.
-3. **Fields** - colon-separated key-value pairs that have special meaning within a block.
-4. **Variables** - variables can be referenced anywhere within natural language by using curly braces.
+1. **Blocks** - multiline blocks of text that each represent either a `resource` or a `variable`.
+2. **Constructor functions** - functional expressions that are used to specify the nature of the block.
+3. **Variable references** - references to variables that are defined in the program; delimited by curly braces.
+4. **Resource references** - references to resources that are defined in the program; start with a dollar sign.
 
-### Resource
-
-Supported decorators
-
-| Decorator | Function signature                                | Arguments format                   | Example                                 | Required |
-| --------- | ------------------------------------------------- | ---------------------------------- | --------------------------------------- | -------- |
-| @exports  | @exports(property: export-name)                   | Comma-separated list of key-values | @exports(name: ecs-service-name)        | No       |
-| @uses     | @uses(Resource1LogicalName, Resource2LogicalName) | Comma-separated list of strings    | @uses(EcsCluster, ServerTaskDefinition) | No       |
-
-Fields
-
-| Field         | Value format                                                | Example value   | Required |
-| ------------- | ----------------------------------------------------------- | --------------- | -------- |
-| Resource type | A string in the format: [provider].[service].[ResourceType] | aws.ecs.Service | Yes      |
-| Logical name  | Alphanumeric string, starts with a letter                   | EcsCluster      | Yes      |
-
-Source block example
-
-```
-@exports(name: ecs-service-name)
-@uses(EcsCluster, ServerTaskDefinition, PublicSubnetA, PublicSubnetB, ServerEcsSecurityGroup, ServerTargetGroup)
-Resource type: aws.ecs.Service
-Logical name: ServerEcsService
-Name: api-server
-Desired count: 1
-Launch type: FARGATE
----
-Network configuration:
-  Assigned public IP.
-  Subnets: PublicSubnetA and PublicSubnetB.
-  Security group: ServerEcsSecurityGroup.
-Load balancers:
-  Target group: ServerTargetGroup.
-  Container name: {server_container_name}.
-  Port: {container_port}.
-Deployment:
-  ECS type deployment controller.
-  Deployment circuit breaker: enabled with rollback.
-  Wait for steady state: True
-```
-
-### Variable
-
-Supported decorators
-
-| Decorator | Function signature | Arguments format                        | Example           | Required |
-| --------- | ------------------ | --------------------------------------- | ----------------- | -------- |
-| @variable | @variable(type)    | Must be one of: string, number, boolean | @variable(string) | Yes      |
-
-Fields
-
-| Field       | Value format                             | Example value                             | Required |
-| ----------- | ---------------------------------------- | ----------------------------------------- | -------- |
-| Name        | Alphanumeric string, underscores allowed | server_container_name                     | Yes      |
-| Description | String                                   | Container name for the server ECS service | No       |
-| Default     | String, number, or boolean               | server-container                          | No       |
-
-Source block example
-
-```
-@variable(string)
-Description: Container name for the server ECS service
-Name: server_container_name
-Default: server-container
-```
+<p align="center">
+  <img height="200" src="docs/images/salami-example.png">
+  <br>
+  <i>Example Salami code with 3 blocks: VPC resource, Security Group resource and a variable.</i>
+</p>

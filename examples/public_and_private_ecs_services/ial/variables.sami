@@ -16,3 +16,18 @@ Description: Server container name
 @variable(openai_api_key, string)
 
 @variable(assumed_role_secret_token, string)
+
+@resource(aws.ec2.Vpc, MainVpc)
+Name: salami-demo
+Cidr block: 10.0.0.0/16
+Enable DNS support: True
+Enable DNS hostnames: True
+
+@resource(aws.ec2.SecurityGroup, PythonExecEcsSecurityGroup)
+In $MainVpc
+Name: python-exec-ecs-security-group
+Description: Security group for python exec ECS service
+Egress: allow all tcp traffic on port 443
+Ingress: allow access on "tcp" protocol, {container_port} port
+
+@variable(container_port, number, 8000)
