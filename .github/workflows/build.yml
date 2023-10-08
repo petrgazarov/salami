@@ -39,6 +39,7 @@ jobs:
 
       - name: Build binary
         run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o salami-${{ matrix.goos }}-${{ matrix.goarch }}
+        working-directory: ./cli
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
