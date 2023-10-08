@@ -15,7 +15,7 @@ Salami is a declarative domain-specific language for cloud infrastructure, cente
 Salami files are mostly comprised of natural language, with several special constructs:
 
 1. **Blocks** - multiline blocks of text that each represent either a resource or a variable; delimited by double newlines.
-2. **Constructor functions** - functional expressions that are used to specify the nature of the block; start with an `@` symbol.
+2. **Constructor functions** - functions that are used to specify the nature of the block; start with an `@` symbol.
 3. **Variable references** - references to variables that are defined in the program; delimited by curly braces.
 4. **Resource references** - references to resources that are defined in the program; start with a dollar sign.
 
