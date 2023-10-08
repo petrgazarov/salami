@@ -22,10 +22,10 @@ var command_list = map[string]map[string]string{
 }
 
 func showCommands() {
-	fmt.Println("Usage: \n \t salami <command>\n ")
+	fmt.Println("Usage: \n \t salami-cli <command>\n ")
 	fmt.Println("The commands are:")
 	for id, command_ := range command_list {
-		fmt.Println(id, ":", command_["description"])
+		fmt.Println(color.HiBlueString(id), ":", command_["description"])
 	}
 	fmt.Println()
 }
@@ -43,8 +43,10 @@ func main() {
 	command := flag.Arg(0)
 
 	if command == "" {
-		fmt.Println("===== Welcome to Salami-CLI =====\n ")
-		fmt.Println("This tool provides a very simple command to generate your LLMs!\n ")
+		color.Green("====================================")
+		color.Green("======= Welcome to Salami-CLI ======")
+		color.Green("====================================\n ")
+		fmt.Println("Salami is a declarative domain-specific language for cloud infrastructure, \ncentered around natural language descriptions. You can think of Salami as \nwriting documentation for each cloud resource object, and letting the compiler \ntake care of converting that to structured code. The compiler uses LLM to convert \nnatural language into structured code, with Terraform currently as the supported target.\n ")
 		showCommands()
 		return
 	}
