@@ -11,8 +11,8 @@ resource "aws_security_group" "AlbSecurityGroup" {
   }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -56,10 +56,8 @@ resource "aws_lb_target_group" "ServerTargetGroup" {
 
 resource "aws_lb_listener" "ServerListener" {
   load_balancer_arn = aws_lb.ServerAlb.arn
-  port     = 443
-  protocol = "HTTPS"
-  ssl_policy = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-  certificate_arn = aws_acm_certificate.ServerCertificate.arn
+  port     = 80
+  protocol = "HTTP"
 
   default_action {
     type             = "forward"

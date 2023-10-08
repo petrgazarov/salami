@@ -2,11 +2,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "alb.tf"
-  checksum = "73d3719e094868c649b41f3cb7b1cc11"
-
-[[target_files_meta]]
-  file_path = "certificate.tf"
-  checksum = "56a7eedbf1bffc1b2ec37ecf0c200fc6"
+  checksum = "33625eb5e5510829fdbfab838298acfe"
 
 [[target_files_meta]]
   file_path = "cloudtrail.tf"
@@ -18,7 +14,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "ecr.tf"
-  checksum = "cd44d51d7b1ab674ab1cd7c483b455cd"
+  checksum = "a330b50ecaa237981e8ff95c18aceb86"
 
 [[target_files_meta]]
   file_path = "ecr_vpc_endpoint_sg.tf"
@@ -26,11 +22,7 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "ecs.tf"
-  checksum = "6da146e0a2a36385fe56f293b1ad61c2"
-
-[[target_files_meta]]
-  file_path = "route53.tf"
-  checksum = "4b3211064969403d26db1dfadf1fc98b"
+  checksum = "f894bc2013fa9f771b301006308f3a00"
 
 [[target_files_meta]]
   file_path = "task_definitions.tf"
@@ -42,22 +34,22 @@ version = "0.0.1"
 
 [[target_files_meta]]
   file_path = "variables.tf"
-  checksum = "ad39af6009db42ce22763e6d821dface"
+  checksum = "b9ebf5bab35db626de91849f5d7a1c8d"
 
 [[target_files_meta]]
   file_path = "vpc.tf"
-  checksum = "f35b0b01992a02968d3b6196d8ccd598"
+  checksum = "93d30446b25cfc083086713f3107dd20"
 
 [[target_files_meta]]
   file_path = "vpc_endpoints.tf"
   checksum = "a40d1d8b5fb6f95eaabd5db851917029"
 
 [[objects]]
-  target_code = "resource \"aws_security_group\" \"AlbSecurityGroup\" {\n  name        = \"alb-security-group\"\n  description = \"Security group for ALB\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
+  target_code = "resource \"aws_security_group\" \"AlbSecurityGroup\" {\n  name        = \"alb-security-group\"\n  description = \"Security group for ALB\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port   = 80\n    to_port     = 80\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.SecurityGroup"
     logical_name = "AlbSecurityGroup"
-    natural_language = "In $MainVpc\nName: alb-security-group\nDescription: Security group for ALB\nAllows all egress traffic\nAllows ingress traffic on port 443 from anywhere"
+    natural_language = "In $MainVpc\nName: alb-security-group\nDescription: Security group for ALB\nAllows all egress traffic\nAllows ingress traffic on port 80 from anywhere"
     referenced_resources = ["MainVpc"]
     referenced_variables = []
     source_file_path = "alb.sami"
@@ -86,37 +78,15 @@ version = "0.0.1"
     source_file_line = 16
 
 [[objects]]
-  target_code = "resource \"aws_lb_listener\" \"ServerListener\" {\n  load_balancer_arn = aws_lb.ServerAlb.arn\n  port     = 443\n  protocol = \"HTTPS\"\n  ssl_policy = \"ELBSecurityPolicy-TLS13-1-2-2021-06\"\n  certificate_arn = aws_acm_certificate.ServerCertificate.arn\n\n  default_action {\n    type             = \"forward\"\n    target_group_arn = aws_lb_target_group.ServerTargetGroup.arn\n  }\n}"
+  target_code = "resource \"aws_lb_listener\" \"ServerListener\" {\n  load_balancer_arn = aws_lb.ServerAlb.arn\n  port     = 80\n  protocol = \"HTTP\"\n\n  default_action {\n    type             = \"forward\"\n    target_group_arn = aws_lb_target_group.ServerTargetGroup.arn\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.lb.Listener"
     logical_name = "ServerListener"
-    natural_language = "For $ServerAlb, using $ServerCertificate\nPort: 443, Protocol: HTTPS\nSSL policy: ELBSecurityPolicy-TLS13-1-2-2021-06\nDefault action: forward incoming requests to $ServerTargetGroup"
-    referenced_resources = ["ServerAlb", "ServerCertificate", "ServerTargetGroup"]
+    natural_language = "For $ServerAlb\nPort: 80, Protocol: HTTP\nDefault action: forward incoming requests to $ServerTargetGroup"
+    referenced_resources = ["ServerAlb", "ServerTargetGroup"]
     referenced_variables = []
     source_file_path = "alb.sami"
     source_file_line = 26
-
-[[objects]]
-  target_code = "resource \"aws_acm_certificate\" \"ServerCertificate\" {\n  domain_name       = \"app.${var.domain_name}\"\n  validation_method = \"DNS\"\n\n  tags = {\n    Name = \"server-acm-certificate\"\n  }\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.acm.Certificate"
-    logical_name = "ServerCertificate"
-    natural_language = "Name: server-acm-certificate\nDomain name: app.{domain_name}\nValidation method: DNS"
-    referenced_resources = []
-    referenced_variables = ["domain_name"]
-    source_file_path = "certificate.sami"
-    source_file_line = 1
-
-[[objects]]
-  target_code = "resource \"aws_acm_certificate_validation\" \"CertificateValidation\" {\n  certificate_arn         = aws_acm_certificate.ServerCertificate.arn\n  validation_record_fqdns = [aws_route53_record.CertificateValidationRecord.fqdn]\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.acm.CertificateValidation"
-    logical_name = "CertificateValidation"
-    natural_language = "For $ServerCertificate, using $CertificateValidationRecord"
-    referenced_resources = ["ServerCertificate", "CertificateValidationRecord"]
-    referenced_variables = []
-    source_file_path = "certificate.sami"
-    source_file_line = 6
 
 [[objects]]
   target_code = "resource \"aws_s3_bucket\" \"SalamiCloudtrailLogsBucket\" {\n  bucket = \"salami-cloudtrail-logs\"\n}"
@@ -207,15 +177,37 @@ version = "0.0.1"
     source_file_line = 9
 
 [[objects]]
-  target_code = "resource \"aws_ecr_repository_policy\" \"ServerRepositoryPolicy\" {\n  repository = aws_ecr_repository.ServerRepository.name\n\n  policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": \"${aws_iam_role.ServerEcsExecutionRole.arn}\"\n      },\n      \"Action\": [\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\",\n        \"ecr:BatchCheckLayerAvailability\"\n      ],\n      \"Resource\": \"${aws_ecr_repository.ServerRepository.arn}\"\n    }\n  ]\n}\nEOF\n}"
+  target_code = "resource \"aws_ecr_repository_policy\" \"ServerRepositoryPolicy\" {\n  repository = aws_ecr_repository.ServerRepository.name\n\n  policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": \"${aws_iam_role.ServerEcsExecutionRole.arn}\"\n      },\n      \"Action\": [\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\",\n        \"ecr:BatchCheckLayerAvailability\"\n      ]\n    }\n  ]\n}\nEOF\n}"
   [objects.parsed_resource]
     resource_type = "aws.ecr.RepositoryPolicy"
     logical_name = "ServerRepositoryPolicy"
-    natural_language = "For $ServerRepository\nPolicy allows $ServerEcsExecutionRole to perform three actions on $ServerRepository:\n  1. \"ecr:GetDownloadUrlForLayer\"\n  2. \"ecr:BatchGetImage\"\n  3. \"ecr:BatchCheckLayerAvailability\""
+    natural_language = "For $ServerRepository\nPolicy allows $ServerEcsExecutionRole to perform three actions:\n  1. \"ecr:GetDownloadUrlForLayer\"\n  2. \"ecr:BatchGetImage\"\n  3. \"ecr:BatchCheckLayerAvailability\""
     referenced_resources = ["ServerRepository", "ServerEcsExecutionRole"]
     referenced_variables = []
     source_file_path = "ecr.sami"
     source_file_line = 13
+
+[[objects]]
+  target_code = "resource \"aws_iam_role_policy_attachment\" \"ServerRepositoryPolicyAttachment1\" {\n  role       = aws_iam_role.ServerEcsExecutionRole.name\n  policy_arn = \"arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy\"\n}"
+  [objects.parsed_resource]
+    resource_type = "aws.iam.RolePolicyAttachment"
+    logical_name = "ServerRepositoryPolicyAttachment1"
+    natural_language = "Attached to $ServerRepositoryPolicy\nPolicy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+    referenced_resources = ["ServerRepositoryPolicy"]
+    referenced_variables = []
+    source_file_path = "ecr.sami"
+    source_file_line = 20
+
+[[objects]]
+  target_code = "resource \"aws_iam_role_policy_attachment\" \"ServerRepositoryPolicyAttachment2\" {\n  role       = aws_iam_role.ServerEcsExecutionRole.name\n  policy_arn = \"arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly\"\n}"
+  [objects.parsed_resource]
+    resource_type = "aws.iam.RolePolicyAttachment"
+    logical_name = "ServerRepositoryPolicyAttachment2"
+    natural_language = "Attached to $ServerRepositoryPolicy\nPolicy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+    referenced_resources = ["ServerRepositoryPolicy"]
+    referenced_variables = []
+    source_file_path = "ecr.sami"
+    source_file_line = 24
 
 [[objects]]
   target_code = "resource \"aws_ecr_repository\" \"PythonExecRepository\" {\n  name                 = \"python-exec\"\n  image_tag_mutability = \"MUTABLE\"\n}"
@@ -226,7 +218,7 @@ version = "0.0.1"
     referenced_resources = []
     referenced_variables = []
     source_file_path = "ecr.sami"
-    source_file_line = 20
+    source_file_line = 28
 
 [[objects]]
   target_code = "resource \"aws_ecr_lifecycle_policy\" \"PythonExecRepoLifecyclePolicy\" {\n  repository = aws_ecr_repository.PythonExecRepository.name\n\n  policy = <<EOF\n{\n  \"rules\": [\n    {\n      \"rulePriority\": 1,\n      \"description\": \"Expire images beyond count 10\",\n      \"selection\": {\n        \"tagStatus\": \"untagged\",\n        \"countType\": \"imageCountMoreThan\",\n        \"countNumber\": 10\n      },\n      \"action\": {\n        \"type\": \"expire\"\n      }\n    }\n  ]\n}\nEOF\n}"
@@ -237,7 +229,7 @@ version = "0.0.1"
     referenced_resources = ["PythonExecRepository"]
     referenced_variables = []
     source_file_path = "ecr.sami"
-    source_file_line = 24
+    source_file_line = 32
 
 [[objects]]
   target_code = "resource \"aws_iam_role\" \"PythonExecEcsExecutionRole\" {\n  name = \"python-exec-ecs-execution-role\"\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ecs-tasks.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Sid\": \"\"\n    }\n  ]\n}\nEOF\n}"
@@ -248,18 +240,40 @@ version = "0.0.1"
     referenced_resources = []
     referenced_variables = []
     source_file_path = "ecr.sami"
-    source_file_line = 28
+    source_file_line = 36
 
 [[objects]]
-  target_code = "resource \"aws_ecr_repository_policy\" \"PythonExecRepositoryPolicy\" {\n  repository = aws_ecr_repository.PythonExecRepository.name\n\n  policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"\n      },\n      \"Action\": [\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\",\n        \"ecr:BatchCheckLayerAvailability\"\n      ],\n      \"Resource\": \"${aws_ecr_repository.PythonExecRepository.arn}\"\n    }\n  ]\n}\nEOF\n}"
+  target_code = "resource \"aws_ecr_repository_policy\" \"PythonExecRepositoryPolicy\" {\n  repository = aws_ecr_repository.PythonExecRepository.name\n\n  policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"AWS\": \"${aws_iam_role.PythonExecEcsExecutionRole.arn}\"\n      },\n      \"Action\": [\n        \"ecr:GetDownloadUrlForLayer\",\n        \"ecr:BatchGetImage\",\n        \"ecr:BatchCheckLayerAvailability\"\n      ]\n    }\n  ]\n}\nEOF\n}"
   [objects.parsed_resource]
     resource_type = "aws.ecr.RepositoryPolicy"
     logical_name = "PythonExecRepositoryPolicy"
-    natural_language = "For $PythonExecRepository\nPolicy allows $PythonExecEcsExecutionRole to perform three actions on $PythonExecRepository:\n  1. \"ecr:GetDownloadUrlForLayer\"\n  2. \"ecr:BatchGetImage\"\n  3. \"ecr:BatchCheckLayerAvailability\""
+    natural_language = "For $PythonExecRepository\nPolicy allows $PythonExecEcsExecutionRole to perform three actions:\n  1. \"ecr:GetDownloadUrlForLayer\"\n  2. \"ecr:BatchGetImage\"\n  3. \"ecr:BatchCheckLayerAvailability\""
     referenced_resources = ["PythonExecRepository", "PythonExecEcsExecutionRole"]
     referenced_variables = []
     source_file_path = "ecr.sami"
-    source_file_line = 32
+    source_file_line = 40
+
+[[objects]]
+  target_code = "resource \"aws_iam_role_policy_attachment\" \"PythonExecEcsExecutionRolePolicyAttachment1\" {\n  role       = aws_iam_role.PythonExecEcsExecutionRole.name\n  policy_arn = \"arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy\"\n}"
+  [objects.parsed_resource]
+    resource_type = "aws.iam.RolePolicyAttachment"
+    logical_name = "PythonExecEcsExecutionRolePolicyAttachment1"
+    natural_language = "Attached to $PythonExecEcsExecutionRole\nPolicy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+    referenced_resources = ["PythonExecEcsExecutionRole"]
+    referenced_variables = []
+    source_file_path = "ecr.sami"
+    source_file_line = 47
+
+[[objects]]
+  target_code = "resource \"aws_iam_role_policy_attachment\" \"PythonExecEcsExecutionRolePolicyAttachment2\" {\n  role       = aws_iam_role.PythonExecEcsExecutionRole.name\n  policy_arn = \"arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly\"\n}"
+  [objects.parsed_resource]
+    resource_type = "aws.iam.RolePolicyAttachment"
+    logical_name = "PythonExecEcsExecutionRolePolicyAttachment2"
+    natural_language = "Attached to $PythonExecEcsExecutionRole\nPolicy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+    referenced_resources = ["PythonExecEcsExecutionRole"]
+    referenced_variables = []
+    source_file_path = "ecr.sami"
+    source_file_line = 51
 
 [[objects]]
   target_code = "resource \"aws_security_group\" \"EcrVpcEndpointSG\" {\n  name        = \"ecr-vpc-endpoint-sg\"\n  description = \"Security Group for ECR VPC Endpoint\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port       = 443\n    to_port         = 443\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.ServerEcsSecurityGroup.id, aws_security_group.PythonExecEcsSecurityGroup.id]\n  }\n}"
@@ -306,28 +320,6 @@ version = "0.0.1"
     source_file_line = 9
 
 [[objects]]
-  target_code = "resource \"aws_iam_role_policy_attachment\" \"PythonExecEcsExecutionRolePolicyAttachment1\" {\n  role       = aws_iam_role.PythonExecEcsExecutionRole.name\n  policy_arn = \"arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy\"\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.iam.RolePolicyAttachment"
-    logical_name = "PythonExecEcsExecutionRolePolicyAttachment1"
-    natural_language = "Attached to $PythonExecEcsExecutionRole\nPolicy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-    referenced_resources = ["PythonExecEcsExecutionRole"]
-    referenced_variables = []
-    source_file_path = "ecs.sami"
-    source_file_line = 30
-
-[[objects]]
-  target_code = "resource \"aws_iam_role_policy_attachment\" \"PythonExecEcsExecutionRolePolicyAttachment2\" {\n  role       = aws_iam_role.PythonExecEcsExecutionRole.name\n  policy_arn = \"arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly\"\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.iam.RolePolicyAttachment"
-    logical_name = "PythonExecEcsExecutionRolePolicyAttachment2"
-    natural_language = "Attached to $PythonExecEcsExecutionRole\nPolicy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-    referenced_resources = ["PythonExecEcsExecutionRole"]
-    referenced_variables = []
-    source_file_path = "ecs.sami"
-    source_file_line = 34
-
-[[objects]]
   target_code = "resource \"aws_service_discovery_service\" \"PythonExecEcsServiceDiscovery\" {\n  name = var.python_exec_local_service_name\n\n  dns_config {\n    namespace_id = aws_service_discovery_private_dns_namespace.EcsPrivateDnsNamespace.id\n    dns_records {\n      ttl  = 10\n      type = \"A\"\n    }\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.servicediscovery.Service"
@@ -336,7 +328,7 @@ version = "0.0.1"
     referenced_resources = ["EcsPrivateDnsNamespace"]
     referenced_variables = ["python_exec_local_service_name"]
     source_file_path = "ecs.sami"
-    source_file_line = 38
+    source_file_line = 30
 
 [[objects]]
   target_code = "resource \"aws_security_group\" \"ServerEcsSecurityGroup\" {\n  name        = \"server-ecs-security-group\"\n  description = \"Security group for Server ECS service\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 0\n    to_port     = 0\n    protocol    = \"-1\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port       = var.container_port\n    to_port         = var.container_port\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.AlbSecurityGroup.id]\n  }\n}"
@@ -347,18 +339,18 @@ version = "0.0.1"
     referenced_resources = ["MainVpc", "AlbSecurityGroup"]
     referenced_variables = ["container_port"]
     source_file_path = "ecs.sami"
-    source_file_line = 43
+    source_file_line = 35
 
 [[objects]]
-  target_code = "resource \"aws_ecs_service\" \"PythonExecEcsService\" {\n  name            = \"server\"\n  cluster         = aws_ecs_cluster.EcsCluster.id\n  task_definition = aws_ecs_task_definition.PythonExecTaskDefinition.arn\n  desired_count   = 1\n  launch_type     = \"FARGATE\"\n\n  deployment_controller {\n    type = \"ECS\"\n  }\n\n  network_configuration {\n    assign_public_ip = false\n    subnets          = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n    security_groups  = [aws_security_group.PythonExecEcsSecurityGroup.id]\n  }\n\n  deployment_circuit_breaker {\n    enable   = true\n    rollback = true\n  }\n\n  wait_for_steady_state = true\n}"
+  target_code = "resource \"aws_ecs_service\" \"PythonExecEcsService\" {\n  name            = \"python-exec\"\n  cluster         = aws_ecs_cluster.EcsCluster.id\n  task_definition = aws_ecs_task_definition.PythonExecTaskDefinition.arn\n  desired_count   = 1\n  launch_type     = \"FARGATE\"\n\n  deployment_controller {\n    type = \"ECS\"\n  }\n\n  network_configuration {\n    assign_public_ip = false\n    subnets          = [aws_subnet.PrivateSubnetA.id, aws_subnet.PrivateSubnetB.id]\n    security_groups  = [aws_security_group.PythonExecEcsSecurityGroup.id]\n  }\n\n  deployment_circuit_breaker {\n    enable   = true\n    rollback = true\n  }\n\n  wait_for_steady_state = true\n}"
   [objects.parsed_resource]
     resource_type = "aws.ecs.Service"
     logical_name = "PythonExecEcsService"
-    natural_language = "In $EcsCluster, using $PythonExecTaskDefinition\nName: server\nDesired_count: 1\nLaunch type: FARGATE\nNetwork configuration:\n  - Do not assign public IP\n  - The subnets are $PrivateSubnetA and $PrivateSubnetB. Security group is $PythonExecEcsSecurityGroup\nHas ECS type deployment controller\nEnabled deployment circuit breaker with rollback\nWait for steady state: True"
+    natural_language = "In $EcsCluster, using $PythonExecTaskDefinition\nName: python-exec\nDesired_count: 1\nLaunch type: FARGATE\nNetwork configuration:\n  - Do not assign public IP\n  - The subnets are $PrivateSubnetA and $PrivateSubnetB. Security group is $PythonExecEcsSecurityGroup\nHas ECS type deployment controller\nEnabled deployment circuit breaker with rollback\nWait for steady state: True"
     referenced_resources = ["EcsCluster", "PythonExecTaskDefinition", "PrivateSubnetA", "PrivateSubnetB", "PythonExecEcsSecurityGroup"]
     referenced_variables = []
     source_file_path = "ecs.sami"
-    source_file_line = 50
+    source_file_line = 42
 
 [[objects]]
   target_code = "resource \"aws_security_group\" \"PythonExecEcsSecurityGroup\" {\n  name        = \"python-exec-ecs-security-group\"\n  description = \"Security group for python exec ECS service\"\n  vpc_id      = aws_vpc.MainVpc.id\n\n  egress {\n    from_port   = 443\n    to_port     = 443\n    protocol    = \"tcp\"\n    cidr_blocks = [\"0.0.0.0/0\"]\n  }\n\n  ingress {\n    from_port       = var.container_port\n    to_port         = var.container_port\n    protocol        = \"tcp\"\n    security_groups = [aws_security_group.ServerEcsSecurityGroup.id]\n  }\n}"
@@ -369,40 +361,7 @@ version = "0.0.1"
     referenced_resources = ["MainVpc", "ServerEcsSecurityGroup"]
     referenced_variables = ["container_port"]
     source_file_path = "ecs.sami"
-    source_file_line = 62
-
-[[objects]]
-  target_code = "resource \"aws_route53_zone\" \"HostedZone\" {\n  name = var.domain_name\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.route53.Zone"
-    logical_name = "HostedZone"
-    natural_language = "Name {domain_name}"
-    referenced_resources = []
-    referenced_variables = ["domain_name"]
-    source_file_path = "route53.sami"
-    source_file_line = 1
-
-[[objects]]
-  target_code = "resource \"aws_route53_record\" \"AppAlbRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = \"app.${var.domain_name}\"\n  type    = \"A\"\n\n  alias {\n    name                   = aws_lb.ServerAlb.dns_name\n    zone_id                = aws_lb.ServerAlb.zone_id\n    evaluate_target_health = true\n  }\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.route53.Record"
-    logical_name = "AppAlbRecord"
-    natural_language = "In $HostedZone\nName: app.{domain_name}\nType: A\nAlias has \"name\" and \"zone_id\" of $ServerAlb, and \"evaluate_target_health\" set to True"
-    referenced_resources = ["HostedZone", "ServerAlb"]
-    referenced_variables = ["domain_name"]
-    source_file_path = "route53.sami"
-    source_file_line = 4
-
-[[objects]]
-  target_code = "resource \"aws_route53_record\" \"CertificateValidationRecord\" {\n  zone_id = aws_route53_zone.HostedZone.zone_id\n  name    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_name\n  type    = tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_type\n  records = [tolist(aws_acm_certificate.ServerCertificate.domain_validation_options)[0].resource_record_value]\n  ttl     = 300\n}"
-  [objects.parsed_resource]
-    resource_type = "aws.route53.Record"
-    logical_name = "CertificateValidationRecord"
-    natural_language = "In $HostedZone\nThe name, type and records are derived from the $ServerCertificate domain validation option.\nTtl: 300"
-    referenced_resources = ["HostedZone", "ServerCertificate"]
-    referenced_variables = []
-    source_file_path = "route53.sami"
-    source_file_line = 10
+    source_file_line = 54
 
 [[objects]]
   target_code = "resource \"aws_iam_role\" \"ServerTaskRole\" {\n  name = \"server-task-role\"\n  assume_role_policy = <<EOF\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Action\": \"sts:AssumeRole\",\n      \"Principal\": {\n        \"Service\": \"ecs-tasks.amazonaws.com\"\n      },\n      \"Effect\": \"Allow\",\n      \"Sid\": \"\"\n    }\n  ]\n}\nEOF\n}"
@@ -503,16 +462,6 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "variable \"domain_name\" {\n  type = string\n}"
-  [objects.parsed_variable]
-    name = "domain_name"
-    natural_language = ""
-    type = "string"
-    default = ""
-    source_file_path = "variables.sami"
-    source_file_line = 3
-
-[[objects]]
   target_code = "variable \"aws_account_id\" {\n  type = string\n}"
   [objects.parsed_variable]
     name = "aws_account_id"
@@ -520,7 +469,7 @@ version = "0.0.1"
     type = "string"
     default = ""
     source_file_path = "variables.sami"
-    source_file_line = 5
+    source_file_line = 3
 
 [[objects]]
   target_code = "variable \"aws_region\" {\n  type = string\n  default = \"us-west-2\"\n}"
@@ -530,7 +479,7 @@ version = "0.0.1"
     type = "string"
     default = "us-west-2"
     source_file_path = "variables.sami"
-    source_file_line = 7
+    source_file_line = 5
 
 [[objects]]
   target_code = "variable \"server_container_name\" {\n  description = \"Server container name\"\n  type        = string\n  default     = \"server-container\"\n}"
@@ -540,7 +489,7 @@ version = "0.0.1"
     type = "string"
     default = "server-container"
     source_file_path = "variables.sami"
-    source_file_line = 9
+    source_file_line = 7
 
 [[objects]]
   target_code = "variable \"python_exec_container_name\" {\n  type = string\n  default = \"python-exec-container\"\n}"
@@ -550,7 +499,7 @@ version = "0.0.1"
     type = "string"
     default = "python-exec-container"
     source_file_path = "variables.sami"
-    source_file_line = 12
+    source_file_line = 10
 
 [[objects]]
   target_code = "variable \"container_port\" {\n  type    = number\n  default = 8000\n}"
@@ -560,7 +509,7 @@ version = "0.0.1"
     type = "number"
     default = "8000"
     source_file_path = "variables.sami"
-    source_file_line = 14
+    source_file_line = 12
 
 [[objects]]
   target_code = "variable \"python_exec_local_service_name\" {\n  type = string\n  default = \"python-exec\"\n}"
@@ -570,7 +519,7 @@ version = "0.0.1"
     type = "string"
     default = "python-exec"
     source_file_path = "variables.sami"
-    source_file_line = 16
+    source_file_line = 14
 
 [[objects]]
   target_code = "variable \"openai_api_key\" {\n  type = string\n}"
@@ -580,7 +529,7 @@ version = "0.0.1"
     type = "string"
     default = ""
     source_file_path = "variables.sami"
-    source_file_line = 18
+    source_file_line = 16
 
 [[objects]]
   target_code = "variable \"assumed_role_secret_token\" {\n  type = string\n}"
@@ -590,7 +539,7 @@ version = "0.0.1"
     type = "string"
     default = ""
     source_file_path = "variables.sami"
-    source_file_line = 20
+    source_file_line = 18
 
 [[objects]]
   target_code = "resource \"aws_vpc\" \"MainVpc\" {\n  cidr_block       = \"10.0.0.0/16\"\n  enable_dns_support = true\n  enable_dns_hostnames = true\n\n  tags = {\n    Name = \"main-vpc\"\n  }\n}"
@@ -604,24 +553,24 @@ version = "0.0.1"
     source_file_line = 1
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PrivateSubnetA\" {\n  vpc_id                  = aws_vpc.MainVpc.id\n  cidr_block              = \"10.0.1.0/24\"\n  availability_zone       = \"us-west-1a\"\n  map_public_ip_on_launch = false\n  tags = {\n    Name = \"private-subnet-a\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PrivateSubnetA\" {\n  vpc_id                  = aws_vpc.MainVpc.id\n  cidr_block              = \"10.0.1.0/24\"\n  availability_zone       = \"${var.aws_region}a\"\n  map_public_ip_on_launch = false\n  tags = {\n    Name = \"private-subnet-a\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PrivateSubnetA"
-    natural_language = "In $MainVpc\nName private-subnet-a\nCidr block: 10.0.1.0/24\nAvailability zone: us-west-1a\nMap public IP on launch: False"
+    natural_language = "In $MainVpc\nName private-subnet-a\nCidr block: 10.0.1.0/24\nAvailability zone: {aws_region}a\nMap public IP on launch: False"
     referenced_resources = ["MainVpc"]
-    referenced_variables = []
+    referenced_variables = ["aws_region"]
     source_file_path = "vpc.sami"
     source_file_line = 7
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PrivateSubnetB\" {\n  vpc_id                  = aws_vpc.MainVpc.id\n  cidr_block              = \"10.0.2.0/24\"\n  availability_zone       = \"us-west-1c\"\n  map_public_ip_on_launch = false\n  tags = {\n    Name = \"private-subnet-b\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PrivateSubnetB\" {\n  vpc_id                  = aws_vpc.MainVpc.id\n  cidr_block              = \"10.0.2.0/24\"\n  availability_zone       = \"${var.aws_region}c\"\n  map_public_ip_on_launch = false\n  tags = {\n    Name = \"private-subnet-b\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PrivateSubnetB"
-    natural_language = "In $MainVpc\nName: private-subnet-b\nCidr block: 10.0.2.0/24\nAvailability zone: us-west-1c\nMap public IP on launch: False"
+    natural_language = "In $MainVpc\nName: private-subnet-b\nCidr block: 10.0.2.0/24\nAvailability zone: {aws_region}c\nMap public IP on launch: False"
     referenced_resources = ["MainVpc"]
-    referenced_variables = []
+    referenced_variables = ["aws_region"]
     source_file_path = "vpc.sami"
     source_file_line = 14
 
@@ -659,24 +608,24 @@ version = "0.0.1"
     source_file_line = 28
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PublicSubnetA\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.3.0/24\"\n  availability_zone          = \"us-west-1a\"\n  map_public_ip_on_launch    = true\n  tags = {\n    Name = \"public-subnet-a\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PublicSubnetA\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.3.0/24\"\n  availability_zone          = \"${var.aws_region}a\"\n  map_public_ip_on_launch    = true\n  tags = {\n    Name = \"public-subnet-a\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PublicSubnetA"
-    natural_language = "In $MainVpc\nName: public-subnet-a\nCidr block: 10.0.3.0/24\nAvailability zone: us-west-1a\nMap public IP on launch: True"
+    natural_language = "In $MainVpc\nName: public-subnet-a\nCidr block: 10.0.3.0/24\nAvailability zone: {aws_region}a\nMap public IP on launch: True"
     referenced_resources = ["MainVpc"]
-    referenced_variables = []
+    referenced_variables = ["aws_region"]
     source_file_path = "vpc.sami"
     source_file_line = 31
 
 [[objects]]
-  target_code = "resource \"aws_subnet\" \"PublicSubnetB\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.4.0/24\"\n  availability_zone          = \"us-west-1c\"\n  map_public_ip_on_launch    = true\n  tags = {\n    Name = \"public-subnet-b\"\n  }\n}"
+  target_code = "resource \"aws_subnet\" \"PublicSubnetB\" {\n  vpc_id                     = aws_vpc.MainVpc.id\n  cidr_block                 = \"10.0.4.0/24\"\n  availability_zone          = \"${var.aws_region}c\"\n  map_public_ip_on_launch    = true\n  tags = {\n    Name = \"public-subnet-b\"\n  }\n}"
   [objects.parsed_resource]
     resource_type = "aws.ec2.Subnet"
     logical_name = "PublicSubnetB"
-    natural_language = "In $MainVpc\nName: public-subnet-b\nCidr block: 10.0.4.0/24\nAvailability zone: us-west-1c\nMap public IP on launch: True"
+    natural_language = "In $MainVpc\nName: public-subnet-b\nCidr block: 10.0.4.0/24\nAvailability zone: {aws_region}c\nMap public IP on launch: True"
     referenced_resources = ["MainVpc"]
-    referenced_variables = []
+    referenced_variables = ["aws_region"]
     source_file_path = "vpc.sami"
     source_file_line = 38
 

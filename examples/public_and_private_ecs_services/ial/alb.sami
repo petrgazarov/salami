@@ -3,7 +3,7 @@ In $MainVpc
 Name: alb-security-group
 Description: Security group for ALB
 Allows all egress traffic
-Allows ingress traffic on port 443 from anywhere
+Allows ingress traffic on port 80 from anywhere
 
 @resource(aws.lb.LoadBalancer, ServerAlb)
 In $PublicSubnetA and $PublicSubnetB
@@ -24,7 +24,6 @@ Stickiness:
   Cookie duration: 1 day
 
 @resource(aws.lb.Listener, ServerListener)
-For $ServerAlb, using $ServerCertificate
-Port: 443, Protocol: HTTPS
-SSL policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+For $ServerAlb
+Port: 80, Protocol: HTTP
 Default action: forward incoming requests to $ServerTargetGroup

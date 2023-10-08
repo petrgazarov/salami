@@ -11,7 +11,7 @@ resource "aws_vpc" "MainVpc" {
 resource "aws_subnet" "PrivateSubnetA" {
   vpc_id                  = aws_vpc.MainVpc.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-west-1a"
+  availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = false
   tags = {
     Name = "private-subnet-a"
@@ -21,7 +21,7 @@ resource "aws_subnet" "PrivateSubnetA" {
 resource "aws_subnet" "PrivateSubnetB" {
   vpc_id                  = aws_vpc.MainVpc.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-west-1c"
+  availability_zone       = "${var.aws_region}c"
   map_public_ip_on_launch = false
   tags = {
     Name = "private-subnet-b"
@@ -49,7 +49,7 @@ resource "aws_route_table_association" "PrivateSubnetBRouteTableAssociation" {
 resource "aws_subnet" "PublicSubnetA" {
   vpc_id                     = aws_vpc.MainVpc.id
   cidr_block                 = "10.0.3.0/24"
-  availability_zone          = "us-west-1a"
+  availability_zone          = "${var.aws_region}a"
   map_public_ip_on_launch    = true
   tags = {
     Name = "public-subnet-a"
@@ -59,7 +59,7 @@ resource "aws_subnet" "PublicSubnetA" {
 resource "aws_subnet" "PublicSubnetB" {
   vpc_id                     = aws_vpc.MainVpc.id
   cidr_block                 = "10.0.4.0/24"
-  availability_zone          = "us-west-1c"
+  availability_zone          = "${var.aws_region}c"
   map_public_ip_on_launch    = true
   tags = {
     Name = "public-subnet-b"

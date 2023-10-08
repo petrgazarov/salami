@@ -12,10 +12,18 @@ Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume the ro
 
 @resource(aws.ecr.RepositoryPolicy, ServerRepositoryPolicy)
 For $ServerRepository
-Policy allows $ServerEcsExecutionRole to perform three actions on $ServerRepository:
+Policy allows $ServerEcsExecutionRole to perform three actions:
   1. "ecr:GetDownloadUrlForLayer"
   2. "ecr:BatchGetImage"
   3. "ecr:BatchCheckLayerAvailability"
+
+@resource(aws.iam.RolePolicyAttachment, ServerRepositoryPolicyAttachment1)
+Attached to $ServerRepositoryPolicy
+Policy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+@resource(aws.iam.RolePolicyAttachment, ServerRepositoryPolicyAttachment2)
+Attached to $ServerRepositoryPolicy
+Policy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
 
 @resource(aws.ecr.Repository, PythonExecRepository)
 Name: python-exec
@@ -31,7 +39,15 @@ Assume role policy allows the "ecs-tasks.amazonaws.com" service to assume the ro
 
 @resource(aws.ecr.RepositoryPolicy, PythonExecRepositoryPolicy)
 For $PythonExecRepository
-Policy allows $PythonExecEcsExecutionRole to perform three actions on $PythonExecRepository:
+Policy allows $PythonExecEcsExecutionRole to perform three actions:
   1. "ecr:GetDownloadUrlForLayer"
   2. "ecr:BatchGetImage"
   3. "ecr:BatchCheckLayerAvailability"
+
+@resource(aws.iam.RolePolicyAttachment, PythonExecEcsExecutionRolePolicyAttachment1)
+Attached to $PythonExecEcsExecutionRole
+Policy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+@resource(aws.iam.RolePolicyAttachment, PythonExecEcsExecutionRolePolicyAttachment2)
+Attached to $PythonExecEcsExecutionRole
+Policy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly

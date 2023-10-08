@@ -27,14 +27,6 @@ Deployment:
   Deployment circuit breaker: enabled with rollback
   Wait for steady state: True
 
-@resource(aws.iam.RolePolicyAttachment, PythonExecEcsExecutionRolePolicyAttachment1)
-Attached to $PythonExecEcsExecutionRole
-Policy: arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-
-@resource(aws.iam.RolePolicyAttachment, PythonExecEcsExecutionRolePolicyAttachment2)
-Attached to $PythonExecEcsExecutionRole
-Policy: arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-
 @resource(aws.servicediscovery.Service, PythonExecEcsServiceDiscovery)
 Using $EcsPrivateDnsNamespace
 Name: {python_exec_local_service_name}
@@ -49,7 +41,7 @@ Ingress: Allow access on "tcp" protocol and {container_port} port, and limited t
 
 @resource(aws.ecs.Service, PythonExecEcsService)
 In $EcsCluster, using $PythonExecTaskDefinition
-Name: server
+Name: python-exec
 Desired_count: 1
 Launch type: FARGATE
 Network configuration:

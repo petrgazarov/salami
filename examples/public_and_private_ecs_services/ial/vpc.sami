@@ -8,14 +8,14 @@ Enable DNS hostnames: True
 In $MainVpc
 Name private-subnet-a
 Cidr block: 10.0.1.0/24
-Availability zone: us-west-1a
+Availability zone: {aws_region}a
 Map public IP on launch: False
 
 @resource(aws.ec2.Subnet, PrivateSubnetB)
 In $MainVpc
 Name: private-subnet-b
 Cidr block: 10.0.2.0/24
-Availability zone: us-west-1c
+Availability zone: {aws_region}c
 Map public IP on launch: False
 
 @resource(aws.ec2.RouteTable, PrivateRouteTable)
@@ -32,14 +32,14 @@ Associated with $PrivateSubnetB and $PrivateRouteTable
 In $MainVpc
 Name: public-subnet-a
 Cidr block: 10.0.3.0/24
-Availability zone: us-west-1a
+Availability zone: {aws_region}a
 Map public IP on launch: True
 
 @resource(aws.ec2.Subnet, PublicSubnetB)
 In $MainVpc
 Name: public-subnet-b
 Cidr block: 10.0.4.0/24
-Availability zone: us-west-1c
+Availability zone: {aws_region}c
 Map public IP on launch: True
 
 @resource(aws.ec2.InternetGateway, InternetGateway)

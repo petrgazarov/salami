@@ -1,7 +1,0 @@
-@resource(aws.acm.Certificate, ServerCertificate)
-Name: server-acm-certificate
-Domain name: app.{domain_name}
-Validation method: DNS
-
-@resource(aws.acm.CertificateValidation, CertificateValidation)
-For $ServerCertificate, using $CertificateValidationRecord

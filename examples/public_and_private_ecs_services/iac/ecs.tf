@@ -39,16 +39,6 @@ resource "aws_ecs_service" "ServerEcsService" {
   wait_for_steady_state = true
 }
 
-resource "aws_iam_role_policy_attachment" "PythonExecEcsExecutionRolePolicyAttachment1" {
-  role       = aws_iam_role.PythonExecEcsExecutionRole.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "PythonExecEcsExecutionRolePolicyAttachment2" {
-  role       = aws_iam_role.PythonExecEcsExecutionRole.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
-
 resource "aws_service_discovery_service" "PythonExecEcsServiceDiscovery" {
   name = var.python_exec_local_service_name
 
@@ -82,7 +72,7 @@ resource "aws_security_group" "ServerEcsSecurityGroup" {
 }
 
 resource "aws_ecs_service" "PythonExecEcsService" {
-  name            = "server"
+  name            = "python-exec"
   cluster         = aws_ecs_cluster.EcsCluster.id
   task_definition = aws_ecs_task_definition.PythonExecTaskDefinition.arn
   desired_count   = 1

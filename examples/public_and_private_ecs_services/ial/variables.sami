@@ -1,7 +1,5 @@
 @variable(local_dns_namespace_name, string, local)
 
-@variable(domain_name, string)
-
 @variable(aws_account_id, string)
 
 @variable(aws_region, string, us-west-2)

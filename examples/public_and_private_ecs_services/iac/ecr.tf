@@ -61,12 +61,21 @@ resource "aws_ecr_repository_policy" "ServerRepositoryPolicy" {
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
         "ecr:BatchCheckLayerAvailability"
-      ],
-      "Resource": "${aws_ecr_repository.ServerRepository.arn}"
+      ]
     }
   ]
 }
 EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ServerRepositoryPolicyAttachment1" {
+  role       = aws_iam_role.ServerEcsExecutionRole.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ServerRepositoryPolicyAttachment2" {
+  role       = aws_iam_role.ServerEcsExecutionRole.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 resource "aws_ecr_repository" "PythonExecRepository" {
@@ -132,10 +141,19 @@ resource "aws_ecr_repository_policy" "PythonExecRepositoryPolicy" {
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
         "ecr:BatchCheckLayerAvailability"
-      ],
-      "Resource": "${aws_ecr_repository.PythonExecRepository.arn}"
+      ]
     }
   ]
 }
 EOF
+}
+
+resource "aws_iam_role_policy_attachment" "PythonExecEcsExecutionRolePolicyAttachment1" {
+  role       = aws_iam_role.PythonExecEcsExecutionRole.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "PythonExecEcsExecutionRolePolicyAttachment2" {
+  role       = aws_iam_role.PythonExecEcsExecutionRole.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
