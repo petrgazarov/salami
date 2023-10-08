@@ -8,7 +8,8 @@ import (
 	"github.com/fatih/color"
 )
 
-const version = "0.0.1"
+const VERSION = "0.0.1"
+const GENERAL_COMMAND = "salami-cli"
 
 var command_list = map[string]map[string]string{
 	"version": {
@@ -22,7 +23,7 @@ var command_list = map[string]map[string]string{
 }
 
 func showCommands() {
-	fmt.Println("Usage: \n \t salami-cli <command>\n ")
+	fmt.Println("Usage: \n \t ", GENERAL_COMMAND, "<command>\n ")
 	fmt.Println("The commands are:")
 	for id, command_ := range command_list {
 		fmt.Println(color.HiBlueString(id), ":", command_["description"])
@@ -53,12 +54,12 @@ func main() {
 
 	switch cmd := command; cmd {
 	case command_list["version"]["cmd"]:
-		fmt.Println("Salami v", version)
+		fmt.Println("Salami v", VERSION)
 	case command_list["compile"]["cmd"]:
 		runSystem()
 	case "help":
 		showCommands()
 	default:
-		color.Red("Invalid command passed. Type 'salami help'")
+		color.Red("Invalid command passed. Type", GENERAL_COMMAND, "help'")
 	}
 }
