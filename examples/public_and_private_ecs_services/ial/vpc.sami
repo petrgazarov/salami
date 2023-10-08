@@ -47,9 +47,9 @@ In $MainVpc
 Name: internet-gateway
 
 @resource(aws.ec2.RouteTable, PublicRouteTable)
-In $MainVpc, associated with $InternetGateway
+In $MainVpc
 Name: public-route-table
-Routes: A route with a CIDR block of "0.0.0.0/0" and InternetGateway internet gateway
+Routes: A route with a CIDR block of "0.0.0.0/0" and $InternetGateway internet gateway
 
 @resource(aws.ec2.RouteTableAssociation, PublicSubnetARouteTableAssociation)
 Associated with $PublicSubnetA and $PublicRouteTable

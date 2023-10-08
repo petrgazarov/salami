@@ -645,7 +645,7 @@ version = "0.0.1"
   [objects.parsed_resource]
     resource_type = "aws.ec2.RouteTable"
     logical_name = "PublicRouteTable"
-    natural_language = "In $MainVpc, associated with $InternetGateway\nName: public-route-table\nRoutes: A route with a CIDR block of \"0.0.0.0/0\" and InternetGateway internet gateway"
+    natural_language = "In $MainVpc\nName: public-route-table\nRoutes: A route with a CIDR block of \"0.0.0.0/0\" and $InternetGateway internet gateway"
     referenced_resources = ["MainVpc", "InternetGateway"]
     referenced_variables = []
     source_file_path = "vpc.sami"
