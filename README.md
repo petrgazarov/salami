@@ -4,11 +4,11 @@
   <img src="docs/images/salami-icon.svg" alt="Salami Icon" width="100px" height="100px">
 </p>
 
-Salami is a declarative, domain-specific language for cloud infrastructure that is based on natural language. The compiler uses LLM to convert natural language into structured code. Currently, the supported target is Terraform.
+Salami is a declarative, domain-specific language for cloud infrastructure. It allows to define cloud infrastructure objects using natural language. The compiler uses LLM to convert natural language into structured code, with Terraform currently as the supported target.
 
 ## DSL Design
 
-Salami programs have several special constructs:
+Salami files have several special constructs:
 
 1. **Blocks** - multiline blocks of text that each represent either a `resource` or a `variable`.
 2. **Constructor functions** - functional expressions that are used to specify the nature of the block.
@@ -20,3 +20,5 @@ Salami programs have several special constructs:
   <br>
   <i>Example Salami code with 3 blocks: VPC resource, Security Group resource and a variable.</i>
 </p>
+
+For examples, see the `examples` directory.
