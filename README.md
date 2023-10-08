@@ -21,4 +21,4 @@ Salami files have several special constructs:
   <i>Example Salami code with 3 blocks: VPC resource, Security Group resource and a variable.</i>
 </p>
 
-For examples, see the `examples` directory.
+For more examples, see the `examples` directory.
