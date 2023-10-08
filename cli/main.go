@@ -7,6 +7,8 @@ import (
 	"github.com/fatih/color"
 )
 
+const version = "0.0.1"
+
 var command_list = map[string]map[string]string{
 	"version": {
 		"cmd":         "version",
@@ -40,7 +42,7 @@ func main() {
 
 	switch cmd := command; cmd {
 	case command_list["version"]["cmd"]:
-		fmt.Println("Salami version", "1.0")
+		fmt.Println("Salami v", version)
 	case command_list["compile"]["cmd"]:
 		fmt.Println("compile")
 	case "help":
