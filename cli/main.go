@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"salami/common/driver"
 
 	"github.com/fatih/color"
 )
@@ -29,6 +30,14 @@ func showCommands() {
 	fmt.Println()
 }
 
+func runSystem() {
+	errors := driver.Run()
+
+	for _, err := range errors {
+		color.Red(err.Error())
+	}
+}
+
 func main() {
 	flag.Parse()
 	command := flag.Arg(0)
@@ -44,7 +53,7 @@ func main() {
 	case command_list["version"]["cmd"]:
 		fmt.Println("Salami v", version)
 	case command_list["compile"]["cmd"]:
-		fmt.Println("compile")
+		runSystem()
 	case "help":
 		showCommands()
 	default:
