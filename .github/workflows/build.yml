@@ -46,3 +46,4 @@ jobs:
         with:
           name: salami-${{ matrix.goos }}-${{ matrix.goarch }}
           path: salami-${{ matrix.goos }}-${{ matrix.goarch }}
+          if-no-files-found: error
