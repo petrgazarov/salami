@@ -3,3 +3,4 @@ main
 cpu.pprof
 .DS_Store
 coverage.out
+salami

@@ -6,3 +6,6 @@ test: # Resolves all test files ending in _test.go and runs them
 
 test_coverage:
 	go test ./... -coverprofile=coverage.out
+
+build:
+	go build -o salami cli/main.go

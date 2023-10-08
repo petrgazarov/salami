@@ -8,7 +8,7 @@ Infrastructure As Natural Language
 
 ## 🤔 What is this?
 
-Salami is a declarative domain-specific language for cloud infrastructure, centered around natural language descriptions. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to structured code. The compiler uses LLM to convert natural language into structured code, with Terraform currently as the supported target.
+Salami is a declarative domain-specific language for cloud infrastructure, centered around natural language descriptions. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC. The compiler uses LLM to convert natural language to IaC, with Terraform currently as the supported target.
 
 ## 🎨 DSL Design
 
