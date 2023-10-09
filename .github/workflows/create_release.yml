@@ -61,7 +61,7 @@ jobs:
           prerelease: ${{ contains(github.ref, '-rc') }}
           fail_on_unmatched_files: true
           files: |
-            salami-darwin-amd64
-            salami-darwin-arm64
-            salami-linux-amd64
-            salami-linux-arm64
+            salami-darwin-amd64/salami-darwin-amd64
+            salami-darwin-arm64/salami-darwin-arm64
+            salami-linux-amd64/salami-linux-amd64
+            salami-linux-arm64/salami-linux-arm64
