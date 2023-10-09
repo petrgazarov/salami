@@ -19,7 +19,15 @@ class Salami < Formula
     end
 
     def install
-      bin.install Dir["*"]
+      if Hardware::CPU.intel?
+        filename = File.basename("${SALAMI_DARWIN_X64_URL}")
+        bin.install filename => "salami"
+      end
+
+      if Hardware::CPU.arm?
+        filename = File.basename("${SALAMI_DARWIN_ARM64_URL}")
+        bin.install filename => "salami"
+      end
     end
   end
 
@@ -35,7 +43,15 @@ class Salami < Formula
     end
 
     def install
-      bin.install Dir["*"]
+      if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
+        filename = File.basename("${SALAMI_LINUX_ARM64_URL}")
+        bin.install filename => "salami"
+      end
+
+      if Hardware::CPU.intel?
+        filename = File.basename("${SALAMI_LINUX_X64_URL}")
+        bin.install filename => "salami"
+      end
     end
   end
 
