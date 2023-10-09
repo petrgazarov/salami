@@ -58,7 +58,7 @@ jobs:
         id: prepare-files
         run: |
           FILES=$(ls salami-* | tr '\n' ',')
-          echo "::set-output name=files::$FILES"
+          echo "files={$FILES}" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@v1
