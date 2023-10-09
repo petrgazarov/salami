@@ -15,10 +15,10 @@ cd "$(mktemp -d)"
 >&2 echo "::endgroup::"
 
 for i in \
-  "darwin x64   SALAMI_DARWIN_X64" \
-  "darwin arm64 SALAMI_DARWIN_ARM64" \
-  "linux x64    SALAMI_LINUX_X64" \
-  "linux arm64  SALAMI_LINUX_ARM64" \
+  "darwin x64    SALAMI_DARWIN_X64" \
+  "darwin arm64  SALAMI_DARWIN_ARM64" \
+  "linux  x64    SALAMI_LINUX_X64" \
+  "linux  arm64  SALAMI_LINUX_ARM64" \
   ; do
   # shellcheck disable=SC2086 # intentional, we want to split the strings
   set -- $i # read loop strings as args

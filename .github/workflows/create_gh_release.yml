@@ -19,12 +19,16 @@ jobs:
         include:
           - goos: darwin
             goarch: amd64
+            arch: x64
           - goos: darwin
             goarch: arm64
+            arch: arm64
           - goos: linux
             goarch: amd64
+            arch: x64
           - goos: linux
             goarch: arm64
+            arch: arm64
 
     steps:
       - name: Checkout code
@@ -42,7 +46,7 @@ jobs:
       - name: Get binary name
         id: get-binary-name
         run: |
-          echo "binary-name=salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_OUTPUT
+          echo "binary-name=salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.arch }}" >> $GITHUB_OUTPUT
 
       - name: Build binary
         run: |
@@ -82,7 +86,7 @@ jobs:
           prerelease: ${{ contains(github.ref, '-rc') }}
           fail_on_unmatched_files: true
           files: |
-            salami-${{ env.VERSION }}-darwin-amd64/salami-${{ env.VERSION }}-darwin-amd64
+            salami-${{ env.VERSION }}-darwin-x64/salami-${{ env.VERSION }}-darwin-x64
             salami-${{ env.VERSION }}-darwin-arm64/salami-${{ env.VERSION }}-darwin-arm64
-            salami-${{ env.VERSION }}-linux-amd64/salami-${{ env.VERSION }}-linux-amd64
+            salami-${{ env.VERSION }}-linux-x64/salami-${{ env.VERSION }}-linux-x64
             salami-${{ env.VERSION }}-linux-arm64/salami-${{ env.VERSION }}-linux-arm64
