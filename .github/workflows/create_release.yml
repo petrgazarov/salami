@@ -5,6 +5,9 @@ on:
     tags:
       - "*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build for ${{ matrix.goos }} ${{ matrix.goarch }}
