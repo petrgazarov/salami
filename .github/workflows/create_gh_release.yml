@@ -35,19 +35,27 @@ jobs:
         with:
           go-version: "1.21.2"
 
-      - name: Build binary
-        run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o salami
-        working-directory: ./cli
-
       - name: Get Salami version
         id: get-salami-version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Get binary name
+        id: get-binary-name
+        run: |
+          echo "binary-name=salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}" >> $GITHUB_OUTPUT
+
+      - name: Build binary
+        run: |
+          GOOS=${{ matrix.goos }} \
+          GOARCH=${{ matrix.goarch }} \
+          go build -o ${{ steps.get-binary-name.outputs.binary-name }}
+        working-directory: ./cli
+
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
-          name: salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: cli/salami
+          name: ${{ steps.get-binary-name.outputs.binary-name }}
+          path: cli/${{ steps.get-binary-name.outputs.binary-name }}
           if-no-files-found: error
 
   create-release:
@@ -64,17 +72,6 @@ jobs:
       - name: Get Salami version
         id: get-salami-version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Log contents of downloaded directories
-        run: |
-          echo "Contents of darwin-amd64:"
-          ls salami-${{ steps.get-salami-version.outputs.version }}-darwin-amd64
-          echo "Contents of darwin-arm64:"
-          ls salami-${{ steps.get-salami-version.outputs.version }}-darwin-arm64
-          echo "Contents of linux-amd64:"
-          ls salami-${{ steps.get-salami-version.outputs.version }}-linux-amd64
-          echo "Contents of linux-arm64:"
-          ls salami-${{ steps.get-salami-version.outputs.version }}-linux-arm64
 
       - name: Create release
         uses: softprops/action-gh-release@v1
