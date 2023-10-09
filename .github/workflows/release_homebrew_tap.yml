@@ -33,9 +33,7 @@ jobs:
           # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew-salami to adacent directories
           # and running from their parent:
 
-          ./salami/.github/scripts/generate-homebrew-salami.sh \
-            "${SALAMI_VERSION}" ./salami/.github/scripts/salami-tap-template.rb \
-            > ./homebrew-salami/Formula/salami.rb
+          ./salami/.github/scripts/generate-homebrew-salami.sh "${SALAMI_VERSION}" > ./homebrew-salami/salami.rb
       - name: Commit updated formula
         working-directory: homebrew-salami
         run: |
@@ -43,7 +41,7 @@ jobs:
 
           git config user.name petrgazarov
           git config user.email petrgazarov@gmail.com
-          git add Formula/salami.rb
+          git add salami.rb
           echo "::group::git diff"
           git  --no-pager diff
           echo "::endgroup::"
