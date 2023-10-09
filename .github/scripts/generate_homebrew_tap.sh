@@ -3,7 +3,7 @@
 set -euo pipefail
 
 export SALAMI_VERSION="${1}"
-TAP_FILE="./.github/scripts/salami_tap_template.rb}"
+TAP_FILE="./.github/scripts/salami_tap_template.rb"
 TAP_FILE="$(realpath "${TAP_FILE}")"
 
 cd "$(mktemp -d)"
