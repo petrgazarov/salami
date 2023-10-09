@@ -1,0 +1,56 @@
+name: Release Homebrew tap
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+jobs:
+  update-homebrew-salami:
+    name: Update Homebrew Tap
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Salami repo
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+          path: salami
+
+      - name: Checkout Salami homebrew repo
+        uses: actions/checkout@v3
+        with:
+          repository: petrgazarov/homebrew-salami
+          path: homebrew-salami
+          token: ${{ secrets.HOMEBREW_SALAMI_GITHUB_TOKEN }}
+
+      - name: Update Homebrew Tap
+        run: |
+          set -euo pipefail
+
+          # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew-salami to adacent directories
+          # and running from their parent:
+
+          ./salami/.github/scripts/generate-homebrew-salami.sh \
+            "${SALAMI_VERSION}" ./salami/.github/scripts/salami-tap-template.rb \
+            > ./homebrew-salami/Formula/salami.rb
+      - name: Commit updated formula
+        working-directory: homebrew-salami
+        run: |
+          set -euo pipefail
+
+          git config user.name petrgazarov
+          git config user.email petrgazarov@gmail.com
+          git add Formula/salami.rb
+          echo "::group::git diff"
+          git  --no-pager diff
+          echo "::endgroup::"
+          git commit -m "Brew formula update for Salami version ${SALAMI_VERSION}"
+      - name: Push formula
+        working-directory: homebrew-salami
+        run: |
+          set -euo pipefail
+
+          git push origin HEAD:main
