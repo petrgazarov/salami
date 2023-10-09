@@ -10,7 +10,7 @@ cd "$(mktemp -d)"
 
 >&2 echo "::info Generating Homebrew Tap..."
 >&2 echo "::group::Download release assets"
->&2 gh release download --repo petrgazarov/salami "v${SALAMI_VERSION}" -p 'salami*darwin*.tar.gz' -p 'salami*linux*.tar.gz' --skip-existing
+>&2 gh release download --repo petrgazarov/salami "${SALAMI_VERSION}" -p 'salami-darwin*' -p 'salami-linux*' --skip-existing
 >&2 echo "::endgroup::"
 
 for i in \
