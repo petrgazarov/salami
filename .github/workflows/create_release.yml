@@ -57,7 +57,7 @@ jobs:
       - name: Prepare list of files
         id: prepare-files
         run: |
-          FILES=$(ls salami-* | tr '\n' ',')
+          FILES=$(ls salami-* | tr '\n' ',' | sed 's/,$//')
           echo "files={$FILES}" >> $GITHUB_OUTPUT
 
       - name: Create release
