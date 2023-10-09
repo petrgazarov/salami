@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    name: Build for ${{ matrix.goos }} ${{ matrix.goarch }}
+    name: Build for ${{ matrix.goos }} ${{ matrix.arch }}
 
     runs-on: ubuntu-latest
 
