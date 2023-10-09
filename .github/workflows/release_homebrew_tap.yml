@@ -27,8 +27,8 @@ jobs:
           token: ${{ secrets.HOMEBREW_SALAMI_GITHUB_TOKEN }}
 
       - name: Get Salami version
-        id: get_version
-        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        id: get-salami-version
+        run: echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
 
       - name: Update Homebrew Tap
         run: |
@@ -37,7 +37,7 @@ jobs:
           # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew_salami to adjacent directories
           # and running from their parent:
 
-          ./salami/.github/scripts/generate_homebrew_tap.sh "${{ steps.get_version.outputs.version }}" > ./homebrew_salami/salami.rb
+          ./salami/.github/scripts/generate_homebrew_tap.sh "${{ steps.get-salami-version.outputs.version }}" > ./homebrew_salami/salami.rb
       - name: Commit updated formula
         working-directory: homebrew_salami
         run: |
@@ -49,7 +49,7 @@ jobs:
           echo "::group::git diff"
           git  --no-pager diff
           echo "::endgroup::"
-          git commit -m "Brew formula update for Salami version ${{ steps.get_version.outputs.version }}"
+          git commit -m "Brew formula update for Salami version ${{ steps.get-salami-version.outputs.version }}"
       - name: Push formula
         working-directory: homebrew_salami
         run: |

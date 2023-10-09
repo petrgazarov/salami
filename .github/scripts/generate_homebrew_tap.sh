@@ -10,7 +10,7 @@ cd "$(mktemp -d)"
 
 >&2 echo "::info Generating Homebrew Tap..."
 >&2 echo "::group::Download release assets"
->&2 gh release download --repo petrgazarov/salami "${SALAMI_VERSION}" -p 'salami-darwin*' -p 'salami-linux*' --skip-existing
+>&2 gh release download --repo petrgazarov/salami "${SALAMI_VERSION}" -p 'salami*darwin*' -p 'salami*linux*' --skip-existing
 >&2 echo "::endgroup::"
 
 for i in \
@@ -24,12 +24,12 @@ for i in \
   OS="$1"
   ARCH="$2"
   ENV_VAR="$3"
-  SHA256="$(sha256sum "salami-${SALAMI_VERSION}-${OS}-${ARCH}.tar.gz" | cut -f1 -d' ')"
+  SHA256="$(sha256sum "salami-${SALAMI_VERSION}-${OS}-${ARCH}" | cut -f1 -d' ')"
 
   SHA256_VAR="${ENV_VAR}_SHA256"
   URL_VAR="${ENV_VAR}_URL"
   printf -v "${SHA256_VAR}" "%s" "${SHA256}"
-  printf -v "${URL_VAR}" "%s" "https://github.com/petrgazarov/salami/releases/download/${SALAMI_VERSION}/salami-${SALAMI_VERSION}-${OS}-${ARCH}.tar.gz"
+  printf -v "${URL_VAR}" "%s" "https://github.com/petrgazarov/salami/releases/download/${SALAMI_VERSION}/salami-${SALAMI_VERSION}-${OS}-${ARCH}"
 
   export "${SHA256_VAR?}"
   export "${URL_VAR?}"

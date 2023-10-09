@@ -36,14 +36,18 @@ jobs:
           go-version: "1.21.2"
 
       - name: Build binary
-        run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o salami-${{ matrix.goos }}-${{ matrix.goarch }}
+        run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o salami
         working-directory: ./cli
+
+      - name: Get Salami version
+        id: get-salami-version
+        run: echo "::set-output name=version::${GITHUB_REF#refs/tags/}"
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v3
         with:
-          name: salami-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: cli/salami-${{ matrix.goos }}-${{ matrix.goarch }}
+          name: salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: cli/salami
           if-no-files-found: error
 
   create-release:
