@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  update-homebrew-salami:
+  update-homebrew_salami:
     name: Update Homebrew Tap
     runs-on: ubuntu-latest
     steps:
@@ -23,19 +23,23 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: petrgazarov/homebrew-salami
-          path: homebrew-salami
+          path: homebrew_salami
           token: ${{ secrets.HOMEBREW_SALAMI_GITHUB_TOKEN }}
+
+      - name: Get Salami version
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Update Homebrew Tap
         run: |
           set -euo pipefail
 
-          # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew-salami to adacent directories
+          # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew_salami to adjacent directories
           # and running from their parent:
 
-          ./salami/.github/scripts/generate-homebrew-tap.sh "${{ github.ref }}" > ./homebrew-salami/salami.rb
+          ./salami/.github/scripts/generate_homebrew_tap.sh "${{ steps.get_version.outputs.version }}" > ./homebrew_salami/salami.rb
       - name: Commit updated formula
-        working-directory: homebrew-salami
+        working-directory: homebrew_salami
         run: |
           set -euo pipefail
 
@@ -45,9 +49,9 @@ jobs:
           echo "::group::git diff"
           git  --no-pager diff
           echo "::endgroup::"
-          git commit -m "Brew formula update for Salami version ${{ github.ref }}"
+          git commit -m "Brew formula update for Salami version ${{ steps.get_version.outputs.version }}"
       - name: Push formula
-        working-directory: homebrew-salami
+        working-directory: homebrew_salami
         run: |
           set -euo pipefail
 
