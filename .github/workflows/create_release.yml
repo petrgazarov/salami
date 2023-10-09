@@ -1,4 +1,4 @@
-name: Build binaries
+name: Build and create release
 
 on:
   push:
@@ -8,7 +8,9 @@ on:
 jobs:
   build:
     name: Build for ${{ matrix.goos }} ${{ matrix.goarch }}
+
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         include:
@@ -20,6 +22,7 @@ jobs:
             goarch: amd64
           - goos: linux
             goarch: arm64
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -39,3 +42,28 @@ jobs:
           name: salami-${{ matrix.goos }}-${{ matrix.goarch }}
           path: cli/salami-${{ matrix.goos }}-${{ matrix.goarch }}
           if-no-files-found: error
+
+  create-release:
+    name: Create draft release
+
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download binary artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Prepare list of files
+        id: prepare-files
+        run: |
+          FILES=$(ls salami-* | tr '\n' ',')
+          echo "::set-output name=files::$FILES"
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          prerelease: ${{ contains(github.ref, '-rc') }}
+          fail_on_unmatched_files: true
+          files: ${{ steps.prepare-files.outputs.files }}
