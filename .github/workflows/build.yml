@@ -45,5 +45,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: salami-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: salami-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: cli/salami-${{ matrix.goos }}-${{ matrix.goarch }}
           if-no-files-found: error
