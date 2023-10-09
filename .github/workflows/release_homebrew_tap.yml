@@ -3,7 +3,6 @@ name: Release Homebrew tap
 on:
   release:
     types:
-      - published
       - released
 
 permissions:
@@ -34,7 +33,7 @@ jobs:
           # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew-salami to adacent directories
           # and running from their parent:
 
-          ./salami/.github/scripts/generate-homebrew-salami.sh "${SALAMI_VERSION}" > ./homebrew-salami/salami.rb
+          ./salami/.github/scripts/generate-homebrew-salami.sh "${{ github.ref }}" > ./homebrew-salami/salami.rb
       - name: Commit updated formula
         working-directory: homebrew-salami
         run: |
@@ -46,7 +45,7 @@ jobs:
           echo "::group::git diff"
           git  --no-pager diff
           echo "::endgroup::"
-          git commit -m "Brew formula update for Salami version ${SALAMI_VERSION}"
+          git commit -m "Brew formula update for Salami version ${{ github.ref }}"
       - name: Push formula
         working-directory: homebrew-salami
         run: |
