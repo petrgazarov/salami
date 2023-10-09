@@ -54,19 +54,14 @@ jobs:
       - name: Download binary artifacts
         uses: actions/download-artifact@v3
 
-      - name: Prepare list of files
-        id: prepare-files
-        run: |
-          FILES="salami-darwin-amd64
-          salami-darwin-arm64
-          salami-linux-amd64
-          salami-linux-arm64"
-          echo "files={$FILES}" >> $GITHUB_OUTPUT
-
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           prerelease: ${{ contains(github.ref, '-rc') }}
           fail_on_unmatched_files: true
-          files: ${{ steps.prepare-files.outputs.files }}
+          files: |
+            salami-darwin-amd64
+            salami-darwin-arm64
+            salami-linux-amd64
+            salami-linux-arm64
