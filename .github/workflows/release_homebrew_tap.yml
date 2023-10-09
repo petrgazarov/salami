@@ -37,7 +37,9 @@ jobs:
           # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew_salami to adjacent directories
           # and running from their parent:
 
-          ./salami/.github/scripts/generate_homebrew_tap.sh "${{ steps.get-salami-version.outputs.version }}" > ./homebrew_salami/salami.rb
+          ./salami/.github/scripts/generate_homebrew_tap.sh \
+          "${{ steps.get-salami-version.outputs.version }}" \
+          ./salami/.github/scripts/salami_tap_template.rb > ./homebrew_salami/salami.rb
       - name: Commit updated formula
         working-directory: homebrew_salami
         run: |
