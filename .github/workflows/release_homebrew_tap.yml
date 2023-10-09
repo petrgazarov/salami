@@ -33,7 +33,7 @@ jobs:
           # Can simulate this by cloning petrgazarov/salami & petrgazarov/homebrew-salami to adacent directories
           # and running from their parent:
 
-          ./salami/.github/scripts/generate-homebrew-salami.sh "${{ github.ref }}" > ./homebrew-salami/salami.rb
+          ./salami/.github/scripts/generate-homebrew-tap.sh "${{ github.ref }}" > ./homebrew-salami/salami.rb
       - name: Commit updated formula
         working-directory: homebrew-salami
         run: |
