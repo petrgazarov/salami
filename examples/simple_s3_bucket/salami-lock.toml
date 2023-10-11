@@ -9,7 +9,7 @@ version = "0.0.1"
   [objects.parsed_resource]
     resource_type = "aws.s3.Bucket"
     logical_name = "TestBucket"
-    natural_language = "Name: ${test_bucket_name}"
+    natural_language = "Name: {test_bucket_name}"
     referenced_resources = []
     referenced_variables = ["test_bucket_name"]
     source_file_path = "bucket.sami"

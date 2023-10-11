@@ -357,7 +357,7 @@ version = "0.0.1"
   [objects.parsed_resource]
     resource_type = "aws.ec2.SecurityGroup"
     logical_name = "PythonExecEcsSecurityGroup"
-    natural_language = "In $MainVpc\nName: python-exec-ecs-security-group\nDescription: Security group for python exec ECS service\nEgress: allow all tcp traffic on port 443\nIngress: allow access on \"tcp\" protocol, {container_port} port, and limited to $ServerEcsSecurityGroup security group"
+    natural_language = "In $MainVpc\nName: python-exec-ecs-security-group\nDescription: Security group for python exec ECS service\nEgress: allow all tcp traffic on port 443\nIngress: allow access on \"tcp\" protocol, {container_port} port and limited to $ServerEcsSecurityGroup security group."
     referenced_resources = ["MainVpc", "ServerEcsSecurityGroup"]
     referenced_variables = ["container_port"]
     source_file_path = "ecs.sami"
@@ -401,7 +401,7 @@ version = "0.0.1"
   [objects.parsed_resource]
     resource_type = "aws.ecs.TaskDefinition"
     logical_name = "ServerTaskDefinition"
-    natural_language = "Family: server\nCpu: 256, Memory: 512\nNetwork mode: awsvpc\nTask role: $ServerTaskRole\nRequires FARGATE compatibility\nExecution role: $ServerEcsExecutionRole\nContainer definition:\n  Name: {server_container_name}\n  Image: $ServerRepository url with the \"latest\" tag\n  Memory: 512\n  Cpu: 256\n  Essential: True\n  Port mappings:\n    Container port is {container_port}. Protocol is TCP. No host port is set.\n  Environment:\n    OPENAI_API_KEY: ${openai_api_key}\n    ASSUMED_ROLE_SECRET_TOKEN: ${assumed_role_secret_token}\n    PYTHON_EXEC_URL: {python_exec_local_service_name}.{local_dns_namespace_name}:{container_port}.\n  Log configuration: awslogs log driver, $ServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to \"ecs\"."
+    natural_language = "Family: server\nCpu: 256, Memory: 512\nNetwork mode: awsvpc\nTask role: $ServerTaskRole\nRequires FARGATE compatibility\nExecution role: $ServerEcsExecutionRole\nContainer definition:\n  Name: {server_container_name}\n  Image: $ServerRepository url with the \"latest\" tag\n  Memory: 512\n  Cpu: 256\n  Essential: True\n  Port mappings:\n    Container port is {container_port}. Protocol is TCP. No host port is set.\n  Environment:\n    OPENAI_API_KEY: {openai_api_key}\n    ASSUMED_ROLE_SECRET_TOKEN: {assumed_role_secret_token}\n    PYTHON_EXEC_URL: {python_exec_local_service_name}.{local_dns_namespace_name}:{container_port}.\n  Log configuration: awslogs log driver, $ServerLogGroup log group name, and {aws_region} AWS region. The stream prefix is set to \"ecs\"."
     referenced_resources = ["ServerTaskRole", "ServerEcsExecutionRole", "ServerRepository", "ServerLogGroup"]
     referenced_variables = ["server_container_name", "container_port", "openai_api_key", "assumed_role_secret_token", "python_exec_local_service_name", "local_dns_namespace_name", "aws_region"]
     source_file_path = "task_definitions.sami"

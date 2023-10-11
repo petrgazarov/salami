@@ -1,4 +1,4 @@
 @resource(aws.s3.Bucket, TestBucket)
-Name: ${test_bucket_name}
+Name: {test_bucket_name}
 
 @variable(test_bucket_name, string, test-bucket-br31m11)
