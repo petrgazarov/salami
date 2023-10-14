@@ -44,7 +44,7 @@ From the root of your project, run:
 salami compile
 ```
 
-The root of your project should contain `salami.yaml` file wih the following structure:
+The root of your project should contain `salami.yaml` file with the following structure:
 
 ```yaml
 compiler:
