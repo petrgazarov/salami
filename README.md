@@ -8,7 +8,7 @@ Infrastructure As Natural Language
 
 ## 🤔 What is this?
 
-Salami is a declarative domain-specific language for cloud infrastructure, centered around natural language descriptions. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC. The compiler uses LLM to convert natural language to IaC, with Terraform currently as the supported target.
+Salami is a declarative domain-specific language for cloud infrastructure, centered around natural language descriptions. Salami compiler uses GPT4 to convert the natural language to Terraform files. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).
 
 ## 🎨 DSL Design
 
@@ -22,7 +22,44 @@ Salami files are mostly comprised of natural language, with several special cons
 <p align="center">
   <img src="docs/images/salami-example.png">
   <br>
-  <i>Example Salami code with 3 blocks: VPC resource, Security Group resource and the `container_port` variable.</i>
+  <small>Example Salami code with 3 blocks: VPC resource, Security Group resource and the <code>container_port</code> variable.</small>
 </p>
 
-For more examples, see the `examples` directory.
+`.sami` is the extension for Salami files. For more examples, see the `examples` directory.
+
+## 🚀 Getting Started
+
+### Installation
+
+```bash
+brew tap petrgazarov/salami
+brew install salami
+```
+
+### Usage
+
+From the root of your project, run:
+
+```bash
+salami compile
+```
+
+The root of your project should contain `salami.yaml` file wih the following structure:
+
+```yaml
+compiler:
+  target:
+    platform: terraform
+  llm:
+    provider: openai
+    model: gpt4
+    api_key: ${OPENAI_API_KEY}
+  source_dir: <source directory> # relative to the root of your project
+  target_dir: <target directory> # relative to the root of your project
+```
+
+The `${OPENAI_API_KEY}` expression directs the compiler to read the api key from the `$OPENAI_API_KEY` environment variable.
+
+### VSCode Extension
+
+It's recommended to install the [VSCode extension](https://marketplace.visualstudio.com/items?itemName=Salami.salami). It provides highlighting functionality for the `.sami` files.
