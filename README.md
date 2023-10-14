@@ -60,6 +60,6 @@ compiler:
 
 The `${OPENAI_API_KEY}` expression directs the compiler to read the api key from the `$OPENAI_API_KEY` environment variable.
 
-### VSCode Extension
+### VS Code Extension
 
-It's recommended to install the [VSCode extension](https://marketplace.visualstudio.com/items?itemName=Salami.salami). It provides highlighting functionality for the `.sami` files.
+It's recommended to install the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=Salami.salami). It provides highlighting functionality for the `.sami` files.
