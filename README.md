@@ -10,7 +10,9 @@ Infrastructure As Natural Language
 
 Salami is a declarative domain-specific language for cloud infrastructure, centered around natural language descriptions. Salami compiler uses GPT4 to convert the natural language to Terraform files. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).
 
-## 🎨 DSL Design
+## 🎨 Design
+
+### Constructs
 
 Salami files are mostly comprised of natural language, with several special constructs:
 
@@ -19,22 +21,55 @@ Salami files are mostly comprised of natural language, with several special cons
 3. **Variable references** - references to variables that are defined in the program; delimited by curly braces.
 4. **Resource references** - references to resources that are defined in the program; start with a dollar sign.
 
+Example Salami code with 3 blocks: VPC resource, Security Group resource and the <code>container_port</code> variable:
+
 <p align="center">
-  <img src="docs/images/salami-example.png">
-  <br>
-  <small>Example Salami code with 3 blocks: VPC resource, Security Group resource and the <code>container_port</code> variable.</small>
+  <img src="docs/images/salami-example.png" width="80%">
 </p>
 
-`.sami` is the extension for Salami files. For more examples, see the `examples` directory.
+For more examples, see the `examples` directory.
+
+### Constructor function signatures
+
+<br>
+**@resource**
+
+| Position | Argument      | Type   | Required? | Examples                         |
+| -------- | ------------- | ------ | --------- | -------------------------------- |
+| 1        | resource type | string | Yes       | `aws.s3.bucket`, `AWS S3 Bucket` |
+| 2        | logical name  | string | Yes       | `ApiCluster`, `prod_bucket_1`    |
+
+<br>
+**@variable**
+
+| Position | Argument      | Type   | Required? | Examples                             |
+| -------- | ------------- | ------ | --------- | ------------------------------------ |
+| 1        | name          | string | Yes       | `container_port`, `logs_bucket_name` |
+| 2        | variable type | string | Yes       | `string`, `number`, `boolean`        |
+| 3        | default       | any    | No        | `8080`, `logs_bucket_1fdretbnHUdfn`  |
+
+### The lock file
+
+Salami compiler generates a lock file that includes parsed Salami objects and the resulting Terraform code. The lock file is used to determine which Salami objects have changed since the last compilation. Unchanged objects are not recompiled, which makes the compilation process much faster.
+
+### File extension
+
+`.sami` is the extension for Salami files.
 
 ## 🚀 Getting Started
 
 ### Installation
 
+Homebrew:
+
 ```bash
 brew tap petrgazarov/salami
 brew install salami
 ```
+
+Manual:
+
+Download the latest binary from the [releases page](https://github.com/petrgazarov/salami/releases).
 
 ### Usage
 
