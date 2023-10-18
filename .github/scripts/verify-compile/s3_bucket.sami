@@ -1,3 +1,3 @@
-@resource(aws.s3.bucket, my_bucket)
+@resource(aws.s3.bucket, salami_github_actions_test_bucket)
 Name: my-bucket-1jsdfu4bmne2346djfnf
 (Do not include any other properties in the configuration)
