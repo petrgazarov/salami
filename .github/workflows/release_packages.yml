@@ -29,16 +29,16 @@ jobs:
           token: ${{ secrets.HOMEBREW_SALAMI_GITHUB_TOKEN }}
 
       - name: Get Salami version
-        id: get-salami-version
+        id: salami-version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Generate Homebrew Tap
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          export SALAMI_VERSION="${{ steps.get-salami-version.outputs.version }}"
+          export SALAMI_VERSION="${{ steps.salami-version.outputs.version }}"
           gh release download --repo petrgazarov/salami "${SALAMI_VERSION}" -p 'salami*darwin*' -p 'salami*linux*' --skip-existing
-      
+
           for i in \
             "darwin x64    SALAMI_DARWIN_X64" \
             "darwin arm64  SALAMI_DARWIN_ARM64" \
@@ -55,7 +55,7 @@ jobs:
             export "${SHA256_VAR}=${SHA256}"
             export "${URL_VAR}=https://github.com/petrgazarov/salami/releases/download/${SALAMI_VERSION}/salami-${SALAMI_VERSION}-${OS}-${ARCH}"
           done
-      
+
           envsubst '$SALAMI_VERSION,$SALAMI_DARWIN_X64_URL,$SALAMI_DARWIN_X64_SHA256,$SALAMI_DARWIN_ARM64_URL,$SALAMI_DARWIN_ARM64_SHA256,$SALAMI_LINUX_X64_URL,$SALAMI_LINUX_X64_SHA256,$SALAMI_LINUX_ARM64_URL,$SALAMI_LINUX_ARM64_SHA256' < "./salami/.github/templates/salami_tap_template.rb" > ./homebrew_salami/salami.rb
 
       - name: Commit updated formula
@@ -69,7 +69,7 @@ jobs:
           echo "::group::git diff"
           git  --no-pager diff
           echo "::endgroup::"
-          git commit -m "Brew formula update for Salami version ${{ steps.get-salami-version.outputs.version }}"
+          git commit -m "Brew formula update for Salami version ${{ steps.salami-version.outputs.version }}"
 
       - name: Push formula
         working-directory: homebrew_salami
@@ -98,7 +98,7 @@ jobs:
           token: ${{ secrets.CHOCOLATEY_SALAMI_GITHUB_TOKEN }}
 
       - name: Get Salami version
-        id: get-salami-version
+        id: salami-version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Push tag to Salami chocolatey repo
@@ -108,5 +108,5 @@ jobs:
 
           git config user.name petrgazarov
           git config user.email petrgazarov@gmail.com
-          git tag -a "${{ steps.get-salami-version.outputs.version }}" -m "Chocolatey package update for Salami version ${{ steps.get-salami-version.outputs.version }}"
-          git push origin "${{ steps.get-salami-version.outputs.version }}"
+          git tag -a "${{ steps.salami-version.outputs.version }}" -m "Chocolatey package update for Salami version ${{ steps.salami-version.outputs.version }}"
+          git push origin "${{ steps.salami-version.outputs.version }}"

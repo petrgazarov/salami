@@ -47,13 +47,13 @@ jobs:
           go-version: "1.21.2"
 
       - name: Get Salami version
-        id: get-salami-version
+        id: salami-version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Get binary name
         id: get-binary-name
         run: |
-          echo "binary-name=salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.arch_name }}" >> $GITHUB_OUTPUT
+          echo "binary-name=salami-${{ steps.salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.arch_name }}" >> $GITHUB_OUTPUT
 
       - name: Build binary
         run: |
@@ -69,8 +69,8 @@ jobs:
           path: cli/${{ steps.get-binary-name.outputs.binary-name }}
           if-no-files-found: error
 
-  create-release:
-    name: Create draft release
+  verify-version:
+    name: Verify version
 
     needs: build
 
@@ -81,13 +81,38 @@ jobs:
         uses: actions/download-artifact@v3
 
       - name: Get Salami version
-        id: get-salami-version
+        id: salami-version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Verify version
+        run: |
+          version_from_binary=$(./salami-${{ steps.salami-version.outputs.version }}-linux-arm64/salami-${{ steps.salami-version.outputs.version }}-linux-arm64 version)
+          if [ "$version_from_binary" != "${{ steps.salami-version.outputs.version }}" ]; then
+            echo "Version mismatch: $version_from_binary != ${{ steps.salami-version.outputs.version }}"
+            exit 1
+          fi
+
+  create-release:
+    name: Create draft release
+
+    needs:
+      - build
+      - verify-version
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download binary artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Get Salami version
+        id: salami-version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@v1
         env:
-          VERSION: ${{ steps.get-salami-version.outputs.version }}
+          VERSION: ${{ steps.salami-version.outputs.version }}
         with:
           draft: true
           prerelease: ${{ contains(github.ref, '-rc') }}
