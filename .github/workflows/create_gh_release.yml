@@ -97,4 +97,4 @@ jobs:
             salami-${{ env.VERSION }}-darwin-arm64/salami-${{ env.VERSION }}-darwin-arm64
             salami-${{ env.VERSION }}-linux-x64/salami-${{ env.VERSION }}-linux-x64
             salami-${{ env.VERSION }}-linux-arm64/salami-${{ env.VERSION }}-linux-arm64
-            salami-${{ env.VERSION }}-linux-arm64/salami-${{ env.VERSION }}-windows-x64
+            salami-${{ env.VERSION }}-windows-x64/salami-${{ env.VERSION }}-windows-x64
