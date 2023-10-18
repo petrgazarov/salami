@@ -72,15 +72,9 @@ brew tap petrgazarov/salami
 brew install salami
 ```
 
-Chocolatey (Windows):
-
-```powershell
-choco install salami
-```
-
 Manual:
 
-Download the latest binaries from the [releases page](https://github.com/petrgazarov/salami/releases).
+Download the latest binaries for Mac OS, Linux and Windows from the [releases page](https://github.com/petrgazarov/salami/releases).
 
 ### Usage
 
