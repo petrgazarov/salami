@@ -110,6 +110,6 @@ jobs:
           set -euo pipefail
 
           git config user.name petrgazarov
-          git config user.email
+          git config user.email petrgazarov@gmail.com
           git tag -a "${{ steps.get-salami-version.outputs.version }}" -m "Chocolatey package update for Salami version ${{ steps.get-salami-version.outputs.version }}"
           git push origin "${{ steps.get-salami-version.outputs.version }}"
