@@ -1,0 +1,37 @@
+name: Test Windows install
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test_chocolatey_install:
+    name: Test Chocolatey install
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Chocolatey
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+      - name: Install Salami
+        run: choco install salami
+
+      - name: Get latest release tag
+        id: latest-tag
+        run: |
+          $LATEST_TAG = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases/latest" | Select-Object -ExpandProperty tag_name
+          echo "tag=$LATEST_TAG" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Verify Installation
+        run: |
+          $version = salami version
+          if ($version -ne "Salami version ${{ steps.latest-tag.outputs.tag }}") {
+            Write-Output "Version mismatch. Expected: Salami v${{ steps.latest-tag.outputs.tag }}, Got: $version"
+            exit 1
+          }
