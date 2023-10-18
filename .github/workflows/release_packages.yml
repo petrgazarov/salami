@@ -105,8 +105,8 @@ jobs:
 
           NEW_VERSION="${{ steps.salami-version.outputs.version }}"
 
-          sed -i "s|https://github.com/petrgazarov/salami/releases/download/.*/salami-.*-windows-x64|https://github.com/petrgazarov/salami/releases/download/${NEW_VERSION}/salami-${NEW_VERSION}-windows-x64|g" chocolateyInstall.ps1
-          sed -i "s|<version>.*</version>|<version>${NEW_VERSION}</version>|g" salami.nuspec
+          sed -i "s|https://github.com/petrgazarov/salami/releases/download/.*/salami-.*-windows-x64|https://github.com/petrgazarov/salami/releases/download/${NEW_VERSION}/salami-${NEW_VERSION}-windows-x64|g" tools/chocolateyInstall.ps1
+          sed -i "s|<version>.*</version>|<version>${NEW_VERSION}</version>|g" tools/salami.nuspec
 
       - name: Commit and push to Salami chocolatey repo
         working-directory: salami_chocolatey
@@ -116,7 +116,7 @@ jobs:
 
           git config user.name petrgazarov
           git config user.email petrgazarov@gmail.com
-          git add chocolateyInstall.ps1 salami.nuspec
+          git add tools
           echo "::group::git diff"
           git  --no-pager diff
           echo "::endgroup::"
