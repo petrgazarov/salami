@@ -3,8 +3,8 @@ package types
 type TokenType int
 
 const (
-	DecoratorName TokenType = iota
-	DecoratorArg
+	ConstructorName TokenType = iota
+	ConstructorArg
 	NaturalLanguage
 	Newline
 	EOF
@@ -12,8 +12,8 @@ const (
 )
 
 var TokenTypeNames = map[TokenType]string{
-	DecoratorName:   "DecoratorName",
-	DecoratorArg:    "DecoratorArg",
+	ConstructorName: "ConstructorName",
+	ConstructorArg:  "ConstructorArg",
 	NaturalLanguage: "NaturalLanguage",
 	Newline:         "Newline",
 	EOF:             "EOF",

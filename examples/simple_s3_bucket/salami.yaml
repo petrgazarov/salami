@@ -5,5 +5,5 @@ compiler:
     provider: openai
     model: gpt4
     api_key: ${OPENAI_API_KEY}
-  source_dir: ial
-  target_dir: iac
+  source_dir: salami
+  target_dir: terraform

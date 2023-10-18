@@ -44,8 +44,8 @@ func (p *Parser) Parse() ([]*commonTypes.ParsedResource, []*commonTypes.ParsedVa
 			if p.currentToken().Type == frontendTypes.Newline {
 				p.setCurrentObjectType(Unset)
 			}
-		case frontendTypes.DecoratorName:
-			err := p.parseDecorator()
+		case frontendTypes.ConstructorName:
+			err := p.parseConstructor()
 			if err != nil {
 				return nil, nil, err
 			}

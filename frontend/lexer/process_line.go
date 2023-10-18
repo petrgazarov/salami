@@ -6,13 +6,13 @@ import (
 	"unicode"
 )
 
-func (l *Lexer) processDecoratorLine() ([]*types.Token, error) {
-	decoratorNameToken := l.getDecoratorNameToken()
-	decoratorArgTokens := []*types.Token{}
+func (l *Lexer) processConstructorLine() ([]*types.Token, error) {
+	constructorNameToken := l.getConstructorNameToken()
+	constructorArgTokens := []*types.Token{}
 	var err error
 	if l.current() == '(' {
 		l.advance()
-		decoratorArgTokens, err = l.getDecoratorArgTokens()
+		constructorArgTokens, err = l.getConstructorArgTokens()
 		if err != nil {
 			return nil, err
 		}
@@ -23,17 +23,17 @@ func (l *Lexer) processDecoratorLine() ([]*types.Token, error) {
 			FilePath: l.filePath,
 			Line:     l.line,
 			Column:   l.column,
-			Message:  "decorator line must end in a newline or EOF",
+			Message:  "constructor line must end in a newline or EOF",
 		}
 	}
 
 	return append(
-		[]*types.Token{decoratorNameToken},
-		decoratorArgTokens...,
+		[]*types.Token{constructorNameToken},
+		constructorArgTokens...,
 	), nil
 }
 
-func (l *Lexer) getDecoratorNameToken() *types.Token {
+func (l *Lexer) getConstructorNameToken() *types.Token {
 	startPosition := l.pos
 	startLine := l.line
 	startColumn := l.column
@@ -42,10 +42,10 @@ func (l *Lexer) getDecoratorNameToken() *types.Token {
 		l.advance()
 	}
 	value := l.source[startPosition:l.pos]
-	return l.newToken(types.DecoratorName, value, startLine, startColumn, false)
+	return l.newToken(types.ConstructorName, value, startLine, startColumn, false)
 }
 
-func (l *Lexer) getDecoratorArgTokens() ([]*types.Token, error) {
+func (l *Lexer) getConstructorArgTokens() ([]*types.Token, error) {
 	var tokens []*types.Token
 	l.skipWhitespace()
 
@@ -61,11 +61,11 @@ func (l *Lexer) getDecoratorArgTokens() ([]*types.Token, error) {
 				FilePath: l.filePath,
 				Line:     l.line,
 				Column:   l.column,
-				Message:  "decorator arguments must be followed by a comma or a closing parenthesis",
+				Message:  "constructor arguments must be followed by a comma or a closing parenthesis",
 			}
 		}
 		value := l.source[startPosition:l.pos]
-		tokens = append(tokens, l.newToken(types.DecoratorArg, value, startLine, startColumn, true))
+		tokens = append(tokens, l.newToken(types.ConstructorArg, value, startLine, startColumn, true))
 
 		if l.current() == ')' {
 			l.advance()

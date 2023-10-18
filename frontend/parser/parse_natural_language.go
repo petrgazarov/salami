@@ -17,7 +17,7 @@ func (p *Parser) parseNaturalLanguage() error {
 	if p.currentObjectTypeIs(Unset) {
 		return p.parseError(
 			freeTextToken,
-			"ambiguous object type. Object must start with a decorator",
+			"ambiguous object type. Object must start with a constructor",
 		)
 	}
 	p.currentObject().AddNaturalLanguage(freeTextToken.Value)

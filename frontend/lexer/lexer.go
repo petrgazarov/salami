@@ -27,11 +27,11 @@ func (l *Lexer) Run() ([]*types.Token, error) {
 			l.advance()
 
 		case l.current() == '@':
-			decoratorTokens, err := l.processDecoratorLine()
+			constructorTokens, err := l.processConstructorLine()
 			if err != nil {
 				return nil, err
 			}
-			l.tokens = append(l.tokens, decoratorTokens...)
+			l.tokens = append(l.tokens, constructorTokens...)
 
 		default:
 			lineToken := l.processLine()
