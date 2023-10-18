@@ -85,13 +85,13 @@ jobs:
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Checkout Salami repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.event.release.target_commitish }}
           path: salami
 
       - name: Checkout Salami chocolatey repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: petrgazarov/salami-chocolatey
           path: salami_chocolatey

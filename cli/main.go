@@ -58,7 +58,7 @@ func main() {
 
 	switch cmd := command; cmd {
 	case command_list["version"]["cmd"]:
-		fmt.Println("Salami v" + constants.SalamiVersion)
+		fmt.Println("Salami version " + constants.SalamiVersion)
 	case command_list["compile"]["cmd"]:
 		runSystem()
 	case "help":

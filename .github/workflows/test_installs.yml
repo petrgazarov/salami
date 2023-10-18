@@ -42,7 +42,7 @@ jobs:
           set -euo pipefail
 
           version=$(salami version) || exit 1
-          if [[ $version != "Salami v${{ steps.latest-tag.outputs.tag }}" ]]; then
+          if [[ $version != "Salami version ${{ steps.latest-tag.outputs.tag }}" ]]; then
             echo "Version mismatch. Expected: Salami v${{ steps.latest-tag.outputs.tag }}, Got: $version"
             exit 1
           fi
@@ -75,7 +75,7 @@ jobs:
           set -euo pipefail
 
           version=$(salami version) || exit 1
-          if [[ $version != "Salami v${{ steps.latest-tag.outputs.tag }}" ]]; then
+          if [[ $version != "Salami version ${{ steps.latest-tag.outputs.tag }}" ]]; then
             echo "Version mismatch. Expected: Salami v${{ steps.latest-tag.outputs.tag }}, Got: $version"
             exit 1
           fi
