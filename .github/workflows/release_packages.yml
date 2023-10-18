@@ -36,10 +36,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download --repo petrgazarov/salami "${{ steps.get-salami-version.outputs.version }}" -p 'salami*darwin*' -p 'salami*linux*' --skip-existing
-          ls salami-${{ steps.get-salami-version.outputs.version }}-*
-          echo "::endgroup::"
-
+          export SALAMI_VERSION="${{ steps.get-salami-version.outputs.version }}"
+          gh release download --repo petrgazarov/salami "${SALAMI_VERSION}" -p 'salami*darwin*' -p 'salami*linux*' --skip-existing
+      
           for i in \
             "darwin x64    SALAMI_DARWIN_X64" \
             "darwin arm64  SALAMI_DARWIN_ARM64" \
@@ -50,15 +49,13 @@ jobs:
             OS="$1"
             ARCH="$2"
             ENV_VAR="$3"
-            SHA256="$(sha256sum "salami-${{ steps.get-salami-version.outputs.version }}-${OS}-${ARCH}" | cut -f1 -d' ')"
+            SHA256="$(sha256sum "salami-${SALAMI_VERSION}-${OS}-${ARCH}" | cut -f1 -d' ')"
             SHA256_VAR="${ENV_VAR}_SHA256"
             URL_VAR="${ENV_VAR}_URL"
-            printf -v "${SHA256_VAR}" "%s" "${SHA256}"
-            printf -v "${URL_VAR}" "%s" "https://github.com/petrgazarov/salami/releases/download/${{ steps.get-salami-version.outputs.version }}/salami-${{ steps.get-salami-version.outputs.version }}-${OS}-${ARCH}"
-            echo "${OS}-${ARCH} SHA256: " "${!SHA256_VAR}"
-            echo "${OS}-${ARCH} URL:    " "${!URL_VAR}"
+            export "${SHA256_VAR}=${SHA256}"
+            export "${URL_VAR}=https://github.com/petrgazarov/salami/releases/download/${SALAMI_VERSION}/salami-${SALAMI_VERSION}-${OS}-${ARCH}"
           done
-
+      
           envsubst '$SALAMI_VERSION,$SALAMI_DARWIN_X64_URL,$SALAMI_DARWIN_X64_SHA256,$SALAMI_DARWIN_ARM64_URL,$SALAMI_DARWIN_ARM64_SHA256,$SALAMI_LINUX_X64_URL,$SALAMI_LINUX_X64_SHA256,$SALAMI_LINUX_ARM64_URL,$SALAMI_LINUX_ARM64_SHA256' < "./salami/.github/templates/salami_tap_template.rb" > ./homebrew_salami/salami.rb
 
       - name: Commit updated formula
