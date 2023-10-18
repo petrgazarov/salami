@@ -90,7 +90,7 @@ jobs:
         run: |
           version_from_tag=${{ steps.salami-version.outputs.version }}
           chmod +x ./salami-$version_from_tag-linux-x64
-          version_from_binary=$(./salami-$version_from_tag-linux-x64 version)
+          version_from_binary=$(./salami-$version_from_tag-linux-x64 version | awk '{print substr($2, 2)}')
 
           if [ "$version_from_binary" != "$version_from_tag" ]; then
             echo "Version mismatch: $version_from_binary != $version_from_tag"
