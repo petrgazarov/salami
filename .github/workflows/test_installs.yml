@@ -28,7 +28,7 @@ jobs:
         id: latesttag
         run: |
           LATEST_TAG=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r .tag_name)
-          echo "::set-output name=tag::${LATEST_TAG}"
+          echo "tag=${LATEST_TAG}" >> $GITHUB_ENV
 
       - name: Verify Installation
         run: |
@@ -55,7 +55,7 @@ jobs:
         id: latesttag
         run: |
           LATEST_TAG=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" | jq -r .tag_name)
-          echo "::set-output name=tag::${LATEST_TAG}"
+          echo "tag=${LATEST_TAG}" >> $GITHUB_ENV
 
       - name: Verify Installation
         run: |
