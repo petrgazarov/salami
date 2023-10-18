@@ -1,6 +1,6 @@
 package constants
 
-const SalamiVersion = "0.0.3"
+const SalamiVersion = "0.0.2"
 
 const SalamiFileExtension = ".sami"
 
