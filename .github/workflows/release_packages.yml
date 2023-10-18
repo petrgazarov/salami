@@ -132,5 +132,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          choco config set --name=defaultPushSource --value=https://push.chocolatey.org/
           choco pack
           choco push salami.${{ steps.salami-version.outputs.version }}.nupkg -k ${{ secrets.CHOCOLATEY_API_KEY }}
