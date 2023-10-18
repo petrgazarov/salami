@@ -8,7 +8,7 @@ Infrastructure As Natural Language
 
 ## 🤔 What is this?
 
-Salami is a declarative domain-specific language for cloud infrastructure, centered around natural language descriptions. Salami compiler uses GPT4 to convert the natural language to Terraform files. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).
+Salami is a declarative domain-specific language for cloud infrastructure based on natural language descriptions. Salami compiler uses GPT4 to convert the natural language to Terraform code. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).
 
 ## 🎨 Design
 
@@ -21,7 +21,7 @@ Salami files are mostly comprised of natural language, with several special cons
 3. **Variable references** - references to variables that are defined in the program; delimited by curly braces.
 4. **Resource references** - references to resources that are defined in the program; start with a dollar sign.
 
-Example Salami code with 3 blocks: VPC resource, Security Group resource and the <code>container_port</code> variable:
+<small>Example Salami code with 3 blocks: VPC resource, Security Group resource and the <code>container_port</code> variable:</small>
 
 <p align="center">
   <img src="docs/images/salami-example.png" width="80%">
@@ -32,6 +32,7 @@ For more examples, see the `examples` directory.
 ### Constructor function signatures
 
 <br>
+
 **@resource**
 
 | Position | Argument      | Type   | Required? | Examples                         |
@@ -40,6 +41,7 @@ For more examples, see the `examples` directory.
 | 2        | logical name  | string | Yes       | `ApiCluster`, `prod_bucket_1`    |
 
 <br>
+
 **@variable**
 
 | Position | Argument      | Type   | Required? | Examples                             |
@@ -50,7 +52,7 @@ For more examples, see the `examples` directory.
 
 ### The lock file
 
-Salami compiler generates a lock file that includes parsed Salami objects and the resulting Terraform code. The lock file is used to determine which Salami objects have changed since the last compilation. Unchanged objects are not recompiled, which makes the compilation process much faster.
+Salami compiler generates a lock file that includes parsed Salami objects and the resulting Terraform code. The lock file is used to determine which Salami objects have changed since the last compilation. Unchanged objects are not sent to LLM, which makes the compilation process much faster.
 
 ### File extension
 
@@ -60,16 +62,22 @@ Salami compiler generates a lock file that includes parsed Salami objects and th
 
 ### Installation
 
-Homebrew:
+Homebrew (Mac OS, Linux):
 
 ```bash
 brew tap petrgazarov/salami
 brew install salami
 ```
 
+Chocolatey (Windows):
+
+```powershell
+choco install salami
+```
+
 Manual:
 
-Download the latest binary from the [releases page](https://github.com/petrgazarov/salami/releases).
+Download the latest binaries from the [releases page](https://github.com/petrgazarov/salami/releases).
 
 ### Usage
 
@@ -79,7 +87,7 @@ From the root of your project, run:
 salami compile
 ```
 
-The root of your project should contain `salami.yaml` file with the following structure:
+The root of your project should contain the `salami.yaml` config file with the following structure:
 
 ```yaml
 compiler:
@@ -89,12 +97,16 @@ compiler:
     provider: openai
     model: gpt4
     api_key: ${OPENAI_API_KEY}
-  source_dir: <source directory> # relative to the root of your project
-  target_dir: <target directory> # relative to the root of your project
+  source_dir: salami
+  target_dir: terraform
 ```
 
-The `${OPENAI_API_KEY}` expression directs the compiler to read the api key from the `$OPENAI_API_KEY` environment variable.
+Set `source_dir` to the directory where your Salami files are, and `target_dir` to the directory where you want the Terraform files to be written. The config file supports environment variables, which is useful to avoid storing secrets in version control. To inject an env variable at runtime, use the `${ENV_VAR}` delimeter.
 
-### VS Code Extension
+## VS Code Extension
 
-It's recommended to install the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=Salami.salami). It provides highlighting functionality for the `.sami` files.
+It's recommended to install the [Salami VS Code extension](https://marketplace.visualstudio.com/items?itemName=Salami.salami). It provides highlighting functionality for the `.sami` files.
+
+## Contributing
+
+Contributions are welcome! If your contribution is non-trivial, please open an issue first to discuss the proposed changes.

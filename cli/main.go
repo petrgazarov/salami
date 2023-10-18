@@ -47,11 +47,10 @@ func main() {
 		color.Green("====================================")
 		color.Green("======= Welcome to Salami CLI ======")
 		color.Green("====================================\n ")
-		fmt.Println("Salami is a declarative domain-specific language for cloud infrastructure, " +
-			"centered around natural language descriptions. You can think of Salami as writing " +
-			"documentation for each cloud resource object, and letting the compiler take care of " +
-			"converting that to IaC. The compiler uses LLM to convert natural language to IaC, " +
-			"with Terraform currently as the supported target.\n ")
+		fmt.Println("Salami is a declarative domain-specific language for cloud infrastructure based on natural language descriptions. " +
+			"Salami compiler uses GPT4 to convert the natural language to Terraform code. You can think of Salami as writing documentation " +
+			"for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).",
+		)
 		showCommands()
 		return
 	}
