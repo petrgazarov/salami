@@ -77,18 +77,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download binary artifacts
-        uses: actions/download-artifact@v3
-
       - name: Get Salami version
         id: salami-version
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Download binary artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: salami-${{ steps.salami-version.outputs.version }}-linux-arm64
+
       - name: Verify version
         run: |
-          version_from_binary=$(./salami-${{ steps.salami-version.outputs.version }}-linux-arm64/salami-${{ steps.salami-version.outputs.version }}-linux-arm64 version)
-          if [ "$version_from_binary" != "${{ steps.salami-version.outputs.version }}" ]; then
-            echo "Version mismatch: $version_from_binary != ${{ steps.salami-version.outputs.version }}"
+          version_from_tag=${{ steps.salami-version.outputs.version }}
+          chmod +x ./salami-$version_from_tag-linux-arm64/salami-$version_from_tag-linux-arm64
+          version_from_binary=$(./salami-$version_from_tag-linux-arm64/salami-$version_from_tag-linux-arm64 version)
+
+          if [ "$version_from_binary" != "$version_from_tag" ]; then
+            echo "Version mismatch: $version_from_binary != $version_from_tag"
             exit 1
           fi
 
