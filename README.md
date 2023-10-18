@@ -10,9 +10,8 @@ Infrastructure As Natural Language
 
 Salami is a declarative domain-specific language for cloud infrastructure based on natural language descriptions. Salami compiler uses GPT4 to convert the natural language to Terraform code. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).
 
-Demo:
-<iframe width="80%" src="https://youtu.be/ej629E0WOIY" frameborder="0" allowfullscreen></iframe>
-
+**[Short demo video](https://youtu.be/ej629E0WOIY)** |
+**[Release blog post](https://www.petrgazarov.com/posts/infrastructure-as-natural-language)**
 
 ## 🎨 Design
 
@@ -54,7 +53,7 @@ For more examples, see the `examples` directory.
 | 2        | variable type | string | Yes       | `string`, `number`, `boolean`        |
 | 3        | default       | any    | No        | `8080`, `logs_bucket_1fdretbnHUdfn`  |
 
-### The lock file
+### Lock file
 
 Salami compiler generates a lock file that includes parsed Salami objects and the resulting Terraform code. The lock file is used to determine which Salami objects have changed since the last compilation. Unchanged objects are not sent to LLM, which makes the compilation process much faster.
 
