@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          path: salami-repo
 
       - name: Install Chocolatey
         run: |
@@ -28,10 +30,15 @@ jobs:
           $LATEST_TAG = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases/latest" | Select-Object -ExpandProperty tag_name
           echo "tag=$LATEST_TAG" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Verify Installation
+      - name: Verify version
         run: |
           $version = salami version
           if ($version -ne "Salami version ${{ steps.latest-tag.outputs.tag }}") {
             Write-Output "Version mismatch. Expected: Salami v${{ steps.latest-tag.outputs.tag }}, Got: $version"
             exit 1
           }
+
+      - name: Verify compile
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: .\salami-repo\.github\scripts\verify-compile\run_powershell.ps1 salami-repo

@@ -45,11 +45,11 @@ jobs:
 
           version=$(salami version) || exit 1
           if [[ $version != "Salami version ${{ steps.latest-tag.outputs.tag }}" ]]; then
-            echo "Version mismatch. Expected: Salami v${{ steps.latest-tag.outputs.tag }}, Got: $version"
+            echo "Version mismatch. Expected: Salami ${{ steps.latest-tag.outputs.tag }}, Got: $version"
             exit 1
           fi
 
       - name: Verify compile
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: salami-repo/.github/scripts/verify-compile/run.sh salami-repo
+        run: salami-repo/.github/scripts/verify-compile/run_bash.sh salami-repo
