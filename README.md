@@ -106,10 +106,10 @@ compiler:
 
 Set `source_dir` to the directory where your Salami files are, and `target_dir` to the directory where you want the Terraform files to be written. The config file supports environment variables, which is useful to avoid storing secrets in version control. To inject an env variable at runtime, use the `${ENV_VAR}` delimeter.
 
-## VS Code Extension
+## ✅ VS Code Extension
 
 It's recommended to install the [Salami VS Code extension](https://marketplace.visualstudio.com/items?itemName=Salami.salami). It provides highlighting functionality for the `.sami` files.
 
-## Contributing
+## 😍 Contributing
 
 Contributions are welcome! If your contribution is non-trivial, please open an issue first to discuss the proposed changes.
