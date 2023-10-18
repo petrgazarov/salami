@@ -96,8 +96,8 @@ jobs:
       - name: Checkout Salami chocolatey repo
         uses: actions/checkout@v3
         with:
-          repository: petrgazarov/chocolatey-salami
-          path: chocolatey_salami
+          repository: petrgazarov/salami-chocolatey
+          path: salami_chocolatey
           token: ${{ secrets.CHOCOLATEY_SALAMI_GITHUB_TOKEN }}
 
       - name: Get Salami version
@@ -105,7 +105,7 @@ jobs:
         run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Push tag to Salami chocolatey repo
-        working-directory: chocolatey_salami
+        working-directory: salami_chocolatey
         run: |
           set -euo pipefail
 
