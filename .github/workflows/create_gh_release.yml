@@ -86,6 +86,9 @@ jobs:
         with:
           name: salami-${{ steps.salami-version.outputs.version }}-linux-arm64
 
+      - name: List directory contents
+        run: ls -R
+
       - name: Verify version
         run: |
           version_from_tag=${{ steps.salami-version.outputs.version }}
