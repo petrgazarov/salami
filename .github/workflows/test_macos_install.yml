@@ -23,6 +23,9 @@ jobs:
       - name: Install Salami
         run: brew install salami
 
+      - name: Install Terraform
+        run: brew install terraform
+
       - name: Get latest release tag
         id: latest-tag
         run: |
