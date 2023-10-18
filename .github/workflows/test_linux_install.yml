@@ -53,3 +53,6 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: salami-repo/.github/scripts/verify-compile/run_bash.sh salami-repo
+
+      - name: Uninstall Salami
+        run: brew uninstall salami
