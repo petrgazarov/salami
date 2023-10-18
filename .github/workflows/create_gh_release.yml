@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    name: Build for ${{ matrix.goos }} ${{ matrix.arch }}
+    name: Build for ${{ matrix.goos }} ${{ matrix.arch_name }}
 
     runs-on: ubuntu-latest
 
@@ -19,16 +19,23 @@ jobs:
         include:
           - goos: darwin
             goarch: amd64
-            arch: x64
+            arch_name: x64
+
           - goos: darwin
             goarch: arm64
-            arch: arm64
+            arch_name: arm64
+
           - goos: linux
             goarch: amd64
-            arch: x64
+            arch_name: x64
+
           - goos: linux
             goarch: arm64
-            arch: arm64
+            arch_name: arm64
+
+          - goos: windows
+            goarch: amd64
+            arch_name: x64
 
     steps:
       - name: Checkout code
@@ -46,7 +53,7 @@ jobs:
       - name: Get binary name
         id: get-binary-name
         run: |
-          echo "binary-name=salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.arch }}" >> $GITHUB_OUTPUT
+          echo "binary-name=salami-${{ steps.get-salami-version.outputs.version }}-${{ matrix.goos }}-${{ matrix.arch_name }}" >> $GITHUB_OUTPUT
 
       - name: Build binary
         run: |

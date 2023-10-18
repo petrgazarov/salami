@@ -2,7 +2,7 @@ name: Test Salami Installs
 
 on:
   workflow_run:
-    workflows: ["Release Homebrew tap"]
+    workflows: ["Release packages"]
     types:
       - completed
   workflow_dispatch:
@@ -10,7 +10,9 @@ on:
 jobs:
   test_ubuntu:
     name: Test on Ubuntu
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,7 +30,7 @@ jobs:
         run: brew install salami
 
       - name: Get latest release tag
-        id: latest_tag
+        id: latest-tag
         run: |
           set -euo pipefail
 
@@ -40,14 +42,16 @@ jobs:
           set -euo pipefail
 
           version=$(salami version) || exit 1
-          if [[ $version != "Salami v${{ steps.latest_tag.outputs.tag }}" ]]; then
-            echo "Version mismatch. Expected: Salami v${{ steps.latest_tag.outputs.tag }}, Got: $version"
+          if [[ $version != "Salami v${{ steps.latest-tag.outputs.tag }}" ]]; then
+            echo "Version mismatch. Expected: Salami v${{ steps.latest-tag.outputs.tag }}, Got: $version"
             exit 1
           fi
 
   test_mac:
     name: Test on MacOS
+
     runs-on: macos-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -59,7 +63,7 @@ jobs:
         run: brew install salami
 
       - name: Get latest release tag
-        id: latest_tag
+        id: latest-tag
         run: |
           set -euo pipefail
 
@@ -71,7 +75,7 @@ jobs:
           set -euo pipefail
 
           version=$(salami version) || exit 1
-          if [[ $version != "Salami v${{ steps.latest_tag.outputs.tag }}" ]]; then
-            echo "Version mismatch. Expected: Salami v${{ steps.latest_tag.outputs.tag }}, Got: $version"
+          if [[ $version != "Salami v${{ steps.latest-tag.outputs.tag }}" ]]; then
+            echo "Version mismatch. Expected: Salami v${{ steps.latest-tag.outputs.tag }}, Got: $version"
             exit 1
           fi
