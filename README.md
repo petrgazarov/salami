@@ -10,8 +10,8 @@ Infrastructure As Natural Language
 
 Salami is a declarative domain-specific language for cloud infrastructure based on natural language descriptions. Salami compiler uses GPT4 to convert the natural language to Terraform code. You can think of Salami as writing documentation for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).
 
-**[Short demo video](https://youtu.be/ej629E0WOIY)** |
-**[Release blog post](https://www.petrgazarov.com/posts/infrastructure-as-natural-language)**
+**<a href="https://youtu.be/ej629E0WOIY" target="_blank" rel="noopener noreferrer">Short demo video</a>** |
+**<a href="https://www.petrgazarov.com/posts/infrastructure-as-natural-language" target="_blank" rel="noopener noreferrer">Release blog post</a>**
 
 ## 🎨 Design
 
