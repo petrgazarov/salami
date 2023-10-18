@@ -84,13 +84,13 @@ jobs:
       - name: Download binary artifacts
         uses: actions/download-artifact@v3
         with:
-          name: salami-${{ steps.salami-version.outputs.version }}-linux-arm64
+          name: salami-${{ steps.salami-version.outputs.version }}-linux-amd64
 
       - name: Verify version
         run: |
           version_from_tag=${{ steps.salami-version.outputs.version }}
-          chmod +x ./salami-$version_from_tag-linux-arm64
-          version_from_binary=$(./salami-$version_from_tag-linux-arm64 version)
+          chmod +x ./salami-$version_from_tag-linux-amd64
+          version_from_binary=$(./salami-$version_from_tag-linux-amd64 version)
 
           if [ "$version_from_binary" != "$version_from_tag" ]; then
             echo "Version mismatch: $version_from_binary != $version_from_tag"
