@@ -30,7 +30,7 @@ Salami files are mostly comprised of natural language, with several special cons
   <img src="docs/images/salami-example.png" width="80%">
 </p>
 
-For more examples, see the `examples` directory.
+For more examples, see the `examples` directory. Each example has a README file with instructions on how to run it.
 
 ### Constructor function signatures
 
