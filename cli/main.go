@@ -1,69 +1,82 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
+	"os"
 	"salami/common/constants"
 	"salami/common/driver"
+	"strings"
 
-	"github.com/fatih/color"
+	"github.com/urfave/cli/v2"
 )
 
-const GENERAL_COMMAND = "salami"
-
-var command_list = map[string]map[string]string{
-	"version": {
-		"cmd":         "version",
-		"description": "Print the version of the installed Salami CLI",
-	},
-	"compile": {
-		"cmd":         "compile",
-		"description": "Run the compilation end-to-end",
-	},
+type SalamiMultiError struct {
+	errors []error
 }
 
-func showCommands() {
-	fmt.Println("Usage: \n \t ", GENERAL_COMMAND, "<command>\n ")
-	fmt.Println("The commands are:")
-	for id, command_ := range command_list {
-		fmt.Println(color.HiBlueString(id), ":", command_["description"])
+func (m *SalamiMultiError) Error() string {
+	msgs := []string{}
+	for _, err := range m.errors {
+		msgs = append(msgs, err.Error())
 	}
-	fmt.Println()
+	return strings.Join(msgs, ", ")
 }
 
-func runSystem() {
-	errors := driver.Run()
-
-	for _, err := range errors {
-		color.Red(err.Error())
-	}
+func (m *SalamiMultiError) Errors() []error {
+	return m.errors
 }
 
 func main() {
-	flag.Parse()
-	command := flag.Arg(0)
+	app := &cli.App{
+		Name:        "salami",
+		HelpName:    "Salami",
+		Version:     constants.SalamiVersion,
+		Usage:       "a declarative DSL for cloud infrastructure based on natural language descriptions",
+		UsageText:   "salami [global options] [command] [command options]",
+		HideVersion: true,
+		Suggest:     true,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "verbose",
+				Aliases: []string{"v"},
+				Usage:   "Enable verbose mode",
+			},
+		},
+		Commands: []*cli.Command{
+			{
+				Name:      "compile",
+				Usage:     "Runs the compilation end-to-end",
+				UsageText: "salami [global options] compile [command options]",
+				Action: func(cCtx *cli.Context) error {
+					verbose := cCtx.Bool("verbose")
+					errors := driver.Run(verbose)
 
-	if command == "" {
-		color.Green("====================================")
-		color.Green("======= Welcome to Salami CLI ======")
-		color.Green("====================================\n ")
-		fmt.Println("Salami is a declarative domain-specific language for cloud infrastructure based on natural language descriptions. " +
-			"Salami compiler uses GPT4 to convert the natural language to Terraform code. You can think of Salami as writing documentation " +
-			"for each cloud resource object, and letting the compiler take care of converting that to IaC (Infrastructure as Code).",
-		)
-		showCommands()
-		return
+					if len(errors) == 1 {
+						return errors[0]
+					} else if len(errors) > 1 {
+						return &SalamiMultiError{errors: errors}
+					}
+
+					return nil
+				},
+			},
+			{
+				Name:  "version",
+				Usage: "Prints the version",
+				Action: func(cCtx *cli.Context) error {
+					fmt.Println("Salami version " + constants.SalamiVersion)
+					return nil
+				},
+			},
+		},
+		Authors: []*cli.Author{{
+			Name:  "Petr Gazarov",
+			Email: "petrgazarov@gmail.com",
+		}},
 	}
 
-	switch cmd := command; cmd {
-	case command_list["version"]["cmd"]:
-		fmt.Println("Salami version " + constants.SalamiVersion)
-	case command_list["compile"]["cmd"]:
-		runSystem()
-	case "help":
-		showCommands()
-	default:
-		msg := "Invalid command passed. Type '" + GENERAL_COMMAND + " help'"
-		color.Red(msg)
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
 	}
 }

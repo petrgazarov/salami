@@ -158,5 +158,5 @@ func logMessages(llmMessages []*LlmMessage) {
 			str += llmMessage.Content + "\n\n"
 		}
 	}
-	logger.Log(str)
+	logger.Debug(str)
 }

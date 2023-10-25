@@ -194,7 +194,7 @@ func parseTerraformValidateOutput(
 		return tfErrors[i].Range.Start.Line < tfErrors[j].Range.Start.Line
 	})
 
-	logger.Log("tfErrors: " + fmt.Sprint(tfErrors))
+	logger.Debug("tfErrors: " + fmt.Sprint(tfErrors))
 
 	j := 0
 	for _, tfError := range tfErrors {

@@ -6,25 +6,57 @@ import (
 	"go.uber.org/zap"
 )
 
-var logger *zap.SugaredLogger
+type salamiLogger struct {
+	verbose  bool
+	instance *zap.SugaredLogger
+}
 
-func init() {
-	if os.Getenv("DEBUG") != "true" {
-		return
-	}
+var logger *salamiLogger
 
-	zapLogger, err := zap.NewDevelopment()
+func InitializeLogger(verbose bool) {
+	zapConfig := zap.NewDevelopmentConfig()
+	zapConfig.EncoderConfig.EncodeCaller = nil
+
+	zapLogger, err := zapConfig.Build()
 	if err != nil {
 		panic(err)
 	}
-	logger = zapLogger.Sugar()
+
+	logger = &salamiLogger{
+		verbose:  verbose,
+		instance: zapLogger.Sugar(),
+	}
 }
 
+// Log logs a message always
 func Log(message string) {
 	if logger == nil {
 		return
 	}
 
-	defer logger.Sync()
-	logger.Info(message)
+	defer logger.instance.Sync()
+	logger.instance.Info(message)
+}
+
+// Verbose logs a message if the verbose flag is set to true
+func Verbose(message string) {
+	if logger == nil {
+		return
+	}
+
+	defer logger.instance.Sync()
+	logger.instance.Info(message)
+}
+
+// Debug logs a message if the DEBUG environment variable is set to true
+func Debug(message string) {
+	if logger == nil {
+		return
+	}
+	if os.Getenv("DEBUG") != "true" {
+		return
+	}
+
+	defer logger.instance.Sync()
+	logger.instance.Debug(message)
 }

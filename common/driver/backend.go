@@ -1,71 +1,21 @@
 package driver
 
 import (
-	"path/filepath"
-	"sort"
-
 	"salami/backend/llm"
 	"salami/backend/target"
 	"salami/backend/target_file_manager"
 	"salami/common/change_set"
 	"salami/common/config"
-	"salami/common/constants"
 	"salami/common/lock_file_manager"
+	"salami/common/metrics"
 	"salami/common/symbol_table"
-	commonTypes "salami/common/types"
-	"salami/common/utils/file_utils"
-	"salami/frontend/semantic_analyzer"
+	"salami/common/types"
+	"sort"
 )
-
-func Run() []error {
-	if errors := runValidations(); len(errors) > 0 {
-		return errors
-	}
-
-	symbolTable, errors := runFrontend()
-	if len(errors) > 0 {
-		return errors
-	}
-
-	newTargetFileMetas, newObjects, errors := runBackend(symbolTable)
-	if len(errors) > 0 {
-		return errors
-	}
-
-	if err := lock_file_manager.UpdateLockFile(newTargetFileMetas, newObjects); err != nil {
-		return []error{err}
-	}
-
-	return nil
-}
-
-func runFrontend() (*symbol_table.SymbolTable, []error) {
-	sourceFilePaths, err := getSourceFilePaths()
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	allResources, allVariables, errors := parseFiles(sourceFilePaths, config.GetSourceDir())
-	if len(errors) > 0 {
-		return nil, errors
-	}
-
-	symbolTable, err := symbol_table.NewSymbolTable(allResources, allVariables)
-	if err != nil {
-		return nil, []error{err}
-	}
-
-	semanticAnalyzer := semantic_analyzer.NewSemanticAnalyzer(symbolTable)
-	if err = semanticAnalyzer.Analyze(); err != nil {
-		return nil, []error{err}
-	}
-
-	return symbolTable, nil
-}
 
 func runBackend(
 	symbolTable *symbol_table.SymbolTable,
-) ([]commonTypes.TargetFileMeta, []*commonTypes.Object, []error) {
+) ([]types.TargetFileMeta, []*types.Object, []error) {
 	newObjects, newTargetFiles, errors := generateCode(symbolTable)
 	if len(errors) > 0 {
 		return nil, nil, errors
@@ -83,12 +33,14 @@ func runBackend(
 		return nil, nil, errors
 	}
 
+	metrics.SetMetric(metrics.SourceFilesProcessed, len(newTargetFiles))
+
 	return newTargetFileMetas, newObjects, nil
 }
 
 func generateCode(
 	symbolTable *symbol_table.SymbolTable,
-) ([]*commonTypes.Object, []*commonTypes.TargetFile, []error) {
+) ([]*types.Object, []*types.TargetFile, []error) {
 	previousObjects := lock_file_manager.GetObjects()
 	changeSet := change_set.NewChangeSet(previousObjects, symbolTable)
 	changeSetRepository := change_set.NewChangeSetRepository(changeSet)
@@ -106,33 +58,35 @@ func generateCode(
 	}
 	targetFiles := target.GetFilesFromObjects(newObjects)
 
+	updateMetricsFromChangeSet(changeSet)
+
 	return newObjects, targetFiles, nil
 }
 
-func getSourceFilePaths() ([]string, error) {
-	sourceFilePaths, err := file_utils.GetFilePaths(config.GetSourceDir(), func(path string) bool {
-		return filepath.Ext(path) == constants.SalamiFileExtension
-	})
-	if err != nil {
-		return nil, err
+func getFilePathsToRemove(
+	oldTargetFileMetas []types.TargetFileMeta,
+	newTargetFileMetas []types.TargetFileMeta,
+) []string {
+	newMetaMap := make(map[string]bool)
+	for _, meta := range newTargetFileMetas {
+		newMetaMap[meta.FilePath] = true
 	}
 
-	relativeSourceFilePaths, err := file_utils.GetRelativeFilePaths(
-		config.GetSourceDir(),
-		sourceFilePaths,
-	)
-	if err != nil {
-		return nil, err
+	oldFilePaths := make([]string, 0)
+	for _, meta := range oldTargetFileMetas {
+		if _, exists := newMetaMap[meta.FilePath]; !exists {
+			oldFilePaths = append(oldFilePaths, meta.FilePath)
+		}
 	}
 
-	return relativeSourceFilePaths, nil
+	return oldFilePaths
 }
 
 func computeNewObjects(
-	previousObjects []*commonTypes.Object,
+	previousObjects []*types.Object,
 	changeSetRepository *change_set.ChangeSetRepository,
-) []*commonTypes.Object {
-	objects := make([]*commonTypes.Object, 0)
+) []*types.Object {
+	objects := make([]*types.Object, 0)
 	for _, object := range previousObjects {
 		if changeSetRepository.WasObjectChanged(object) {
 			objects = append(objects, changeSetRepository.GetChangedObject(object))
@@ -158,21 +112,22 @@ func computeNewObjects(
 	return objects
 }
 
-func getFilePathsToRemove(
-	oldTargetFileMetas []commonTypes.TargetFileMeta,
-	newTargetFileMetas []commonTypes.TargetFileMeta,
-) []string {
-	newMetaMap := make(map[string]bool)
-	for _, meta := range newTargetFileMetas {
-		newMetaMap[meta.FilePath] = true
-	}
+func updateMetricsFromChangeSet(changeSet *types.ChangeSet) {
+	objectsAdded := 0
+	objectsRemoved := 0
+	objectsChanged := 0
 
-	oldFilePaths := make([]string, 0)
-	for _, meta := range oldTargetFileMetas {
-		if _, exists := newMetaMap[meta.FilePath]; !exists {
-			oldFilePaths = append(oldFilePaths, meta.FilePath)
+	for _, diff := range changeSet.Diffs {
+		if diff.IsAdd() {
+			objectsAdded++
+		} else if diff.IsRemove() {
+			objectsRemoved++
+		} else if diff.IsUpdate() || diff.IsMove() {
+			objectsChanged++
 		}
 	}
 
-	return oldFilePaths
+	metrics.SetMetric(metrics.ObjectsAdded, objectsAdded)
+	metrics.SetMetric(metrics.ObjectsRemoved, objectsRemoved)
+	metrics.SetMetric(metrics.ObjectsChanged, objectsChanged)
 }

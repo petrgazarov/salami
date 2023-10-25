@@ -113,6 +113,14 @@ func (ch *ChangeSetDiff) IsAdd() bool {
 	return ch.DiffType == DiffTypeAdd
 }
 
+func (ch *ChangeSetDiff) IsRemove() bool {
+	return ch.DiffType == DiffTypeRemove
+}
+
+func (ch *ChangeSetDiff) IsMove() bool {
+	return ch.DiffType == DiffTypeMove
+}
+
 type ChangeSet struct {
 	Diffs []*ChangeSetDiff
 }
