@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"salami/common/constants"
 	"salami/common/types"
 
 	"gopkg.in/yaml.v3"
@@ -46,10 +47,17 @@ func GetTargetConfig() types.TargetConfig {
 
 func GetLlmConfig() types.LlmConfig {
 	compilerLlmConfig := getConfig().Compiler.Llm
+
+	maxConcurrentExecutions := compilerLlmConfig.MaxConcurrentExecutions
+	if maxConcurrentExecutions == 0 {
+		maxConcurrentExecutions = constants.DefaultMaxConcurrentLlmExecutions
+	}
+
 	return types.LlmConfig{
-		Provider: compilerLlmConfig.Provider,
-		Model:    compilerLlmConfig.Model,
-		ApiKey:   compilerLlmConfig.ApiKey,
+		Provider:                compilerLlmConfig.Provider,
+		Model:                   compilerLlmConfig.Model,
+		ApiKey:                  compilerLlmConfig.ApiKey,
+		MaxConcurrentExecutions: maxConcurrentExecutions,
 	}
 }
 

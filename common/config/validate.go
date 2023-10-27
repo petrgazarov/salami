@@ -62,9 +62,10 @@ type CompilerTargetConfig struct {
 }
 
 type CompilerLlmConfig struct {
-	Provider string `yaml:"provider"`
-	Model    string `yaml:"model"`
-	ApiKey   string `yaml:"api_key"`
+	Provider                string `yaml:"provider"`
+	Model                   string `yaml:"model"`
+	ApiKey                  string `yaml:"api_key"`
+	MaxConcurrentExecutions int    `yaml:"max_concurrent"`
 }
 
 func validateTarget(fl validator.FieldLevel) bool {
@@ -80,9 +81,11 @@ func validateLlm(fl validator.FieldLevel) bool {
 	if !ok {
 		return false
 	}
+
 	validLlmProvider := llmConfig.Provider == types.LlmOpenaiProvider
 	validLlmModel := llmConfig.Model == types.LlmGpt4Model
 	apiKeyExists := llmConfig.ApiKey != ""
+
 	return validLlmProvider && validLlmModel && apiKeyExists
 }
 

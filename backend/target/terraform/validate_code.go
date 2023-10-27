@@ -50,13 +50,23 @@ func (t *Terraform) ValidateCode(
 	if len(changeSetRepository.Diffs) == 0 {
 		return nil
 	}
+	if retryCount == 0 {
+		logger.Verbose("🔍 Validating code...")
+	}
 	validationResults, err := generateValidationResults(newObjects)
 	if err != nil {
 		return err
 	}
-	if len(validationResults) == 0 {
+	errorCount := len(validationResults)
+	if errorCount == 0 {
+		logger.Verbose("🙌 All code is valid")
 		return nil
 	}
+	errorWord := "errors"
+	if errorCount == 1 {
+		errorWord = "error"
+	}
+	logger.Verbose(fmt.Sprintf("🔧 Found %d validation %s, fixing...", errorCount, errorWord))
 
 	if err := processValidationResults(validationResults, symbolTable, changeSetRepository, llm); err != nil {
 		return err

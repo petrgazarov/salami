@@ -135,9 +135,10 @@ type TargetConfig struct {
 }
 
 type LlmConfig struct {
-	Provider string
-	Model    string
-	ApiKey   string
+	Provider                string
+	Model                   string
+	ApiKey                  string
+	MaxConcurrentExecutions int
 }
 
 const TerraformPlatform = "terraform"

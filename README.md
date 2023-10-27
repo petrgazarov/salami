@@ -98,7 +98,7 @@ compiler:
   target_dir: terraform
 ```
 
-Set `source_dir` to the directory where your Salami files are, and `target_dir` to the directory where you want the Terraform files to be written. The config file supports environment variables, which is useful to avoid storing secrets in version control. To inject an env variable at runtime, use the `${ENV_VAR}` delimeter.
+Set `compiler.source_dir` to the directory where your Salami files are, and `compiler.target_dir` to the directory where the Terraform files should be written. The config file supports environment variables, which is useful to avoid storing secrets in version control. To inject an env variable at runtime, use the `${ENV_VAR}` delimeter. Use `compiler.llm.max_concurrent` config to control how many concurrent API calls are made to OpenAI API. The default is 5.
 
 ## ✅ VS Code Extension
 

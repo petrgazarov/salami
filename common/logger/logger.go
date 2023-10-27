@@ -16,6 +16,7 @@ var logger *salamiLogger
 func InitializeLogger(verbose bool) {
 	zapConfig := zap.NewDevelopmentConfig()
 	zapConfig.EncoderConfig.EncodeCaller = nil
+	zapConfig.EncoderConfig.LevelKey = ""
 
 	zapLogger, err := zapConfig.Build()
 	if err != nil {
@@ -28,7 +29,7 @@ func InitializeLogger(verbose bool) {
 	}
 }
 
-// Log logs a message always
+// Log logs the message always
 func Log(message string) {
 	if logger == nil {
 		return
@@ -38,9 +39,12 @@ func Log(message string) {
 	logger.instance.Info(message)
 }
 
-// Verbose logs a message if the verbose flag is set to true
+// Verbose logs the message if the verbose flag is set to true
 func Verbose(message string) {
 	if logger == nil {
+		return
+	}
+	if !logger.verbose {
 		return
 	}
 
@@ -48,7 +52,7 @@ func Verbose(message string) {
 	logger.instance.Info(message)
 }
 
-// Debug logs a message if the DEBUG environment variable is set to true
+// Debug logs the message if the DEBUG environment variable is set to true
 func Debug(message string) {
 	if logger == nil {
 		return

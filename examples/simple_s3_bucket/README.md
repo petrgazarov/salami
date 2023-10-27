@@ -23,4 +23,4 @@ To run this example, you need:
 
 1. Note that `salami compile` will examine the `salami-lock.toml` file and the source `.sami` files, and determine which Salami objects have changed since the last compilation. To force a complete recompilation, delete the `salami-lock.toml` file. Or, you can change source `.sami` files and `salami compile` will recompile only the changed objects.
 
-2. Occassionally, OpenAI API delays responses significantly. If `salami compile` is stuck for a long time, try again later. The total compilation time varies significantly depending on the number of objects and their complexity. This project takes me about 10 seconds to compile from scratch.
+2. Occassionally, OpenAI API delays responses significantly. If `salami compile` is stuck, try setting `compiler.llm.max_concurrent` config to a lower value.

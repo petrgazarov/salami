@@ -1,9 +1,11 @@
 package terraform
 
 import (
+	"fmt"
 	"salami/backend/prompts/terraform/openai_gpt4"
 	backendTypes "salami/backend/types"
 	"salami/common/change_set"
+	"salami/common/logger"
 	"salami/common/symbol_table"
 	commonTypes "salami/common/types"
 
@@ -32,6 +34,8 @@ func (t *Terraform) GenerateCode(
 		g.Go(func() error {
 			semaphoreChannel <- struct{}{}
 			defer func() { <-semaphoreChannel }()
+
+			logDiffProgress(diff)
 
 			messages, err := getGenerateCodeLlmMessages(symbolTable, diff, llm)
 			if err != nil {
@@ -72,4 +76,20 @@ func getGenerateCodeLlmMessages(
 		}
 	}
 	return messages, nil
+}
+
+func logDiffProgress(diff *commonTypes.ChangeSetDiff) {
+	var objectType string
+	var objectId string
+
+	if diff.NewObject.IsResource() {
+		objectType = "resource"
+		objectId = string(diff.NewObject.ParsedResource.LogicalName)
+	} else if diff.NewObject.IsVariable() {
+		objectType = "variable"
+		objectId = diff.NewObject.ParsedVariable.Name
+	}
+
+	message := fmt.Sprintf("🖋  Generating code for %s '%s' (diff type: %s)...", objectType, objectId, diff.DiffType)
+	logger.Verbose(message)
 }

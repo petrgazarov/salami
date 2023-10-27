@@ -5,5 +5,6 @@ compiler:
     provider: openai
     model: gpt4
     api_key: ${OPENAI_API_KEY}
+    max_concurrent: 3
   source_dir: salami
   target_dir: terraform

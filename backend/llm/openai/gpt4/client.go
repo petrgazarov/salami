@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"math"
 	backendTypes "salami/backend/types"
+	"salami/common/constants"
 	"salami/common/errors"
 	"salami/common/logger"
 	commonTypes "salami/common/types"
 	"strings"
+	"time"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -21,9 +23,10 @@ const LlmMessageAssistantRole = "assistant"
 const functionCallName = "save_code"
 
 type OpenaiGpt4 struct {
-	slug   string
-	model  string
-	client *openai.Client
+	slug                    string
+	model                   string
+	client                  *openai.Client
+	maxConcurrentExecutions int
 }
 
 type LlmMessage struct {
@@ -35,9 +38,10 @@ type LlmMessage struct {
 
 func NewLlm(llmConfig commonTypes.LlmConfig) backendTypes.Llm {
 	return &OpenaiGpt4{
-		client: getClient(llmConfig),
-		model:  openai.GPT4,
-		slug:   commonTypes.LlmOpenaiGpt4,
+		client:                  getClient(llmConfig),
+		model:                   openai.GPT4,
+		slug:                    commonTypes.LlmOpenaiGpt4,
+		maxConcurrentExecutions: llmConfig.MaxConcurrentExecutions,
 	}
 }
 
@@ -66,7 +70,7 @@ func (o *OpenaiGpt4) GetSlug() string {
 }
 
 func (o *OpenaiGpt4) GetMaxConcurrentExecutions() int {
-	return 5
+	return o.maxConcurrentExecutions
 }
 
 func (o *OpenaiGpt4) CreateCompletion(messages []interface{}) (string, error) {
@@ -78,27 +82,51 @@ func (o *OpenaiGpt4) CreateCompletion(messages []interface{}) (string, error) {
 
 	logMessages(llmMessages)
 
-	response, err := o.client.CreateChatCompletion(
-		context.Background(),
-		o.getChatCompletionRequest(llmMessages),
-	)
+	response, err := o.callApi(llmMessages)
 	if err != nil {
 		return "", err
 	}
+
 	functionCall := response.Choices[0].Message.FunctionCall
 	if functionCall == nil {
 		return "", &errors.LlmError{Message: "Function call is nil"}
 	}
+
 	var parsedArguments map[string]interface{}
 	err = json.Unmarshal([]byte(functionCall.Arguments), &parsedArguments)
 	if err != nil {
 		return "", err
 	}
+
 	code, ok := parsedArguments["code"].(string)
 	if !ok {
 		return "", &errors.LlmError{Message: "Code is not a string"}
 	}
+
 	return strings.TrimSpace(code), nil
+}
+
+func (o *OpenaiGpt4) callApi(llmMessages []*LlmMessage) (openai.ChatCompletionResponse, error) {
+	var response openai.ChatCompletionResponse
+	var err error
+
+	for i := 0; i < 2; i++ {
+		ctx, cancel := context.WithTimeout(
+			context.Background(),
+			time.Duration(constants.LlmTimeoutDurationSeconds)*time.Second,
+		)
+		defer cancel()
+
+		response, err = o.client.CreateChatCompletion(
+			ctx,
+			o.getChatCompletionRequest(llmMessages),
+		)
+		if err == nil {
+			return response, err
+		}
+	}
+
+	return response, err
 }
 
 func getClient(llmConfig commonTypes.LlmConfig) *openai.Client {
