@@ -13,6 +13,63 @@ Salami is a declarative domain-specific language for cloud infrastructure based 
 **[Short demo video](https://youtu.be/ej629E0WOIY)** |
 **[Release blog post](https://www.petrgazarov.com/posts/infrastructure-as-natural-language)**
 
+## 🚀 Getting Started
+
+### Installation
+
+Homebrew (Mac OS, Linux):
+
+```bash
+brew tap petrgazarov/salami
+brew install salami
+```
+
+Manual:
+
+Download the latest binaries for Mac OS, Linux and Windows from the [releases page](https://github.com/petrgazarov/salami/releases).
+
+### Config
+
+The root of your project should contain a `salami.yaml` config file.
+
+Example:
+
+```yaml
+compiler:
+  target:
+    platform: terraform
+  llm:
+    provider: openai
+    model: gpt4
+    api_key: ${OPENAI_API_KEY}
+  source_dir: salami
+  target_dir: terraform
+```
+
+| Configuration Setting       | Description                                                                   | Required |
+| --------------------------- | ----------------------------------------------------------------------------- | -------- |
+| compiler.target.platform    | Platform to target. Only `terraform` value is currently supported.            | Yes      |
+| compiler.llm.provider       | Provider for the LLM. Only `openai` value is currently supported.             | Yes      |
+| compiler.llm.model          | Model used by the provider. Only `gpt4` value is currently supported.         | Yes      |
+| compiler.llm.api_key        | OpenAI API key. To set it to an env variable, use the `${ENV_VAR}` delimeter. | Yes      |
+| compiler.llm.max_concurrent | Maximum number of concurrent API calls to OpenAI API. Default is 5.           | No       |
+| compiler.source_dir         | The directory where your Salami files are located.                            | Yes      |
+| compiler.target_dir         | The directory where the Terraform files should be written.                    | Yes      |
+
+### Usage
+
+From the root of your project, run:
+
+```bash
+salami compile
+```
+
+For verbose output, run:
+
+```bash
+salami -v compile
+```
+
 ## 🎨 Design
 
 ### Constructs
@@ -47,58 +104,19 @@ For more examples, see the `examples` directory. Each example has a README file 
 
 **@variable**
 
-| Position | Argument      | Type   | Required? | Examples                             |
-| -------- | ------------- | ------ | --------- | ------------------------------------ |
-| 1        | name          | string | Yes       | `container_port`, `logs_bucket_name` |
-| 2        | variable type | string | Yes       | `string`, `number`, `boolean`        |
-| 3        | default       | any    | No        | `8080`, `logs_bucket_1fdretbnHUdfn`  |
+| Position | Argument      | Type   | Required | Examples                             |
+| -------- | ------------- | ------ | -------- | ------------------------------------ |
+| 1        | name          | string | Yes      | `container_port`, `logs_bucket_name` |
+| 2        | variable type | string | Yes      | `string`, `number`, `boolean`        |
+| 3        | default       | any    | No       | `8080`, `logs_bucket_1fdretbnHUdfn`  |
 
 ### Lock file
 
-Salami compiler generates a lock file that includes parsed Salami objects and the resulting Terraform code. The lock file is used to determine which Salami objects have changed since the last compilation. Unchanged objects are not sent to LLM, which makes the compilation process much faster.
+The compiler generates a lock file that includes parsed Salami objects and the resulting Terraform code. It is used to determine which objects have changed since the last compilation. Unchanged objects are not sent to LLM, which makes the compilation process much faster.
 
 ### File extension
 
 `.sami` is the extension for Salami files.
-
-## 🚀 Getting Started
-
-### Installation
-
-Homebrew (Mac OS, Linux):
-
-```bash
-brew tap petrgazarov/salami
-brew install salami
-```
-
-Manual:
-
-Download the latest binaries for Mac OS, Linux and Windows from the [releases page](https://github.com/petrgazarov/salami/releases).
-
-### Usage
-
-From the root of your project, run:
-
-```bash
-salami compile
-```
-
-The root of your project should contain the `salami.yaml` config file with the following structure:
-
-```yaml
-compiler:
-  target:
-    platform: terraform
-  llm:
-    provider: openai
-    model: gpt4
-    api_key: ${OPENAI_API_KEY}
-  source_dir: salami
-  target_dir: terraform
-```
-
-Set `compiler.source_dir` to the directory where your Salami files are, and `compiler.target_dir` to the directory where the Terraform files should be written. The config file supports environment variables, which is useful to avoid storing secrets in version control. To inject an env variable at runtime, use the `${ENV_VAR}` delimeter. Use `compiler.llm.max_concurrent` config to control how many concurrent API calls are made to OpenAI API. The default is 5.
 
 ## ✅ VS Code Extension
 
@@ -106,4 +124,4 @@ It's recommended to install the [Salami VS Code extension](https://marketplace.v
 
 ## 😍 Contributing
 
-Contributions are welcome! If your contribution is non-trivial, please open an issue first to discuss the proposed changes.
+Contributions are welcome! For non-trivial contributions, please open an issue first to discuss the proposed changes.
