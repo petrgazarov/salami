@@ -75,6 +75,7 @@ jobs:
 
   update-chocolatey:
     name: Update Chocolatey Package
+    if: false
 
     runs-on: windows-latest
 
